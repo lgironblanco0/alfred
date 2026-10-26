@@ -12,6 +12,7 @@
     "dev:web": "npm --prefix web run dev",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "db:backup": "node scripts/backup-db.mjs",
     "postinstall": "prisma skills sync || exit 0"
   },
   "prisma": {

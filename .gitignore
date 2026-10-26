@@ -22,3 +22,6 @@ prisma/backups/
 *.log
 .DS_Store
 coverage/
+
+# Metadatos de TypeScript
+*.tsbuildinfo
