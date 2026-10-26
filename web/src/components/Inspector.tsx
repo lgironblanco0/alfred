@@ -156,7 +156,7 @@ export function Inspector({
         </header>
 
         <div className="border-b border-line px-5 py-3">
-          <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
             <SeatMap
               compact
               pax={servicio?.pax ?? mesa.capacidad}
@@ -227,7 +227,7 @@ export function Inspector({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="grid min-h-full grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
+          <div className="grid min-h-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             {/* Comanda de la mesa */}
             <section className="border-r border-line">
               <div className="border-b border-line px-5 py-4">
@@ -490,7 +490,7 @@ function SeatMap({
         <p className="text-[11px] text-subtle">Toca un asiento para apuntar</p>
       </div>
 
-      <div className={`relative mx-auto w-full max-w-[400px] ${compact ? "h-[140px]" : "h-[200px]"}`}>
+      <div className={`relative mx-auto w-full max-w-[400px] ${compact ? "h-[120px]" : "h-[200px]"}`}>
         <div className="absolute left-1/2 top-1/2 flex h-[40%] w-[46%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-[22px] border border-line bg-canvas px-2 text-center">
           <p className="text-[10px] uppercase tracking-[0.16em] text-mute">Mesa</p>
           <p className="truncate text-[19px] font-semibold tracking-tight">{mesaLabel}</p>
