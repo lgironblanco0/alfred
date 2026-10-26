@@ -1,0 +1,24 @@
+# Dependencias
+node_modules/
+web/node_modules/
+
+# Builds
+dist/
+web/dist/
+.vite/
+web/.vite/
+
+# Base de datos y copias
+prisma/dev.db
+prisma/dev.db-journal
+prisma/backups/
+*.db
+
+# Entorno
+.env
+.env.*
+
+#Logs y temporales
+*.log
+.DS_Store
+coverage/

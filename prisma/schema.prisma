@@ -1,0 +1,137 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Usuario {
+  id           Int              @id @default(autoincrement())
+  nombre       String
+  email        String           @unique
+  passwordHash String
+  rol          String           @default("CAMARERO")
+  activo       Boolean          @default(true)
+  createdAt    DateTime         @default(now())
+  eventos      EventoServicio[]
+}
+
+model Mesa {
+  id          Int            @id @default(autoincrement())
+  numeroMesa  Int
+  capacidad   Int
+  tipo        String         @default("CUADRADA")
+  zona        String         @default("RESTAURANTE")
+  clase       String         @default("MESA")
+  layoutOrder Int            @default(0)
+  reservas    Reserva[]
+  servicios   ServicioMesa[]
+  lineas      LineaPedido[]
+
+  @@unique([zona, clase, numeroMesa])
+}
+
+model Reserva {
+  id               Int              @id @default(autoincrement())
+  clienteNombre    String
+  clienteTelefono  String
+  mesaId           Int?
+  mesa             Mesa?            @relation(fields: [mesaId], references: [id])
+  fechaHora        DateTime
+  numPersonas      Int
+  estado           String           @default("PENDIENTE")
+  aceptaPolitica   Boolean          @default(true)
+  asientosComandas AsientoComanda[]
+  createdAt        DateTime         @default(now())
+}
+
+model Producto {
+  id               Int              @id @default(autoincrement())
+  nombre           String
+  precio           Int
+  destino          String
+  activo           Boolean          @default(true)
+  categoria        String
+  asientosComandas AsientoComanda[]
+  lineas           LineaPedido[]
+}
+
+model AsientoComanda {
+  id             Int      @id @default(autoincrement())
+  reservaId      Int
+  reserva        Reserva  @relation(fields: [reservaId], references: [id])
+  numeroAsiento  Int
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+  precioUnitario Int
+  notas          String?
+  estado         String   @default("PENDIENTE")
+  createdAt      DateTime @default(now())
+}
+
+model Servicio {
+  id              Int              @id @default(autoincrement())
+  estado          String           @default("ABIERTA")
+  pax             Int
+  origen          String           @default("WALK_IN")
+  modoAsientos    String           @default("POR_ASIENTO")
+  openedAt        DateTime         @default(now())
+  closedAt        DateTime?
+  descuentoCodigo String?
+  descuentoTipo   String?
+  descuentoValor  Int?
+  splitModo       String           @default("NINGUNO")
+  mesas           ServicioMesa[]
+  lineas          LineaPedido[]
+  eventos         EventoServicio[]
+}
+
+model ServicioMesa {
+  servicioId Int
+  mesaId     Int
+  servicio   Servicio @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  mesa       Mesa     @relation(fields: [mesaId], references: [id])
+
+  @@id([servicioId, mesaId])
+}
+
+model LineaPedido {
+  id              Int       @id @default(autoincrement())
+  servicioId      Int
+  servicio        Servicio  @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  productoId      Int
+  producto        Producto  @relation(fields: [productoId], references: [id])
+  mesaId          Int?
+  mesa            Mesa?     @relation(fields: [mesaId], references: [id])
+  cantidad        Int       @default(1)
+  numeroAsiento   Int?
+  esCompartido    Boolean   @default(false)
+  estado          String    @default("PENDIENTE")
+  motivoAnulacion String?
+  notas           String?
+  precioUnitario  Int
+  createdAt       DateTime  @default(now())
+  calledAt        DateTime?
+}
+
+model PromoCodigo {
+  codigo String  @id
+  tipo   String
+  valor  Int
+  activo Boolean @default(true)
+}
+
+model EventoServicio {
+  id         Int      @id @default(autoincrement())
+  servicioId Int
+  servicio   Servicio @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  tipo       String
+  detalle    String
+  actorId    Int?
+  actor      Usuario? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt  DateTime @default(now())
+
+  @@index([actorId])
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#080807" />
+  <circle cx="32" cy="32" r="25" fill="none" stroke="#bd9560" stroke-width="1.5" />
+  <text
+    x="32"
+    y="43"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="32"
+    font-weight="400"
+    fill="#bd9560"
+  >N</text>
+</svg>
