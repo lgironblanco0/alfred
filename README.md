@@ -214,4 +214,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `spec.md`: especificación funcional, dominio, API y criterios de aceptación.
 - `plan.md`: plan de construcción, fases y decisiones de arquitectura.
 - `docs/TEORIA-ALFRED.md`: teoría del proyecto explicada para aprender.
+- `docs/TRAZABILIDAD.md`: matriz requisito → implementación → prueba → estado.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.
