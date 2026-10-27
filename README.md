@@ -233,4 +233,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/ERRORES-Y-VALIDACION.md`: contrato de error y reglas de validación de la API.
 - `docs/PERMISOS.md`: matriz de permisos por rol y protección de escrituras.
 - `docs/AUDITORIA.md`: eventos por acción, contrato del actor y limitaciones.
+- `docs/EMPLEADOS.md`: códigos individuales, plantilla y migración.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

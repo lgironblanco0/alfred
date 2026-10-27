@@ -22,7 +22,7 @@ function findUsuarioPorCodigo(codigo: string) {
   if (codigo.includes("@")) {
     return prisma.usuario.findUnique({ where: { email: codigo } });
   }
-  return prisma.usuario.findFirst({ where: { email: { startsWith: `${codigo}@` } } });
+  return prisma.usuario.findUnique({ where: { codigo } });
 }
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
@@ -58,12 +58,14 @@ function recordLoginFailure(key: string): void {
 
 function publicUser(usuario: {
   id: number;
+  codigo: string;
   nombre: string;
   email: string;
   rol: string;
 }) {
   return {
     id: usuario.id,
+    codigo: usuario.codigo,
     nombre: usuario.nombre,
     email: usuario.email,
     rol: usuario.rol,

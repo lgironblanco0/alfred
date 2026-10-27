@@ -24,7 +24,16 @@ const idParams = z.object({
   id: z.coerce.number().int().positive("El identificador debe ser positivo"),
 });
 
+const codigoSchema = z
+  .string()
+  .trim()
+  .min(1, "El código es obligatorio")
+  .max(20, "El código es demasiado largo")
+  .regex(/^[A-Za-z0-9_-]+$/, "El código solo admite letras, números, guion y guion bajo")
+  .transform((value) => value.toLowerCase());
+
 const createBody = z.object({
+  codigo: codigoSchema,
   nombre: z.string().trim().min(2, "El nombre es demasiado corto").max(100, "El nombre es demasiado largo"),
   email: emailSchema,
   password: passwordSchema,
@@ -33,6 +42,7 @@ const createBody = z.object({
 
 const updateBody = z
   .object({
+    codigo: codigoSchema.optional(),
     nombre: z.string().trim().min(2, "El nombre es demasiado corto").max(100, "El nombre es demasiado largo").optional(),
     rol: rolSchema.optional(),
     activo: z.boolean().optional(),
@@ -47,12 +57,25 @@ const passwordBody = z.object({
 
 const publicUserSelect = {
   id: true,
+  codigo: true,
   nombre: true,
   email: true,
   rol: true,
   activo: true,
   createdAt: true,
 } as const;
+
+function conflictFromUnique(error: unknown) {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002") {
+    return null;
+  }
+
+  const target = String((error.meta as { target?: unknown } | undefined)?.target ?? "");
+
+  return target.includes("codigo")
+    ? new HttpError(409, "Ese código ya está en uso", { code: "CODE_IN_USE" })
+    : new HttpError(409, "Ese email ya está registrado", { code: "EMAIL_IN_USE" });
+}
 
 async function findUserOrFail(id: number) {
   const usuario = await prisma.usuario.findUnique({ where: { id } });
@@ -106,6 +129,7 @@ usuariosRouter.post(
     try {
       const usuario = await prisma.usuario.create({
         data: {
+          codigo: input.codigo,
           nombre: input.nombre,
           email: input.email,
           passwordHash: await hashPassword(input.password),
@@ -116,10 +140,7 @@ usuariosRouter.post(
 
       response.status(201).json({ usuario });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-        throw new HttpError(409, "Ese email ya está registrado", { code: "EMAIL_IN_USE" });
-      }
-      throw error;
+      throw conflictFromUnique(error) ?? error;
     }
   }),
 );
@@ -133,17 +154,22 @@ usuariosRouter.patch(
 
     await assertManagerRemains(target, input.rol, input.activo);
 
-    const usuario = await prisma.usuario.update({
-      where: { id },
-      data: {
-        nombre: input.nombre,
-        rol: input.rol,
-        activo: input.activo,
-      },
-      select: publicUserSelect,
-    });
+    try {
+      const usuario = await prisma.usuario.update({
+        where: { id },
+        data: {
+          codigo: input.codigo,
+          nombre: input.nombre,
+          rol: input.rol,
+          activo: input.activo,
+        },
+        select: publicUserSelect,
+      });
 
-    response.json({ usuario });
+      response.json({ usuario });
+    } catch (error) {
+      throw conflictFromUnique(error) ?? error;
+    }
   }),
 );
 

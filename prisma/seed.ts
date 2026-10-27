@@ -63,6 +63,11 @@ const empleados = [
   { codigo: "0", nombre: "Gerente", rol: "GERENTE" },
   { codigo: "1", nombre: "Responsable", rol: "ENCARGADO" },
   { codigo: "2", nombre: "Camareros", rol: "CAMARERO" },
+  { codigo: "3", nombre: "Lucía Ferrer", rol: "GERENTE" },
+  { codigo: "4", nombre: "Marcos Peña", rol: "ENCARGADO" },
+  { codigo: "5", nombre: "Ana Ruiz", rol: "CAMARERO" },
+  { codigo: "6", nombre: "Diego Salas", rol: "CAMARERO" },
+  { codigo: "7", nombre: "Nora Vidal", rol: "CAMARERO" },
 ] as const;
 
 async function main(): Promise<void> {
@@ -125,13 +130,14 @@ async function main(): Promise<void> {
     if (existing) {
       await prisma.usuario.update({
         where: { id: existing.id },
-        data: { nombre: empleado.nombre, rol: empleado.rol, activo: true },
+        data: { codigo: empleado.codigo, nombre: empleado.nombre, rol: empleado.rol, activo: true },
       });
       continue;
     }
 
     await prisma.usuario.create({
       data: {
+        codigo: empleado.codigo,
         nombre: empleado.nombre,
         email,
         passwordHash: await hashPassword(`ALFRED-EMPLEADO-${empleado.codigo}`),

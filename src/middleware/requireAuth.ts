@@ -6,6 +6,7 @@ import { HttpError } from "../errors";
 
 const USUARIO_SELECT = {
   id: true,
+  codigo: true,
   nombre: true,
   email: true,
   rol: true,

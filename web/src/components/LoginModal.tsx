@@ -53,11 +53,11 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
           value={codigo}
           onChange={(event) => setCodigo(event.target.value)}
           className="mt-2 w-full rounded-2xl border border-line bg-canvas px-4 py-3 text-[15px]"
-          placeholder="0, 1 o 2"
+          placeholder="Tu código de empleado"
         />
         <p className="mt-2 text-[12px] text-subtle">
           <span className="text-soft">0</span> Gerente · <span className="text-soft">1</span> Responsable ·{" "}
-          <span className="text-soft">2</span> Camareros
+          <span className="text-soft">2</span> Camareros · <span className="text-soft">3–7</span> Equipo
         </p>
 
         {error ? <p className="mt-3 text-[13px] text-alert">{error}</p> : null}

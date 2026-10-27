@@ -33,7 +33,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | Fase | Nombre | Estado |
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
-| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1–1.4 ✅) |
+| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1–1.5 ✅) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
@@ -60,6 +60,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | 354e440 | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
 | 2026-10-27 | 1.3 Proteger rutas de escritura | ✅ Hecho | c75b56c | Matriz de permisos, `requireAuth` en 12 rutas, login obligatorio en frontend; 52/52 pruebas |
 | 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | a759c4a | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
+| 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | Pendiente de commit | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
 
 ---
 
@@ -304,6 +305,8 @@ Verificación: el histórico permite reconstruir quién hizo qué.
 
 ### Bloque 1.5 — Código individual por empleado
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 62/62 pruebas
+
 **Teoría:** un identificador compartido no permite atribuir acciones. Un código único por empleado sí.
 
 Tareas:
@@ -312,6 +315,16 @@ Tareas:
 - Alta/baja de empleados y asignación de código.
 - Login por código único.
 - Mantener compatibilidad con los códigos 0/1/2 solo como datos iniciales.
+
+Resultado:
+- `Usuario.codigo` obligatorio y único; migración `20261027201000_usuario_codigo` que reconstruye la tabla y deriva el código del email.
+- Copia previa: `prisma/backups/dev-20261027-200648.db`.
+- Seed con ocho empleados: `0`, `1`, `2` históricos + `3`–`7` individuales (un gerente, un encargado y tres camareros).
+- Login por `codigo` con fallback a email; `codigo` incluido en `/api/auth/login` y `/api/usuarios`.
+- Alta/edición de empleados con `codigo`; `409 CODE_IN_USE` y `409 EMAIL_IN_USE`.
+- Seis pruebas nuevas en `tests/authz.test.ts`; documento `docs/EMPLEADOS.md`.
+
+Deuda registrada: los códigos `0`/`1`/`2` siguen siendo genéricos y el `2` es compartido (retirarlos queda para la fase 4). El PIN obligatorio por empleado se aborda en 1.6.
 
 Verificación: dos camareros tienen códigos distintos y la auditoría los diferencia.
 

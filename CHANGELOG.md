@@ -15,6 +15,8 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Empleados con código individual (`docs/EMPLEADOS.md`): cinco altas nuevas (un gerente, un encargado y tres camareros) y login por código único.
+- 6 pruebas de códigos individuales en `tests/authz.test.ts`.
 - Auditoría del actor (`docs/AUDITORIA.md`): eventos `PEDIDO`, `LISTO` y `SPLIT`, y `actor` en el contrato de lectura.
 - Historial de movimientos visible en la cuenta del servicio, con hora y nombre del empleado.
 - 4 pruebas unitarias de serialización (`tests/serialize.test.ts`).
@@ -35,7 +37,8 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Verified
 
-- `npm run verify` en verde: **56/56 pruebas**.
+- `npm run verify` en verde: **62/62 pruebas**.
+- Migración `20261027201000_usuario_codigo` aplicada con copia previa de la base de datos.
 
 ---
 

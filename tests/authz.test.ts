@@ -162,3 +162,106 @@ describe("rutas que siguen abiertas", () => {
     assert.ok(payload.mesas.length > 0);
   });
 });
+
+async function loginPayload(codigo: string) {
+  const response = await fetch(`${baseUrl}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ codigo }),
+  });
+
+  return {
+    status: response.status,
+    body: (await response.json()) as {
+      token?: string;
+      usuario?: { codigo: string; rol: string; nombre: string };
+    },
+  };
+}
+
+describe("códigos individuales de empleado", () => {
+  it("permite entrar con un código nuevo y devuelve su rol", async () => {
+    const { status, body } = await loginPayload("3");
+
+    assert.equal(status, 200);
+    assert.equal(body.usuario?.codigo, "3");
+    assert.equal(body.usuario?.rol, "GERENTE");
+    assert.ok(body.token);
+  });
+
+  it("mantiene operativos los códigos históricos 0, 1 y 2", async () => {
+    for (const codigo of ["0", "1", "2"]) {
+      const { status, body } = await loginPayload(codigo);
+      assert.equal(status, 200, `el código ${codigo} debe seguir funcionando`);
+      assert.equal(body.usuario?.codigo, codigo);
+    }
+  });
+
+  it("distingue a dos camareros por su código", async () => {
+    const ana = await loginPayload("5");
+    const diego = await loginPayload("6");
+
+    assert.equal(ana.body.usuario?.rol, "CAMARERO");
+    assert.equal(diego.body.usuario?.rol, "CAMARERO");
+    assert.notEqual(ana.body.usuario?.nombre, diego.body.usuario?.nombre);
+  });
+
+  it("exige código al dar de alta un empleado", async () => {
+    const tokenGerente = await login(baseUrl, "3");
+    const response = await fetch(`${baseUrl}/api/usuarios`, {
+      method: "POST",
+      headers: authHeaders(tokenGerente),
+      body: JSON.stringify({
+        nombre: "Prueba",
+        email: "prueba@alfred.local",
+        password: "contrasena-larga",
+        rol: "CAMARERO",
+      }),
+    });
+
+    const payload = (await response.json()) as {
+      code: string;
+      details?: Array<{ path: string }>;
+    };
+
+    assert.equal(response.status, 400);
+    assert.equal(payload.code, "VALIDATION_ERROR");
+    assert.ok(payload.details?.some((issue) => issue.path === "codigo"));
+  });
+
+  it("rechaza un código con formato no permitido", async () => {
+    const tokenGerente = await login(baseUrl, "3");
+    const response = await fetch(`${baseUrl}/api/usuarios`, {
+      method: "POST",
+      headers: authHeaders(tokenGerente),
+      body: JSON.stringify({
+        codigo: "con espacios",
+        nombre: "Prueba",
+        email: "prueba@alfred.local",
+        password: "contrasena-larga",
+        rol: "CAMARERO",
+      }),
+    });
+
+    assert.equal(response.status, 400);
+    assert.equal(((await response.json()) as { code: string }).code, "VALIDATION_ERROR");
+  });
+
+  it("no permite repetir un código existente", async () => {
+    const tokenGerente = await login(baseUrl, "3");
+    const response = await fetch(`${baseUrl}/api/usuarios`, {
+      method: "POST",
+      headers: authHeaders(tokenGerente),
+      body: JSON.stringify({
+        codigo: "3",
+        nombre: "Clon",
+        email: "clon@alfred.local",
+        password: "contrasena-larga",
+        rol: "CAMARERO",
+      }),
+    });
+
+    assert.equal(response.status, 409);
+    assert.equal(((await response.json()) as { code: string }).code, "CODE_IN_USE");
+  });
+});
