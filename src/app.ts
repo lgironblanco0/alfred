@@ -7,6 +7,7 @@ import { notFound } from "./middleware/notFound";
 import { requestId } from "./middleware/requestId";
 import { requestLogger } from "./middleware/requestLogger";
 import { requireAuth, requireRole } from "./middleware/requireAuth";
+import { securityHeaders } from "./middleware/securityHeaders";
 import { authRouter } from "./routes/auth";
 import { salaRouter } from "./routes/sala";
 import { usuariosRouter } from "./routes/usuarios";
@@ -27,6 +28,7 @@ const corsOptions: CorsOptions =
 app.disable("x-powered-by");
 app.use(requestId);
 app.use(requestLogger);
+app.use(securityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: "100kb" }));
 

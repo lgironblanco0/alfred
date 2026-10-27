@@ -234,4 +234,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/PERMISOS.md`: matriz de permisos por rol y protección de escrituras.
 - `docs/AUDITORIA.md`: eventos por acción, contrato del actor y limitaciones.
 - `docs/EMPLEADOS.md`: códigos individuales, plantilla y migración.
+- `docs/SESION.md`: caducidad, límite de intentos, logout y cabeceras de seguridad.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

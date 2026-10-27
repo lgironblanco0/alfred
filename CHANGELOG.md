@@ -15,6 +15,8 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Sesión endurecida (`docs/SESION.md`): limitador de intentos con reloj inyectable, cabeceras de seguridad, `no-store` en autenticación y revocación al desactivar a un empleado.
+- 13 pruebas nuevas de sesión y limitador (`tests/session.test.ts`, `tests/login-throttle.test.ts`).
 - Empleados con código individual (`docs/EMPLEADOS.md`): cinco altas nuevas (un gerente, un encargado y tres camareros) y login por código único.
 - 6 pruebas de códigos individuales en `tests/authz.test.ts`.
 - Auditoría del actor (`docs/AUDITORIA.md`): eventos `PEDIDO`, `LISTO` y `SPLIT`, y `actor` en el contrato de lectura.
@@ -37,7 +39,7 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Verified
 
-- `npm run verify` en verde: **62/62 pruebas**.
+- `npm run verify` en verde: **75/75 pruebas**.
 - Migración `20261027201000_usuario_codigo` aplicada con copia previa de la base de datos.
 
 ---

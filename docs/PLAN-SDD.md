@@ -33,7 +33,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | Fase | Nombre | Estado |
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
-| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1–1.5 ✅) |
+| 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
@@ -61,6 +61,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.3 Proteger rutas de escritura | ✅ Hecho | c75b56c | Matriz de permisos, `requireAuth` en 12 rutas, login obligatorio en frontend; 52/52 pruebas |
 | 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | a759c4a | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
 | 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | b81ef7a | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
+| 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | Pendiente de commit | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
 
 ---
 
@@ -330,14 +331,30 @@ Verificación: dos camareros tienen códigos distintos y la auditoría los difer
 
 ### Bloque 1.6 — Endurecimiento de sesión
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 75/75 pruebas
+
 Tareas:
 - Caducidad, logout y límite de intentos.
 - Decidir si se añade PIN.
 - Revisar CORS, cabeceras de seguridad y tamaño de cuerpo.
 
+Resultado:
+- `LoginThrottle` con reloj inyectable: cinco fallos por `ip + código` cada 15 minutos, `429 TOO_MANY_ATTEMPTS`, reinicio al acertar y limpieza de claves caducadas.
+- Cabeceras de seguridad propias (`nosniff`, `DENY`, `Referrer-Policy`, `Permissions-Policy`, CSP, HSTS en producción) y `Cache-Control: no-store` en `/api/auth`.
+- Revocación real probada: desactivar a un empleado invalida su token en la siguiente petición.
+- Frontend: logout y token caducado devuelven al modal de login.
+- Decisiones: S-1 (logout del cliente + revocación por desactivación), S-2 (sin PIN en 1.6), S-3 (clave `ip + código`), S-4 (cabeceras propias), S-5 (CORS cerrado en producción).
+- 13 pruebas nuevas; documento `docs/SESION.md`.
+
+Deuda registrada: no hay revocación de un token concreto sin desactivar al empleado (fase 4); el PIN por empleado también queda para fase 4; `trust proxy` debe configurarse al desplegar detrás de un proxy para que el límite use la IP real.
+
 Verificación: pruebas de sesión expirada, código inválido y bloqueo temporal.
 
-**Puerta de fase 1:** todas las escrituras protegidas, actor auditado y códigos individuales.
+**Puerta de fase 1:** ✅ Cerrada el 2026-10-27.
+- Todas las escrituras del salón exigen token (1.3).
+- Todo evento guarda `actorId` y la API devuelve el actor (1.4).
+- Cada empleado nuevo tiene código único y el login lo usa (1.5).
+- Sesión con caducidad, límite de intentos y revocación probada (1.6).
 
 ---
 

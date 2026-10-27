@@ -1,6 +1,6 @@
 import { Router } from "express";
-import type { Request } from "express";
 import { z } from "zod";
+import { loginThrottle } from "../auth/loginThrottle";
 import { signToken } from "../auth/tokens";
 import { asyncRoute } from "../asyncRoute";
 import { config } from "../config";
@@ -25,35 +25,8 @@ function findUsuarioPorCodigo(codigo: string) {
   return prisma.usuario.findUnique({ where: { codigo } });
 }
 
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const LOGIN_MAX_ATTEMPTS = 5;
-const attempts = new Map<string, { count: number; resetAt: number }>();
-
-function loginKey(request: Request, codigo: string): string {
+function loginKey(request: { ip?: string }, codigo: string): string {
   return `${request.ip ?? "desconocida"}:${codigo}`;
-}
-
-function assertLoginAllowed(key: string): void {
-  const now = Date.now();
-  const current = attempts.get(key);
-
-  if (!current || current.resetAt <= now) {
-    attempts.set(key, { count: 0, resetAt: now + LOGIN_WINDOW_MS });
-    return;
-  }
-
-  if (current.count >= LOGIN_MAX_ATTEMPTS) {
-    throw new HttpError(429, "Demasiados intentos de acceso. Espera unos minutos.", {
-      code: "TOO_MANY_ATTEMPTS",
-    });
-  }
-}
-
-function recordLoginFailure(key: string): void {
-  const current = attempts.get(key);
-  if (current) {
-    current.count += 1;
-  }
 }
 
 function publicUser(usuario: {
@@ -80,18 +53,22 @@ authRouter.post(
     const input = parseInput(loginBody, request.body);
     const key = loginKey(request, input.codigo);
 
-    assertLoginAllowed(key);
+    if (loginThrottle.size() > 500) {
+      loginThrottle.prune();
+    }
+
+    loginThrottle.assertAllowed(key);
 
     const usuario = await findUsuarioPorCodigo(input.codigo);
 
     if (!usuario || !usuario.activo) {
-      recordLoginFailure(key);
+      loginThrottle.recordFailure(key);
       throw new HttpError(401, "Código de empleado no válido", {
         code: "INVALID_CREDENTIALS",
       });
     }
 
-    attempts.delete(key);
+    loginThrottle.reset(key);
 
     response.json({
       token: signToken(usuario.id),

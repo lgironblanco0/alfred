@@ -46,6 +46,7 @@ export function App() {
       .catch(() => {
         clearToken();
         setUsuario(null);
+        setLoginOpen(true);
       });
   }, []);
 
@@ -154,6 +155,7 @@ export function App() {
                   onClick={() => {
                     clearToken();
                     setUsuario(null);
+                    setLoginOpen(true);
                   }}
                   className="mt-3 w-full rounded-full bg-white/5 px-4 py-2 text-left text-[13px] text-soft hover:bg-white/10"
                 >
