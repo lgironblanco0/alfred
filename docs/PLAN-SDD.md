@@ -52,7 +52,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | Fecha | Bloque | Resultado | Commit | Notas |
 |---|---|---|---|---|
 | 2026-10-27 | 0.1 Línea base verificable | ✅ Hecho | e5de120 | Versiones alineadas a 0.1.0, README, `.env.example`, clean-room correcto; retiradas dos dependencias nativas sin uso |
-| 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | Pendiente de commit | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
+| 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | 64c8f2e | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
 
 ---
 
@@ -142,7 +142,7 @@ Verificación: alguien distinto puede arrancar el proyecto siguiendo solo la doc
 
 ### Bloque 0.2 - Matriz de trazabilidad
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: 163 filas y 0 requisitos sin estado
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: 64c8f2e · Verificación: 163 filas y 0 requisitos sin estado
 
 **Teoría:** trazabilidad es poder responder "¿dónde está implementado y probado este requisito?".
 
