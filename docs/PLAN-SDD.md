@@ -54,7 +54,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.1 Línea base verificable | ✅ Hecho | e5de120 | Versiones alineadas a 0.1.0, README, `.env.example`, clean-room correcto; retiradas dos dependencias nativas sin uso |
 | 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | 64c8f2e | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
 | 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | 34ce9dc | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
-| 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | Pendiente de commit | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
+| 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
 
 ---
 
@@ -168,7 +168,7 @@ Verificación: el siguiente bloque se planifica usando la plantilla.
 
 ### Bloque 0.4 - Estrategia de pruebas
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: documento con niveles, base desechable, fixtures y prioridades
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: 91820c9 · Verificación: documento con niveles, base desechable, fixtures y prioridades
 
 **Teoría:** pirámide de pruebas: muchas unitarias, algunas de integración, pocas de extremo a extremo.
 
