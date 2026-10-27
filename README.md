@@ -6,7 +6,7 @@ Aplicación de gestión para hostelería: salón, comandas por asiento, Cocina, 
 - **Frontend:** React + Vite + TypeScript + Tailwind CSS.
 - **Acceso:** por código de empleado (`0` Gerente, `1` Encargado, `2` Camareros).
 
-Esta es la versión `0.1.0`: el MVP funcional del salón, no una versión de producción.
+Esta es la versión `0.2.0`: el MVP funcional del salón más la fundación SDD. No es una versión de producción.
 
 ---
 
