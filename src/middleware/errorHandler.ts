@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler } from "express";
+import { config } from "../config";
 import { HttpError } from "../errors";
 import { log } from "../logger";
 
@@ -9,6 +10,32 @@ interface BodyParserError {
 
 function isBodyParserError(error: unknown): error is BodyParserError {
   return typeof error === "object" && error !== null && "type" in error;
+}
+
+/**
+ * Campos del log de un error no previsto.
+ *
+ * La pila solo se incluye fuera de producción: en producción puede revelar
+ * rutas internas o detalles de la base. El cliente nunca la recibe.
+ */
+export function errorLogFields(
+  error: unknown,
+  includeStack: boolean,
+  requestId?: unknown,
+): Record<string, unknown> {
+  const fields: Record<string, unknown> = {
+    requestId,
+    error: error instanceof Error ? error.message : "Error desconocido",
+  };
+
+  if (error instanceof Error) {
+    fields.errorName = error.name;
+    if (includeStack) {
+      fields.stack = error.stack;
+    }
+  }
+
+  return fields;
 }
 
 export const errorHandler: ErrorRequestHandler = (error, _request, response, next) => {
@@ -54,10 +81,7 @@ export const errorHandler: ErrorRequestHandler = (error, _request, response, nex
     }
   }
 
-  log("error", "unhandled_error", {
-    requestId,
-    error: error instanceof Error ? error.message : "Error desconocido",
-  });
+  log("error", "unhandled_error", errorLogFields(error, !config.isProduction, requestId));
 
   response.status(500).json({
     code: "INTERNAL_ERROR",

@@ -36,7 +36,7 @@ Si el backend cambia un nombre de campo sin avisar, el frontend se rompe en sile
 | Identificador de petición | Cabecera `X-Request-Id` (se genera si no viene) |
 
 **Decisión C-1 — El contrato se escribe en Markdown, sin OpenAPI en este bloque.**
-La superficie es pequeña (20 rutas) y el equipo es de dos personas. Un `openapi.yaml` duplicaría la información y se desincronizaría igual que este documento; lo que evita la deriva son las pruebas. OpenAPI entrará si aparece un cliente externo o se genera documentación interactiva (fase 11).
+La superficie es pequeña (21 rutas) y el equipo es de dos personas. Un `openapi.yaml` duplicaría la información y se desincronizaría igual que este documento; lo que evita la deriva son las pruebas. OpenAPI entrará si aparece un cliente externo o se genera documentación interactiva (fase 11).
 
 **Decisión C-2 — Las pruebas fijan el conjunto exacto de campos.**
 No basta con comprobar que `id` existe: se compara la lista ordenada de claves. Así, añadir o quitar un campo obliga a actualizar el contrato y la prueba en el mismo commit.
@@ -95,6 +95,7 @@ Leyenda de permisos: **Público** · **Autenticado** (cualquier rol) · **Gerent
 | Método | Ruta | Permiso | Éxito | Respuesta |
 |---|---|---|---|---|
 | GET | `/health` | Público | 200 | `{ status: "ok" }` |
+| GET | `/ready` | Público | 200 · 503 | `{ status, checks: { database } }` |
 | POST | `/api/auth/login` | Público | 200 | `{ token, expiresIn, usuario }` |
 | GET | `/api/auth/me` | Autenticado | 200 | `{ usuario }` |
 | GET | `/api/sala` | Público | 200 | `{ mesas, productos, promos }` |
@@ -267,6 +268,24 @@ Errores: `400 VALIDATION_ERROR`, `401 INVALID_CREDENTIALS`, `429 TOO_MANY_ATTEMP
 ### GET `/api/auth/me`
 
 Sin cuerpo. Salida `200`: `{ "usuario": Usuario }`. Errores: `401 UNAUTHORIZED`, `401 INVALID_TOKEN`.
+
+### GET `/ready`
+
+Sin cuerpo. Comprueba la base de datos con `SELECT 1`.
+
+Salida `200`:
+
+```json
+{ "status": "ready", "checks": { "database": "ok" } }
+```
+
+Si la base no responde, salida `503`:
+
+```json
+{ "status": "unavailable", "checks": { "database": "error" } }
+```
+
+No incluye el error interno; ese detalle solo va al log. `/health` es liveness (el proceso vive) y no consulta la base.
 
 ### GET `/api/sala`
 
@@ -443,7 +462,7 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 
 ## 8. Definición de terminado
 
-- [x] Documento con las 20 rutas, permisos, entrada, salida y errores.
+- [x] Documento con las 21 rutas, permisos, entrada, salida y errores.
 - [x] `login` y `/me` comparten forma de usuario.
 - [x] Pruebas de contrato sobre la API real con base desechable.
 - [x] El conjunto exacto de claves está fijado en las pruebas.
@@ -452,7 +471,7 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 
 ### 8.1. Evidencia
 
-- `docs/API.md`: 20 rutas, reglas comunes, 15 códigos de error y formas de datos.
+- `docs/API.md`: 21 rutas, reglas comunes, 15 códigos de error y formas de datos.
 - `tests/api-contract.test.ts`: **12 pruebas** que fijan el conjunto exacto de claves de `Usuario`, `Mesa`, `Producto`, `Servicio`, `Linea` y `Evento`.
 - `POST /api/auth/login` incluye `activo`, igual que `/api/auth/me`; ninguna respuesta incluye `passwordHash`.
 - Permisos comprobados: `/api/usuarios` da `401` sin token, `403` a camarero y `200` a gerente; `/pagar` da `403` a camarero y `200` a gerente.
@@ -473,3 +492,4 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 |---|---|---|
 | 2026-10-27 | 2.3 | Especificación del contrato, errores comunes y 20 rutas |
 | 2026-10-27 | 2.3 | 12 pruebas de contrato, usuario unificado y suite secuencial |
+| 2026-10-27 | 2.4 | Añadida `GET /ready`; el contrato pasa a 21 rutas |

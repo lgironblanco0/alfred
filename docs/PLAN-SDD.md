@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.3 ✅) |
+| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.4 ✅) |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -429,16 +429,33 @@ Verificación: el contrato documentado coincide con la API real y cualquier camb
 
 ### Bloque 2.4 — Observabilidad
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 99/99 pruebas y 1 E2E
+
 Tareas:
 - Logs estructurados con identificador de petición.
 - Health y readiness.
 - Registro de errores sin filtrar datos sensibles.
 
+Resultado:
+- Logs JSON de una línea; el logger redacta claves sensibles y trunca cadenas largas (`sanitizeLogFields`).
+- El log de acceso añade `userId` y `role` cuando la petición está autenticada, sin nombre ni email.
+- `GET /health` sigue siendo liveness sin tocar la base; `GET /ready` ejecuta `SELECT 1` y devuelve `503` si falla, sin filtrar el error.
+- `errorLogFields` añade `errorName` y `stack` solo fuera de producción; el cliente nunca recibe la pila.
+- Decisión O-1 a O-6 registradas en `docs/OBSERVABILIDAD.md`.
+- 9 pruebas nuevas; contrato actualizado a 21 rutas.
+
+Deuda registrada: sin métricas, trazas, alertas ni retención; se abordan en la fase 11 con la plataforma de despliegue.
+
+Verificación: `npm run verify` en verde y `/ready` comprobado con base sana y con fallo simulado.
+
 ### Bloque 2.5 — Accesibilidad y responsive
+
+Nota de alcance: incluir las fricciones de uso detectadas por el usuario durante la prueba del MVP (ninguna grave) y priorizarlas junto a foco, teclado y contraste.
 
 Tareas:
 - Foco, teclado, contraste, etiquetas.
 - Revisar en tablet y móvil.
+- Anotar y corregir las fricciones de uso observadas al operar la sala.
 
 **Puerta de fase 2:** `npm run verify` incluye unitarias, integración y E2E.
 

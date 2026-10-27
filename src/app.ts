@@ -1,7 +1,10 @@
 import cors from "cors";
 import type { CorsOptions } from "cors";
 import express from "express";
+import { asyncRoute } from "./asyncRoute";
 import { config } from "./config";
+import { getReadiness } from "./health";
+import { log } from "./logger";
 import { errorHandler } from "./middleware/errorHandler";
 import { notFound } from "./middleware/notFound";
 import { requestId } from "./middleware/requestId";
@@ -35,6 +38,19 @@ app.use(express.json({ limit: "100kb" }));
 app.get("/health", (_request, response) => {
   response.status(200).json({ status: "ok" });
 });
+
+app.get(
+  "/ready",
+  asyncRoute(async (_request, response) => {
+    const result = await getReadiness();
+
+    if (result.status !== 200) {
+      log("warn", "readiness_failed", { database: "error" });
+    }
+
+    response.status(result.status).json(result.body);
+  }),
+);
 
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", requireAuth, requireRole("GERENTE"), usuariosRouter);

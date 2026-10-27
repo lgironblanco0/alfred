@@ -18,12 +18,15 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 - Base de datos desechable para pruebas (`docs/PRUEBAS-AISLADAS.md`): `npm test` crea, migra y siembra una SQLite temporal, y la borra al terminar.
 - 3 pruebas de integración deterministas (`tests/integration.test.ts`): `409` al repetir mesa y actor en `APERTURA` y `PEDIDO`.
 - Pruebas E2E con Playwright (`docs/E2E.md`): entrar, abrir mesa, añadir, enviar, marcar listo y cobrar como gerente; un camarero no puede cobrar.
-- Contrato de API (`docs/API.md`): 20 rutas, permisos, formas de datos y 15 códigos de error.
+- Contrato de API (`docs/API.md`): 21 rutas, permisos, formas de datos y 15 códigos de error.
 - 12 pruebas de contrato (`tests/api-contract.test.ts`) que fijan el conjunto exacto de claves de las respuestas.
+- Observabilidad (`docs/OBSERVABILIDAD.md`): logs JSON con redacción de campos sensibles, `userId` y `role` en el log de acceso, `GET /ready` con comprobación de base y pila solo fuera de producción.
+- 9 pruebas de observabilidad (`tests/observability.test.ts`).
 
 ### Changed
 
 - `login` y `/me` devuelven la misma forma de usuario, con `activo` y sin `passwordHash`.
+- Nueva ruta pública `GET /ready`; `/health` sigue siendo liveness sin consultar la base.
 - Los archivos de prueba se ejecutan en serie para evitar carreras al crear mesas.
 - `prisma/schema.prisma` lee `DATABASE_URL`; `.env` pasa a ser necesario para arrancar.
 - `npm test` usa una base temporal y ya no depende de `prisma/dev.db`.
@@ -33,7 +36,7 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Verified
 
-- `npm run verify` en verde: **90/90 pruebas** + **1 E2E**.
+- `npm run verify` en verde: **99/99 pruebas** + **1 E2E**.
 - La suite completa se ejecutó tres veces seguidas en verde tras hacerla secuencial.
 - `prisma/dev.db` conserva su hash SHA-256 tras `npm test` y tras `npm run verify`.
 
