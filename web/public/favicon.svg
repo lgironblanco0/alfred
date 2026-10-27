@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ALFRED">
+  <rect width="64" height="64" rx="14" fill="#A3E635" />
+  <path
+    fill="#0D0D0D"
+    fill-rule="evenodd"
+    d="M32 10 L52 54 H43 L39.5 46 H24.5 L21 54 H12 Z M28.6 38 H35.4 L32 29.6 Z"
+  />
+</svg>
