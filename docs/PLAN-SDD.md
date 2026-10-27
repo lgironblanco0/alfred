@@ -65,6 +65,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
 | 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | ae2c12a | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
 | 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | c5c7578 | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
+| 2026-10-27 | 2.4 Observabilidad | ✅ Hecho | 7b9b80c | Logs con redacción, `userId`/`role`, `/ready` y pila solo fuera de producción; 9 pruebas y 99/99 en verde |
 
 ---
 
@@ -429,7 +430,7 @@ Verificación: el contrato documentado coincide con la API real y cualquier camb
 
 ### Bloque 2.4 — Observabilidad
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 99/99 pruebas y 1 E2E
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: 7b9b80c · Verificación: `npm run verify` en verde con 99/99 pruebas y 1 E2E
 
 Tareas:
 - Logs estructurados con identificador de petición.
