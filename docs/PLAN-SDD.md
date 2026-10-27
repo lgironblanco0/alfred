@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.2 ✅) |
+| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.3 ✅) |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -64,6 +64,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
 | 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
 | 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | ae2c12a | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
+| 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | Pendiente de commit | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
 
 ---
 
@@ -379,7 +380,7 @@ Resultado:
 - Tres pruebas deterministas en `tests/integration.test.ts`: `409` al repetir mesa, actor en `APERTURA` y actor en `PEDIDO`.
 - Documento `docs/PRUEBAS-AISLADAS.md` y estrategia de pruebas actualizada.
 
-Deuda registrada: los archivos de prueba comparten la misma base temporal y se ejecutan en paralelo; si aparecen carreras, el siguiente paso es `--test-concurrency=1` o una base por archivo.
+Deuda registrada: los archivos de prueba comparten la misma base temporal y se ejecutan en paralelo; si aparecen carreras, el siguiente paso es `--test-concurrency=1` o una base por archivo. ✅ Resuelta en 2.3: la suite se ejecuta en serie para evitar que dos archivos creen mesas al mismo tiempo.
 
 Verificación: `npm run verify` incluye unitarias, integración y deja `dev.db` sin cambios.
 
@@ -407,10 +408,24 @@ Verificación: `npm run verify` cubre unitarias, integración y E2E.
 
 ### Bloque 2.3 — Contrato de API documentado
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 90/90 pruebas y 1 E2E
+
 Tareas:
 - Documentar cada endpoint: método, ruta, permisos, entrada, salida, errores.
 - Opcional: OpenAPI.
 - Prueba de contrato para respuestas clave.
+
+Resultado:
+- `docs/API.md`: 20 rutas, reglas comunes (céntimos, ISO 8601, token), 15 códigos de error y formas de `Usuario`, `Mesa`, `Producto`, `Promo`, `Servicio`, `Linea` y `Evento`.
+- `tests/api-contract.test.ts`: 12 pruebas contra la API real y base desechable; comparan el conjunto exacto de claves.
+- `login` y `/me` devuelven la misma forma de usuario con `activo`; nunca `passwordHash`.
+- Permisos de `/api/usuarios` y `/pagar` cubiertos por contrato.
+- Decisión C-1: Markdown en vez de OpenAPI en este bloque; las pruebas evitan la deriva.
+- La suite pasa a ejecutarse en serie (`--test-concurrency=1`) al detectar una carrera entre archivos que crean mesas.
+
+Deuda registrada: OpenAPI queda para la fase 11 si aparece un cliente externo. Las pruebas de contrato no cubren aún todas las rutas de escritura, solo las claves de las respuestas y los permisos críticos.
+
+Verificación: el contrato documentado coincide con la API real y cualquier cambio de campo rompe una prueba.
 
 ### Bloque 2.4 — Observabilidad
 

@@ -35,6 +35,7 @@ function publicUser(usuario: {
   nombre: string;
   email: string;
   rol: string;
+  activo: boolean;
 }) {
   return {
     id: usuario.id,
@@ -42,6 +43,7 @@ function publicUser(usuario: {
     nombre: usuario.nombre,
     email: usuario.email,
     rol: usuario.rol,
+    activo: usuario.activo,
   };
 }
 

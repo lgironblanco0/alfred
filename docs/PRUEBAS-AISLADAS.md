@@ -38,7 +38,9 @@ npm test
 Se crea en el directorio temporal del sistema con un nombre aleatorio (`alfred-test-XXXX/test.db`). No aparece en git, no entra en las copias de seguridad y no se confunde con `dev.db`.
 
 **Decisión T-3 — Un proceso, una base.**
-Los archivos de prueba se ejecutan en paralelo, pero comparten la misma base temporal. Las pruebas que necesitan una mesa libre **crean una mesa propia** (`createTable: true`) en lugar de depender de un número fijo. Las que necesitan estado concreto lo construyen por API.
+Los archivos de prueba comparten la misma base temporal y se ejecutan **en serie** (`--test-concurrency=1`). Las pruebas que necesitan una mesa libre **crean una mesa propia** (`createTable: true`) en lugar de depender de un número fijo. Las que necesitan estado concreto lo construyen por API.
+
+> Actualizado en 2.3: al añadir más archivos que crean mesas, el paralelismo produjo carreras al calcular el siguiente `numeroMesa`. La suite pasó a ejecutarse en serie.
 
 **Decisión T-4 — Limpieza garantizada, con opción de depurar.**
 La carpeta temporal se borra en un bloque `finally`. Si se define `ALFRED_TEST_KEEP_DB=1`, se conserva y se imprime la ruta para inspeccionarla.

@@ -12,7 +12,12 @@ let failed = false;
 try {
   console.log(`Base de pruebas: ${database.databaseUrl}`);
   prepareDatabase("pruebas", env);
-  runNode("pruebas", ["node_modules/tsx/dist/cli.mjs", "--test", "tests/**/*.test.ts"], env);
+  runNode("pruebas", [
+    "node_modules/tsx/dist/cli.mjs",
+    "--test",
+    "--test-concurrency=1",
+    "tests/**/*.test.ts",
+  ], env);
 } catch (error) {
   failed = true;
   console.error(`\n${error instanceof Error ? error.message : String(error)}`);

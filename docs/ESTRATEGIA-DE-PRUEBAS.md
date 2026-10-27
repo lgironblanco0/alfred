@@ -121,7 +121,7 @@ url = env("DATABASE_URL")
 ### 3.5. Concurrencia
 
 - **Unitarias:** paralelas, sin estado compartido.
-- **Integración:** una base por ejecución. Los archivos se ejecutan en paralelo y comparten esa base, así que las pruebas que necesitan una mesa libre crean la suya con `createTable: true` (decisión T-3). No se depende de números de mesa fijos.
+- **Integración:** una base por ejecución. Los archivos se ejecutan **en serie** (`--test-concurrency=1`) porque comparten esa base y varios crean mesas al vuelo; en paralelo chocaban al calcular el siguiente `numeroMesa`. Las pruebas que necesitan una mesa libre crean la suya con `createTable: true` (decisión T-3). No se depende de números de mesa fijos.
 - **E2E:** una base por suite, servidor en puerto efímero.
 
 Si aparecen condiciones de carrera, el siguiente paso es `--test-concurrency=1` o una base por archivo.

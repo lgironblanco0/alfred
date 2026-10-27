@@ -244,4 +244,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/SESION.md`: caducidad, límite de intentos, logout y cabeceras de seguridad.
 - `docs/PRUEBAS-AISLADAS.md`: base desechable, seed y limpieza de las pruebas.
 - `docs/E2E.md`: flujo completo en Playwright y permiso negativo de cobro.
+- `docs/API.md`: contrato de las 20 rutas, permisos, formas de datos y errores.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.
