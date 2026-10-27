@@ -51,7 +51,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 
 | Fecha | Bloque | Resultado | Commit | Notas |
 |---|---|---|---|---|
-| 2026-10-27 | 0.1 Línea base verificable | ✅ Hecho | Ver commit de cierre | Versiones alineadas a 0.1.0, README, `.env.example`, clean-room correcto; retiradas dos dependencias nativas sin uso |
+| 2026-10-27 | 0.1 Línea base verificable | ✅ Hecho | e5de120 | Versiones alineadas a 0.1.0, README, `.env.example`, clean-room correcto; retiradas dos dependencias nativas sin uso |
 
 ---
 
@@ -127,7 +127,7 @@ Duración orientativa a tiempo parcial: **8–12 semanas**. No es una carrera; c
 
 ### Bloque 0.1 - Línea base verificable
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: typecheck, builds, 15 tests y clean-room OK
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: e5de120 · Verificación: typecheck, builds, 15 tests y clean-room OK
 
 **Teoría:** una línea base es una foto conocida y reproducible del proyecto.
 
