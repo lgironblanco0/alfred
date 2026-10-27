@@ -62,7 +62,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | a759c4a | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
 | 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | b81ef7a | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
-| 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | Pendiente de commit | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
+| 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
 
 ---
 
@@ -259,7 +259,7 @@ Resultado:
 - `POST /api/servicios` exige mesa en el borde (`path: "mesaId"`).
 - 23 pruebas de API y 10 unitarias del manejador de errores.
 
-Deuda registrada: la prueba de `409` depende de la base de demostración hasta el Bloque 2.1.
+Deuda registrada: la prueba de `409` depende de la base de demostración hasta el Bloque 2.1. ✅ Resuelta en 2.1 con `tests/integration.test.ts` (mesa creada al efecto, sin depender del seed).
 
 Verificación: pruebas en verde y errores uniformes.
 
@@ -287,7 +287,7 @@ Verificación: ninguna ruta de escritura queda abierta.
 
 ### Bloque 1.4 — Auditoría del actor
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: a759c4a · Verificación: `npm run verify` en verde con 56/56 pruebas; extremo a extremo manual pendiente hasta 2.1
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: a759c4a · Verificación: `npm run verify` en verde con 56/56 pruebas; extremo a extremo resuelto en 2.1 (`tests/integration.test.ts`)
 
 Tareas:
 - Propagar `actorId` a todos los eventos.
@@ -301,7 +301,7 @@ Resultado:
 - Historial visible en la cuenta del servicio.
 - 4 pruebas unitarias de serialización.
 
-Deuda registrada: la prueba de extremo a extremo (crear servicio y comprobar el actor) necesita base desechable; se hará en 2.1.
+Deuda registrada: la prueba de extremo a extremo (crear servicio y comprobar el actor) necesita base desechable; se hará en 2.1. ✅ Resuelta en 2.1: `tests/integration.test.ts` comprueba el actor en `APERTURA` y en `PEDIDO`.
 
 Verificación: el histórico permite reconstruir quién hizo qué.
 
@@ -363,7 +363,7 @@ Verificación: pruebas de sesión expirada, código inválido y bloqueo temporal
 
 ### Bloque 2.1 — Base de datos desechable para pruebas
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 78/78 pruebas y hash de `dev.db` intacto
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: e46bc2d · Verificación: `npm run verify` en verde con 78/78 pruebas y hash de `dev.db` intacto
 
 Tareas:
 - Script que copia/migra/seediza una base temporal.
