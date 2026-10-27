@@ -13,6 +13,10 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
+### Added
+
+- Recorrido guiado del backend (`docs/RECORRIDO-BACKEND.md`): flujo de `POST /api/servicios` de la petición a SQLite, con errores canónicos y deuda detectada.
+
 ---
 
 ## [0.2.0] - 2026-10-27

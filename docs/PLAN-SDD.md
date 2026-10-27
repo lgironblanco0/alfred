@@ -33,7 +33,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | Fase | Nombre | Estado |
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
-| 1 | Backend, seguridad y códigos individuales | ⬜ Pendiente |
+| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1 ✅) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
@@ -56,6 +56,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | 34ce9dc | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
 | 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
+| 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | Pendiente de commit | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
 
 ---
 
@@ -224,7 +225,9 @@ Ruta → validación → permisos → servicio de negocio → Prisma → base de
 
 **Autorización:** no basta con saber quién eres; hay que comprobar qué puedes hacer.
 
-### Bloque 1.1 — Recorrido guiado del backend actual
+### Bloque 1.1 - Recorrido guiado del backend actual
+
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: explicación del flujo sin mirar (3 intentos; aprobado con dos preguntas de opción múltiple)
 
 Tareas:
 - Leer `src/app.ts`, `src/server.ts`, `src/routes/sala.ts`, `src/sala/service.ts`, `src/middleware/requireAuth.ts`.
@@ -232,6 +235,8 @@ Tareas:
 - Explicar con tus palabras qué hace cada capa.
 
 Verificación: tú dibujas el flujo sin mirar.
+
+Nota de verificación (2026-10-27): se necesitaron tres intentos. La confusión principal fue ubicar la validación de forma en el servicio y confundir el 400 de Zod con el 409 de mesa ocupada. Para el Bloque 1.2 conviene reforzar con pruebas automatizadas que demuestren cada código, no solo con explicación oral.
 
 ### Bloque 1.2 — Validación y errores canónicos
 
