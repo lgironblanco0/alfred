@@ -57,7 +57,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
 | 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
 | 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
-| 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | Pendiente de commit | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
+| 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | 354e440 | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
 
 ---
 
@@ -241,7 +241,7 @@ Nota de verificación (2026-10-27): se necesitaron tres intentos. La confusión 
 
 ### Bloque 1.2 — Validación y errores canónicos
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 33/33 pruebas
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: 354e440 · Verificación: `npm run verify` en verde con 33/33 pruebas
 
 Tareas:
 - Revisar Zod y el manejador de errores.
