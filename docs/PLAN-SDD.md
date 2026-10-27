@@ -59,7 +59,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
 | 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | 354e440 | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
 | 2026-10-27 | 1.3 Proteger rutas de escritura | ✅ Hecho | c75b56c | Matriz de permisos, `requireAuth` en 12 rutas, login obligatorio en frontend; 52/52 pruebas |
-| 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | Pendiente de commit | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
+| 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | a759c4a | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
 
 ---
 
@@ -284,7 +284,7 @@ Verificación: ninguna ruta de escritura queda abierta.
 
 ### Bloque 1.4 — Auditoría del actor
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 56/56 pruebas; extremo a extremo manual pendiente hasta 2.1
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: a759c4a · Verificación: `npm run verify` en verde con 56/56 pruebas; extremo a extremo manual pendiente hasta 2.1
 
 Tareas:
 - Propagar `actorId` a todos los eventos.
