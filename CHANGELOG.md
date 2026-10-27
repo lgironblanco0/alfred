@@ -13,6 +13,12 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-10-27
+
+Cierre de la Fase 0: fundación SDD, trazabilidad y verificación automática.
+
 ### Added
 
 - Documento de Definition of Done (`docs/DEFINICION-DE-TERMINADO.md`).
@@ -26,6 +32,10 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 ### Changed
 
 - El color de tema del navegador se alinea con el fondo real (`#0D0D0D`).
+
+### Verified
+
+- `npm run verify` en verde: typecheck, builds y 15/15 tests.
 
 ---
 

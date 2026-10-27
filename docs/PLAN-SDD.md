@@ -55,7 +55,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | 64c8f2e | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
 | 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | 34ce9dc | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
-| 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | Pendiente de commit | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
+| 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
 
 ---
 
@@ -182,7 +182,7 @@ Verificación: existe una decisión escrita y aplicable.
 
 ### Bloque 0.5 - Integración continua local
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde (typecheck, builds y 15/15 tests)
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: c9baf3e · Verificación: `npm run verify` en verde (typecheck, builds y 15/15 tests)
 
 Tareas:
 - Script único `npm run verify` que ejecute typecheck, builds y tests.
