@@ -17,6 +17,7 @@ prisma/backups/
 # Entorno
 .env
 .env.*
+!/.env.example
 
 #Logs y temporales
 *.log
