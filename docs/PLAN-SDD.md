@@ -56,7 +56,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | 34ce9dc | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
 | 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
-| 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | Pendiente de commit | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
+| 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
 
 ---
 
@@ -227,7 +227,7 @@ Ruta → validación → permisos → servicio de negocio → Prisma → base de
 
 ### Bloque 1.1 - Recorrido guiado del backend actual
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: explicación del flujo sin mirar (3 intentos; aprobado con dos preguntas de opción múltiple)
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: 0b081ff · Verificación: explicación del flujo sin mirar (3 intentos; aprobado con dos preguntas de opción múltiple)
 
 Tareas:
 - Leer `src/app.ts`, `src/server.ts`, `src/routes/sala.ts`, `src/sala/service.ts`, `src/middleware/requireAuth.ts`.
