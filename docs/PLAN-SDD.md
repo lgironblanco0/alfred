@@ -64,7 +64,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
 | 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
 | 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | ae2c12a | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
-| 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | Pendiente de commit | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
+| 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | c5c7578 | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
 
 ---
 
@@ -408,7 +408,7 @@ Verificación: `npm run verify` cubre unitarias, integración y E2E.
 
 ### Bloque 2.3 — Contrato de API documentado
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 90/90 pruebas y 1 E2E
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: c5c7578 · Verificación: `npm run verify` en verde con 90/90 pruebas y 1 E2E
 
 Tareas:
 - Documentar cada endpoint: método, ruta, permisos, entrada, salida, errores.
