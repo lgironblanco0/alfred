@@ -17,6 +17,7 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 - Documento de Definition of Done (`docs/DEFINICION-DE-TERMINADO.md`).
 - Plantilla oficial de bloque SDD (`docs/PLANTILLA-BLOQUE.md`).
+- Estrategia de pruebas (`docs/ESTRATEGIA-DE-PRUEBAS.md`).
 - Registro de cambios del proyecto (`CHANGELOG.md`).
 - Favicon de ALFRED: A negra sobre fondo verde `#A3E635`.
 

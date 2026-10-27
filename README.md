@@ -218,4 +218,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/TRAZABILIDAD.md`: matriz requisito → implementación → prueba → estado.
 - `docs/DEFINICION-DE-TERMINADO.md`: qué significa que un bloque esté terminado.
 - `docs/PLANTILLA-BLOQUE.md`: plantilla para especificar un bloque nuevo.
+- `docs/ESTRATEGIA-DE-PRUEBAS.md`: niveles de prueba, base desechable y datos de prueba.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.
