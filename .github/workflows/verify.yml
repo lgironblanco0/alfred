@@ -1,0 +1,38 @@
+name: Verify
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  verify:
+    name: Typecheck, builds y tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            web/package-lock.json
+
+      - name: Instalar backend
+        run: npm ci
+
+      - name: Instalar frontend
+        run: npm --prefix web ci
+
+      - name: Preparar base de datos
+        run: |
+          npx prisma migrate deploy
+          npm run db:seed
+
+      - name: Verificar
+        run: npm run verify

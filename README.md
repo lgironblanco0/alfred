@@ -96,12 +96,22 @@ En esta versión el código `2` es compartido por todos los camareros. La identi
 
 ## 4. Comprobar que todo está bien
 
+El comando único de verificación:
+
 ```powershell
-npm run typecheck
-npm run build
-npm --prefix web run build
-npm test
+npm run verify
 ```
+
+Ejecuta, en orden:
+
+1. Typecheck del backend.
+2. Build del backend.
+3. Build del frontend.
+4. Pruebas automatizadas.
+
+Si algún paso falla, el comando se detiene y devuelve error. Es el mismo comando que usa la integración continua.
+
+También se pueden ejecutar por separado:
 
 | Comando | Qué hace |
 |---|---|
@@ -122,6 +132,7 @@ Las pruebas actuales cubren salud, errores canónicos, validación de entrada, c
 | `npm run dev:web` | Frontend Vite en desarrollo |
 | `npm run typecheck` | Typecheck del backend |
 | `npm run build` | Build del backend |
+| `npm run verify` | Typecheck + builds + tests |
 | `npm start` | Ejecuta el backend compilado (`dist/src/server.js`) |
 | `npm test` | Pruebas automatizadas |
 | `npm run db:migrate` | Aplica migraciones en desarrollo |

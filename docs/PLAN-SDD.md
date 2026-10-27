@@ -32,7 +32,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 
 | Fase | Nombre | Estado |
 |---|---|---|
-| 0 | Fundación SDD y trazabilidad | 🟨 En curso (0.1 ✅, 0.2 ✅, 0.3 ✅) |
+| 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ⬜ Pendiente |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
@@ -55,6 +55,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | 64c8f2e | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
 | 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | 34ce9dc | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
+| 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | Pendiente de commit | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
 
 ---
 
@@ -179,7 +180,9 @@ Tareas:
 
 Verificación: existe una decisión escrita y aplicable.
 
-### Bloque 0.5 — Integración continua local
+### Bloque 0.5 - Integración continua local
+
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde (typecheck, builds y 15/15 tests)
 
 Tareas:
 - Script único `npm run verify` que ejecute typecheck, builds y tests.
@@ -188,7 +191,7 @@ Tareas:
 
 Verificación: `npm run verify` pasa en local y en CI.
 
-**Puerta de fase 0:** trazabilidad completa, DoD y verificación automática.
+**Puerta de fase 0:** ✅ Trazabilidad completa (163 requisitos), DoD y plantilla, estrategia de pruebas y `npm run verify` en verde. La CI se ejecutará cuando exista repositorio remoto.
 
 ---
 

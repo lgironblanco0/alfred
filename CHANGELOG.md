@@ -20,6 +20,8 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 - Estrategia de pruebas (`docs/ESTRATEGIA-DE-PRUEBAS.md`).
 - Registro de cambios del proyecto (`CHANGELOG.md`).
 - Favicon de ALFRED: A negra sobre fondo verde `#A3E635`.
+- Comando único `npm run verify`.
+- Workflow de integración continua en `.github/workflows/verify.yml`.
 
 ### Changed
 
