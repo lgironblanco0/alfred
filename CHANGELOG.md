@@ -15,6 +15,14 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+---
+
+## [0.3.0] - 2026-10-27
+
+Cierre de la Fase 1: backend protegido, auditoría por empleado y sesión endurecida.
+
+### Added
+
 - Sesión endurecida (`docs/SESION.md`): limitador de intentos con reloj inyectable, cabeceras de seguridad, `no-store` en autenticación y revocación al desactivar a un empleado.
 - 13 pruebas nuevas de sesión y limitador (`tests/session.test.ts`, `tests/login-throttle.test.ts`).
 - Empleados con código individual (`docs/EMPLEADOS.md`): cinco altas nuevas (un gerente, un encargado y tres camareros) y login por código único.

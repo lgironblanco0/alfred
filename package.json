@@ -1,6 +1,6 @@
 {
   "name": "alfred",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ALFRED — gestión de sala, comandas, cocina, barra y caja",
   "main": "index.js",
   "scripts": {
