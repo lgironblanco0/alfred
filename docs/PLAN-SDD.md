@@ -63,7 +63,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | b81ef7a | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
 | 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
-| 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | Pendiente de commit | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
+| 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | ae2c12a | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
 
 ---
 
@@ -385,7 +385,7 @@ Verificación: `npm run verify` incluye unitarias, integración y deja `dev.db` 
 
 ### Bloque 2.2 — Pruebas de extremo a extremo
 
-Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 78/78 pruebas y 1 E2E
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: ae2c12a · Verificación: `npm run verify` en verde con 78/78 pruebas y 1 E2E
 
 **Teoría:** una prueba E2E simula a una persona usando el navegador.
 
