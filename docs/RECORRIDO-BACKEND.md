@@ -160,13 +160,18 @@ Express 5 maneja mejor las promesas, pero este envoltorio garantiza que cualquie
 ## 6. Paso 4 — Validación con Zod
 
 ```ts
-const walkInBody = z.object({
-  mesaId: z.coerce.number().int().positive().optional(),
-  zona: z.enum(["RESTAURANTE", "TERRAZA", "BARRA"]).optional(),
-  clase: z.enum(["MESA", "PUNTO_BARRA"]).optional(),
-  pax: z.coerce.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
-  createTable: z.boolean().optional(),
-});
+const walkInBody = z
+  .object({
+    mesaId: z.number().int().positive().optional(),
+    zona: z.enum(["RESTAURANTE", "TERRAZA", "BARRA"]).optional(),
+    clase: z.enum(["MESA", "PUNTO_BARRA"]).optional(),
+    pax: z.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
+    createTable: z.boolean().optional(),
+  })
+  .refine((value) => value.mesaId !== undefined || value.createTable === true, {
+    message: "Selecciona una mesa o crea una nueva",
+    path: ["mesaId"],
+  });
 ```
 
 `parseInput` hace `safeParse`:
@@ -178,7 +183,9 @@ Esto ocurre en el **borde** del sistema: nada entra al servicio sin validar.
 
 **Concepto:** validar en el borde evita que datos basura lleguen a las capas profundas. Es más barato rechazar pronto.
 
-**Matiz importante:** Zod valida forma y tipo. No valida todas las reglas de negocio. Por ejemplo, “el asiento debe estar entre 1 y el pax” es una regla de negocio y hoy no se comprueba.
+**Matiz importante:** el cuerpo no se coacciona. `pax: "2"` o `pax: true` devuelven `400`, porque JSON ya distingue tipos y aceptarlos en silencio esconde el error del cliente. La coerción queda solo en los parámetros de ruta, que Express entrega siempre como texto. Ver `docs/ERRORES-Y-VALIDACION.md`.
+
+Además, Zod valida forma y tipo, pero no todas las reglas de negocio. Por ejemplo, “el asiento debe estar entre 1 y el pax” es una regla de negocio y hoy no se comprueba.
 
 ---
 

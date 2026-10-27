@@ -230,4 +230,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/DEFINICION-DE-TERMINADO.md`: qué significa que un bloque esté terminado.
 - `docs/PLANTILLA-BLOQUE.md`: plantilla para especificar un bloque nuevo.
 - `docs/ESTRATEGIA-DE-PRUEBAS.md`: niveles de prueba, base desechable y datos de prueba.
+- `docs/ERRORES-Y-VALIDACION.md`: contrato de error y reglas de validación de la API.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

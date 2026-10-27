@@ -12,20 +12,25 @@ const idParams = z.object({
   id: z.coerce.number().int("El identificador debe ser entero").positive("El identificador debe ser positivo"),
 });
 
-const walkInBody = z.object({
-  mesaId: z.coerce.number().int().positive().optional(),
-  zona: z.enum(["RESTAURANTE", "TERRAZA", "BARRA"]).optional(),
-  clase: z.enum(["MESA", "PUNTO_BARRA"]).optional(),
-  pax: z.coerce.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
-  createTable: z.boolean().optional(),
-});
+const walkInBody = z
+  .object({
+    mesaId: z.number().int("El identificador debe ser entero").positive("El identificador debe ser positivo").optional(),
+    zona: z.enum(["RESTAURANTE", "TERRAZA", "BARRA"]).optional(),
+    clase: z.enum(["MESA", "PUNTO_BARRA"]).optional(),
+    pax: z.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
+    createTable: z.boolean().optional(),
+  })
+  .refine((value) => value.mesaId !== undefined || value.createTable === true, {
+    message: "Selecciona una mesa o crea una nueva",
+    path: ["mesaId"],
+  });
 
 const paxBody = z.object({
-  pax: z.coerce.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
+  pax: z.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
 });
 
 const mergeBody = z.object({
-  mesaIds: z.array(z.coerce.number().int().positive()).max(50, "Demasiadas mesas en una sola unión").optional(),
+  mesaIds: z.array(z.number().int().positive()).max(50, "Demasiadas mesas en una sola unión").optional(),
 });
 
 const cancelBody = z.object({
@@ -33,14 +38,14 @@ const cancelBody = z.object({
 });
 
 const itemBody = z.object({
-  productoId: z.coerce.number().int().positive(),
-  cantidad: z.coerce.number().int().positive().max(100, "Cantidad demasiado alta").optional(),
-  numeroAsiento: z.union([z.coerce.number().int().positive(), z.null()]).optional(),
+  productoId: z.number().int().positive(),
+  cantidad: z.number().int().positive().max(100, "Cantidad demasiado alta").optional(),
+  numeroAsiento: z.union([z.number().int().positive(), z.null()]).optional(),
   esCompartido: z.boolean().optional(),
 });
 
 const callBody = z.object({
-  lineaIds: z.array(z.coerce.number().int().positive()).max(500, "Demasiadas líneas").optional(),
+  lineaIds: z.array(z.number().int().positive()).max(500, "Demasiadas líneas").optional(),
 });
 
 const anularBody = z.object({
@@ -59,8 +64,8 @@ const layoutBody = z.object({
   items: z
     .array(
       z.object({
-        id: z.coerce.number().int().positive(),
-        layoutOrder: z.coerce.number().int().min(0),
+        id: z.number().int().positive(),
+        layoutOrder: z.number().int().min(0),
       }),
     )
     .max(500, "Demasiadas mesas")

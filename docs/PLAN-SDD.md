@@ -57,6 +57,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.4 Estrategia de pruebas | ✅ Hecho | 91820c9 | Niveles, base desechable, fixtures, cobertura por riesgo y comandos previstos |
 | 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
 | 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
+| 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | Pendiente de commit | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
 
 ---
 
@@ -240,10 +241,20 @@ Nota de verificación (2026-10-27): se necesitaron tres intentos. La confusión 
 
 ### Bloque 1.2 — Validación y errores canónicos
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 33/33 pruebas
+
 Tareas:
 - Revisar Zod y el manejador de errores.
 - Añadir pruebas para cuerpos inválidos, identificadores inválidos y errores 404.
 - Documentar el formato de error.
+
+Resultado:
+- Contrato en `docs/ERRORES-Y-VALIDACION.md` con catálogo de códigos y 13 criterios de aceptación.
+- Los cuerpos ya no se coaccionan: `pax: "2"` y `pax: true` devuelven `400 VALIDATION_ERROR`.
+- `POST /api/servicios` exige mesa en el borde (`path: "mesaId"`).
+- 23 pruebas de API y 10 unitarias del manejador de errores.
+
+Deuda registrada: la prueba de `409` depende de la base de demostración hasta el Bloque 2.1.
 
 Verificación: pruebas en verde y errores uniformes.
 
