@@ -15,6 +15,9 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Auditoría del actor (`docs/AUDITORIA.md`): eventos `PEDIDO`, `LISTO` y `SPLIT`, y `actor` en el contrato de lectura.
+- Historial de movimientos visible en la cuenta del servicio, con hora y nombre del empleado.
+- 4 pruebas unitarias de serialización (`tests/serialize.test.ts`).
 - Matriz de permisos por rol (`docs/PERMISOS.md`) y protección de las 12 rutas de escritura del salón.
 - Helper de autenticación para pruebas (`tests/helpers/auth.ts`) y 19 pruebas de autorización (`tests/authz.test.ts`).
 - Recorrido guiado del backend (`docs/RECORRIDO-BACKEND.md`): flujo de `POST /api/servicios` de la petición a SQLite, con errores canónicos y deuda detectada.
@@ -32,7 +35,7 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Verified
 
-- `npm run verify` en verde: **52/52 pruebas**.
+- `npm run verify` en verde: **56/56 pruebas**.
 
 ---
 

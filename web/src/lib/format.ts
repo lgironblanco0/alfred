@@ -23,6 +23,10 @@ export function formatTimer(minutes: number): string {
   return `${rest}m`;
 }
 
+export function clockTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+}
+
 export function splitPreview(servicio: Servicio): Array<{ label: string; amount: number }> {
   const active = servicio.lineas.filter((linea) => linea.estado !== "ANULADO");
   if (servicio.splitModo === "IGUAL") {

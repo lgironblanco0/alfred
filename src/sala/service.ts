@@ -224,6 +224,7 @@ export async function addItem(input: {
   cantidad?: number;
   numeroAsiento?: number | null;
   esCompartido?: boolean;
+  actorId?: number;
 }) {
   const servicio = await loadServicio(input.servicioId);
   if (servicio.estado !== "ABIERTA") {
@@ -248,6 +249,16 @@ export async function addItem(input: {
       precioUnitario: producto.precio,
       estado: "PENDIENTE",
     },
+  });
+
+  await prisma.eventoServicio.create({
+    data: {
+      servicioId: input.servicioId,
+      tipo: "PEDIDO",
+      detalle: `${cantidad}× ${producto.nombre}${esCompartido ? "" : ` (asiento ${input.numeroAsiento})`}`,
+      actorId: input.actorId,
+    },
+    select: { id: true },
   });
 
   return loadServicio(input.servicioId);
@@ -278,8 +289,11 @@ export async function callItems(servicioId: number, lineaIds?: number[], actorId
   return loadServicio(servicioId);
 }
 
-export async function markReady(lineaId: number) {
-  const linea = await prisma.lineaPedido.findUnique({ where: { id: lineaId } });
+export async function markReady(lineaId: number, actorId?: number) {
+  const linea = await prisma.lineaPedido.findUnique({
+    where: { id: lineaId },
+    include: { producto: true },
+  });
   if (!linea) {
     throw new HttpError(404, "Línea no encontrada");
   }
@@ -290,6 +304,16 @@ export async function markReady(lineaId: number) {
   await prisma.lineaPedido.update({
     where: { id: lineaId },
     data: { estado: "READY" },
+  });
+
+  await prisma.eventoServicio.create({
+    data: {
+      servicioId: linea.servicioId,
+      tipo: "LISTO",
+      detalle: `${linea.producto.nombre} lista para servir`,
+      actorId,
+    },
+    select: { id: true },
   });
 
   return loadServicio(linea.servicioId);
@@ -364,7 +388,7 @@ export async function applyPromo(servicioId: number, codigo: string, actorId?: n
   });
 }
 
-export async function setSplit(servicioId: number, splitModo: string) {
+export async function setSplit(servicioId: number, splitModo: string, actorId?: number) {
   const allowed = new Set(["NINGUNO", "IGUAL", "ASIENTO"]);
   if (!allowed.has(splitModo)) {
     throw new HttpError(400, "Modo de split no válido");
@@ -376,7 +400,10 @@ export async function setSplit(servicioId: number, splitModo: string) {
 
   return prisma.servicio.update({
     where: { id: servicioId },
-    data: { splitModo },
+    data: {
+      splitModo,
+      eventos: { create: { tipo: "SPLIT", detalle: `Reparto: ${splitModo}`, actorId } },
+    },
     include: servicioInclude,
   });
 }

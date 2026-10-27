@@ -32,7 +32,13 @@ export type Servicio = {
   mesaIds: number[];
   mesaLabels: string[];
   lineas: Linea[];
-  eventos: Array<{ id: number; tipo: string; detalle: string; createdAt: string }>;
+  eventos: Array<{
+    id: number;
+    tipo: string;
+    detalle: string;
+    createdAt: string;
+    actor: { id: number; nombre: string } | null;
+  }>;
   subtotal: number;
   discount: number;
   total: number;

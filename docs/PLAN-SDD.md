@@ -33,7 +33,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | Fase | Nombre | Estado |
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
-| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1 ✅) |
+| 1 | Backend, seguridad y códigos individuales | 🟨 En curso (1.1–1.4 ✅) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
@@ -59,6 +59,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
 | 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | 354e440 | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
 | 2026-10-27 | 1.3 Proteger rutas de escritura | ✅ Hecho | c75b56c | Matriz de permisos, `requireAuth` en 12 rutas, login obligatorio en frontend; 52/52 pruebas |
+| 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | Pendiente de commit | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
 
 ---
 
@@ -283,10 +284,21 @@ Verificación: ninguna ruta de escritura queda abierta.
 
 ### Bloque 1.4 — Auditoría del actor
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 56/56 pruebas; extremo a extremo manual pendiente hasta 2.1
+
 Tareas:
 - Propagar `actorId` a todos los eventos.
 - Guardar quién abre, envía, anula, une, cobra y cambia pax.
 - Probar que el evento registra el usuario correcto.
+
+Resultado:
+- Eventos nuevos `PEDIDO`, `LISTO` y `SPLIT`, todos con `actorId`.
+- `markReady` carga el producto para que el evento diga qué se sirvió.
+- La API expone `actor: { id, nombre }`; nunca email ni rol.
+- Historial visible en la cuenta del servicio.
+- 4 pruebas unitarias de serialización.
+
+Deuda registrada: la prueba de extremo a extremo (crear servicio y comprobar el actor) necesita base desechable; se hará en 2.1.
 
 Verificación: el histórico permite reconstruir quién hizo qué.
 

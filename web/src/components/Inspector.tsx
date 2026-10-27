@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { estacionDeProducto } from "../lib/estacion";
-import { lineSeatLabel, money, splitPreview } from "../lib/format";
+import { clockTime, lineSeatLabel, money, splitPreview } from "../lib/format";
 import type { Linea, Mesa, Producto } from "../types";
 
 const reasons = ["Kitchen Error", "Customer Changed Mind", "Wrong Table", "86 / Unavailable"];
@@ -396,6 +396,26 @@ export function Inspector({
                       ))}
                     </div>
                   ) : null}
+                  <div className="border-t border-line pt-3">
+                    <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
+                      Historial
+                    </p>
+                    {servicio.eventos.length === 0 ? (
+                      <p className="text-[12px] text-subtle">Sin movimientos registrados.</p>
+                    ) : (
+                      <ul className="space-y-1.5">
+                        {servicio.eventos.slice(0, 8).map((evento) => (
+                          <li key={evento.id} className="flex gap-2 text-[12px]">
+                            <span className="shrink-0 text-subtle">{clockTime(evento.createdAt)}</span>
+                            <span className="min-w-0 flex-1 text-soft">
+                              {evento.detalle}
+                              <span className="text-subtle"> · {evento.actor?.nombre ?? "sin identificar"}</span>
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                   <div className="rounded-2xl border border-line bg-sunken px-4 py-3 text-[12px] text-subtle">
                     El cobro se realiza desde <span className="font-semibold text-soft">Caja</span>. Solo Encargado o Gerente pueden cobrar.
                   </div>

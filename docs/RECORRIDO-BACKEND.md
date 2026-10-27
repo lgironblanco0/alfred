@@ -304,7 +304,7 @@ Primero crea, luego vuelve a pedir `GET /api/sala` y repinta. No intenta mantene
 
 ## 13. Deuda y avisos que este recorrido deja visibles
 
-1. La ruta exige `requireAuth` desde el Bloque 1.3; `request.usuario` se rellena y el evento guarda `actorId`. Las rutas de líneas (`items`, `ready`) todavía no lo pasan: se corrige en 1.4.
+1. La ruta exige `requireAuth` desde el Bloque 1.3 y el evento guarda `actorId`; desde 1.4 también las rutas de líneas y reparto lo pasan, y el actor se devuelve en el histórico.
 2. `createWalkIn` no es transaccional.
 3. Zod valida el tipo del asiento, pero no su rango respecto al pax.
 4. El frontend llama a `/api/sala` después de cada mutación; es correcto, pero se puede optimizar más adelante.

@@ -134,6 +134,7 @@ salaRouter.post(
       cantidad: input.cantidad,
       numeroAsiento: input.numeroAsiento,
       esCompartido: input.esCompartido,
+      actorId: request.usuario?.id,
     });
     response.status(201).json(serializeServicio(servicio));
   }),
@@ -155,7 +156,7 @@ salaRouter.post(
   requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
-    const servicio = await sala.markReady(id);
+    const servicio = await sala.markReady(id, request.usuario?.id);
     response.json(serializeServicio(servicio));
   }),
 );
@@ -188,7 +189,7 @@ salaRouter.post(
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { splitModo } = parseInput(splitBody, request.body);
-    const servicio = await sala.setSplit(id, splitModo ?? "NINGUNO");
+    const servicio = await sala.setSplit(id, splitModo ?? "NINGUNO", request.usuario?.id);
     response.json(serializeServicio(servicio));
   }),
 );

@@ -3,7 +3,13 @@ import type { LineaPedido, Mesa, Producto, PromoCodigo, Servicio, ServicioMesa }
 type ServicioWithRelations = Servicio & {
   mesas: (ServicioMesa & { mesa: Mesa })[];
   lineas: (LineaPedido & { producto: Producto })[];
-  eventos?: { id: number; tipo: string; detalle: string; createdAt: Date }[];
+  eventos?: {
+    id: number;
+    tipo: string;
+    detalle: string;
+    createdAt: Date;
+    actor?: { id: number; nombre: string } | null;
+  }[];
 };
 
 export function centsToLabel(cents: number): string {
@@ -71,6 +77,7 @@ export function serializeServicio(servicio: ServicioWithRelations) {
       tipo: evento.tipo,
       detalle: evento.detalle,
       createdAt: evento.createdAt.toISOString(),
+      actor: evento.actor ? { id: evento.actor.id, nombre: evento.actor.nombre } : null,
     })),
     subtotal,
     discount,

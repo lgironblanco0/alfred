@@ -8,6 +8,7 @@ export const servicioInclude = {
       tipo: true,
       detalle: true,
       createdAt: true,
+      actor: { select: { id: true, nombre: true } },
     },
   },
 };
