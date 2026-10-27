@@ -4,7 +4,7 @@
   "description": "ALFRED — gestión de sala, comandas, cocina, barra y caja",
   "main": "index.js",
   "scripts": {
-    "test": "tsx --test \"tests/**/*.test.ts\"",
+    "test": "node scripts/test-with-db.mjs",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "verify": "npm run typecheck && npm run build && npm --prefix web run build && npm test",

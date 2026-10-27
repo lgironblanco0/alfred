@@ -90,49 +90,41 @@ Nunca se usa `prisma/dev.db`.
 - Los tests deben poder ejecutarse en paralelo sin pisarse.
 - Si una prueba falla, no debe afectar a los datos del restaurante.
 
-### 3.3. Diseño previsto
+### 3.3. Diseño implementado (Bloque 2.1)
 
 ```text
-1. El test setup crea una carpeta temporal única.
-2. Genera una URL SQLite absoluta dentro de esa carpeta.
-3. Exporta DATABASE_URL antes de importar Prisma.
-4. Ejecuta `prisma migrate deploy` contra esa base.
-5. Siembra fixtures mínimos y deterministas.
-6. Ejecuta las pruebas con concurrencia controlada.
-7. Elimina la base y la carpeta temporal.
+npm test
+  └─ node scripts/test-with-db.mjs
+       1. crea una carpeta temporal única fuera del repositorio
+       2. genera una URL SQLite absoluta dentro de esa carpeta
+       3. exporta DATABASE_URL para migraciones, seed y pruebas
+       4. ejecuta `prisma migrate deploy` contra esa base
+       5. ejecuta `prisma db seed` (8 empleados, mesas y carta)
+       6. lanza `tsx --test tests/**/*.test.ts`
+       7. elimina la carpeta temporal en `finally`
 ```
 
-### 3.4. Requisito técnico
+Si se define `ALFRED_TEST_KEEP_DB=1`, la base se conserva y se imprime su ruta para depurar.
 
-Hoy `prisma/schema.prisma` tiene la URL escrita a mano:
+### 3.4. Requisito técnico — ✅ aplicado
 
-```prisma
-url = "file:./dev.db"
-```
-
-Para que la base sea configurable, el Bloque 2.1 debe cambiarla a:
+`prisma/schema.prisma` ya usa:
 
 ```prisma
 url = env("DATABASE_URL")
 ```
 
-Y definir en `.env.example`:
+`.env.example` declara `DATABASE_URL="file:./dev.db"` y `.env` (no versionado) lo repite para desarrollo. El script de pruebas sobrescribe la variable con la ruta temporal.
 
-```text
-DATABASE_URL=file:./dev.db
-```
-
-Para pruebas, el setup sobrescribe `DATABASE_URL` con la ruta temporal.
-
-> La sintaxis exacta de la URL absoluta en Windows se validará al implementar el helper. La decisión es usar una ruta absoluta generada en tiempo de ejecución, nunca una ruta relativa ambigua.
+**Lección:** cambiar el esquema a `env()` no basta. Hay que ejecutar `prisma generate` para que el cliente generado deje de llevar la URL antigua incrustada. Sin ese paso, las migraciones van a la base temporal pero el seed y la API siguen escribiendo en `dev.db`.
 
 ### 3.5. Concurrencia
 
 - **Unitarias:** paralelas, sin estado compartido.
-- **Integración:** una base por ejecución y `--test-concurrency=1` al principio, para evitar condiciones de carrera entre archivos.
+- **Integración:** una base por ejecución. Los archivos se ejecutan en paralelo y comparten esa base, así que las pruebas que necesitan una mesa libre crean la suya con `createTable: true` (decisión T-3). No se depende de números de mesa fijos.
 - **E2E:** una base por suite, servidor en puerto efímero.
 
-Si más adelante el tiempo de ejecución crece, se podrá pasar a una base por archivo.
+Si aparecen condiciones de carrera, el siguiente paso es `--test-concurrency=1` o una base por archivo.
 
 ---
 
@@ -239,16 +231,16 @@ No se acepta una funcionalidad nueva sin prueba salvo excepción documentada en 
 
 ## 8. Estado actual y deuda
 
-| Aspecto | Hoy | Objetivo |
+| Aspecto | Hoy (tras 2.1) | Objetivo |
 |---|---|---|
-| Pruebas existentes | 15, en dos archivos | Reorganizadas por nivel |
-| Base de datos | `dev.db` | Temporal por ejecución |
-| Aislamiento | Parcial: los tests actuales no escriben, pero comparten base | Total |
+| Pruebas existentes | 78, en cinco archivos | Reorganizadas por nivel |
+| Base de datos | Temporal por ejecución (`scripts/test-with-db.mjs`) | Igual |
+| Aislamiento | Total: `dev.db` no se toca | Igual |
 | E2E | Ninguna | Flujos críticos con Playwright |
-| CI | Ninguna | `npm run verify` en cada push |
+| CI | Workflow listo, sin remoto | `npm run verify` en cada push |
 | Cobertura | No medida | Medida y orientada al riesgo |
 
-**Riesgo actual:** los tests de API arrancan la app contra `dev.db`. Hoy no escriben datos, pero un test futuro que lo haga podría contaminar el entorno. Se corrige en el Bloque 2.1.
+**Riesgo resuelto en el Bloque 2.1:** las pruebas ya no arrancan contra `dev.db`. El runner crea, migra, siembra y borra una base temporal. La igualdad del hash de `dev.db` antes y después de `npm test` es la evidencia.
 
 ---
 

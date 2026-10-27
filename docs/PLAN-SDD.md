@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
+| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1 ✅) |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -62,6 +62,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.4 Auditoría del actor | ✅ Hecho | a759c4a | Eventos `PEDIDO`, `LISTO` y `SPLIT` con actor; `actor` en la respuesta; historial en la interfaz; 56/56 pruebas |
 | 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | b81ef7a | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
+| 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | Pendiente de commit | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
 
 ---
 
@@ -362,10 +363,24 @@ Verificación: pruebas de sesión expirada, código inválido y bloqueo temporal
 
 ### Bloque 2.1 — Base de datos desechable para pruebas
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 78/78 pruebas y hash de `dev.db` intacto
+
 Tareas:
 - Script que copia/migra/seediza una base temporal.
 - Tests de integración aislados.
 - Limpieza automática.
+
+Resultado:
+- `prisma/schema.prisma` usa `env("DATABASE_URL")`; `.env.example` declara `file:./dev.db`.
+- `scripts/test-with-db.mjs` crea una base en el directorio temporal del sistema, aplica migraciones, ejecuta el seed, lanza las pruebas y borra la carpeta en `finally`.
+- `npm test` ya no toca `prisma/dev.db`; la evidencia es la igualdad del hash SHA-256 antes y después.
+- `ALFRED_TEST_KEEP_DB=1` conserva la base para depurar.
+- Tres pruebas deterministas en `tests/integration.test.ts`: `409` al repetir mesa, actor en `APERTURA` y actor en `PEDIDO`.
+- Documento `docs/PRUEBAS-AISLADAS.md` y estrategia de pruebas actualizada.
+
+Deuda registrada: los archivos de prueba comparten la misma base temporal y se ejecutan en paralelo; si aparecen carreras, el siguiente paso es `--test-concurrency=1` o una base por archivo.
+
+Verificación: `npm run verify` incluye unitarias, integración y deja `dev.db` sin cambios.
 
 ### Bloque 2.2 — Pruebas de extremo a extremo
 

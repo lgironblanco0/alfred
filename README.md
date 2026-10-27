@@ -45,9 +45,9 @@ npm run db:seed
 ```
 
 - `db:migrate` aplica las migraciones de `prisma/migrations`.
-- `db:seed` crea mesas, productos, promociones y los empleados `0`, `1` y `2`. Es idempotente: se puede ejecutar varias veces sin duplicar datos.
+- `db:seed` crea mesas, productos, promociones y los empleados `0`–`7`. Es idempotente: se puede ejecutar varias veces sin duplicar datos.
 
-La base se guarda en `prisma/dev.db` y no se versiona en git.
+La base se guarda en `prisma/dev.db` (según `DATABASE_URL`) y no se versiona en git.
 
 ---
 
@@ -118,9 +118,9 @@ También se pueden ejecutar por separado:
 | `npm run typecheck` | Comprueba tipos del backend sin generar archivos |
 | `npm run build` | Compila el backend en `dist/` |
 | `npm --prefix web run build` | Compila el frontend en `web/dist/` |
-| `npm test` | Ejecuta las pruebas con `node:test` |
+| `npm test` | Crea una base temporal, la migra y siembra, ejecuta `node:test` y la borra |
 
-Las pruebas actuales cubren salud, errores canónicos, validación de entrada, contraseñas y tokens.
+Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`).
 
 ---
 
@@ -173,7 +173,7 @@ El backend carga `.env` al arrancar (`src/config.ts`):
 | `JWT_EXPIRES_IN` | No | `8h` | Caducidad del token |
 | `LOG_LEVEL` | No | `info` | `debug`, `info`, `warn`, `error`, `silent` |
 | `CORS_ORIGINS` | No | Vacío | Orígenes permitidos, separados por comas |
-| `DATABASE_URL` | No | `file:./dev.db` | Conexión de Prisma |
+| `DATABASE_URL` | Sí | — (ejemplo: `file:./dev.db`) | Conexión de Prisma; el esquema la lee de aquí |
 
 `.env` está ignorado por git. `.env.example` sí se versiona y sirve de plantilla.
 
@@ -235,4 +235,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/AUDITORIA.md`: eventos por acción, contrato del actor y limitaciones.
 - `docs/EMPLEADOS.md`: códigos individuales, plantilla y migración.
 - `docs/SESION.md`: caducidad, límite de intentos, logout y cabeceras de seguridad.
+- `docs/PRUEBAS-AISLADAS.md`: base desechable, seed y limpieza de las pruebas.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

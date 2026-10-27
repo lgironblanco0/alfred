@@ -15,6 +15,19 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Base de datos desechable para pruebas (`docs/PRUEBAS-AISLADAS.md`): `npm test` crea, migra y siembra una SQLite temporal, y la borra al terminar.
+- 3 pruebas de integración deterministas (`tests/integration.test.ts`): `409` al repetir mesa y actor en `APERTURA` y `PEDIDO`.
+
+### Changed
+
+- `prisma/schema.prisma` lee `DATABASE_URL`; `.env` pasa a ser necesario para arrancar.
+- `npm test` usa una base temporal y ya no depende de `prisma/dev.db`.
+
+### Verified
+
+- `npm run verify` en verde: **78/78 pruebas**.
+- `prisma/dev.db` conserva su hash SHA-256 tras `npm test`.
+
 ---
 
 ## [0.3.0] - 2026-10-27
