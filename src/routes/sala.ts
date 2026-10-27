@@ -81,6 +81,7 @@ salaRouter.get(
 
 salaRouter.post(
   "/servicios",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const input = parseInput(walkInBody, request.body);
     const servicio = await sala.createWalkIn({ ...input, actorId: request.usuario?.id });
@@ -90,6 +91,7 @@ salaRouter.post(
 
 salaRouter.patch(
   "/servicios/:id/pax",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { pax } = parseInput(paxBody, request.body);
@@ -100,6 +102,7 @@ salaRouter.patch(
 
 salaRouter.post(
   "/servicios/:id/merge",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { mesaIds } = parseInput(mergeBody, request.body);
@@ -110,6 +113,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/servicios/:id/cancel",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { motivo } = parseInput(cancelBody, request.body);
@@ -120,6 +124,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/servicios/:id/items",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const input = parseInput(itemBody, request.body);
@@ -136,6 +141,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/servicios/:id/call",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { lineaIds } = parseInput(callBody, request.body);
@@ -146,6 +152,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/lineas/:id/ready",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const servicio = await sala.markReady(id);
@@ -155,6 +162,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/lineas/:id/anular",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { motivo } = parseInput(anularBody, request.body);
@@ -165,6 +173,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/servicios/:id/promo",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { codigo } = parseInput(promoBody, request.body);
@@ -175,6 +184,7 @@ salaRouter.post(
 
 salaRouter.post(
   "/servicios/:id/split",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
     const { splitModo } = parseInput(splitBody, request.body);
@@ -196,6 +206,7 @@ salaRouter.post(
 
 salaRouter.patch(
   "/mesas/layout",
+  requireAuth,
   asyncRoute(async (request, response) => {
     const { items } = parseInput(layoutBody, request.body);
     response.json(await sala.reorderMesas(items ?? []));

@@ -1,11 +1,13 @@
 import assert from "node:assert/strict";
 import type { Server } from "node:http";
 import { after, before, describe, it } from "node:test";
+import { authHeaders, login } from "./helpers/auth.js";
 
 process.env.LOG_LEVEL = "silent";
 
 let server: Server;
 let baseUrl: string;
+let token: string;
 
 before(async () => {
   const { app } = await import("../src/app.js");
@@ -22,6 +24,7 @@ before(async () => {
   }
 
   baseUrl = `http://127.0.0.1:${address.port}`;
+  token = await login(baseUrl, "2");
 });
 
 after(async () => {
@@ -63,7 +66,7 @@ describe("salud y errores básicos", () => {
   it("devuelve 400 ante JSON inválido", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: "{",
     });
 
@@ -74,7 +77,7 @@ describe("salud y errores básicos", () => {
   it("devuelve 413 ante un cuerpo demasiado grande", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ pax: 1, relleno: "x".repeat(200_000) }),
     });
 
@@ -87,7 +90,7 @@ describe("validación de entrada", () => {
   it("rechaza un walk-in sin pax", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ mesaId: 1 }),
     });
 
@@ -104,7 +107,7 @@ describe("validación de entrada", () => {
   it("rechaza un identificador de ruta no numérico", async () => {
     const response = await fetch(`${baseUrl}/api/servicios/abc/pax`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ pax: 2 }),
     });
 
@@ -121,7 +124,7 @@ describe("validación de entrada", () => {
   it("rechaza un pax no positivo", async () => {
     const response = await fetch(`${baseUrl}/api/servicios/1/pax`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ pax: 0 }),
     });
 
@@ -132,7 +135,7 @@ describe("validación de entrada", () => {
   it("rechaza una anulación sin motivo", async () => {
     const response = await fetch(`${baseUrl}/api/lineas/1/anular`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ motivo: "   " }),
     });
 
@@ -149,7 +152,7 @@ describe("validación de entrada", () => {
   it("rechaza un layout con orden negativo", async () => {
     const response = await fetch(`${baseUrl}/api/mesas/layout`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ items: [{ id: 1, layoutOrder: -1 }] }),
     });
 
@@ -188,7 +191,7 @@ describe("contrato de errores de borde", () => {
   it("devuelve 415 ante un charset no soportado", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json; charset=iso-8859-1" },
+      headers: { "Content-Type": "application/json; charset=iso-8859-1", Authorization: `Bearer ${token}` },
       body: JSON.stringify({ pax: 2 }),
     });
 
@@ -199,7 +202,7 @@ describe("contrato de errores de borde", () => {
   it("rechaza pax enviado como texto", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ mesaId: 999_999, pax: "2" }),
     });
 
@@ -213,7 +216,7 @@ describe("contrato de errores de borde", () => {
   it("no convierte un booleano en un pax válido", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ mesaId: 999_999, pax: true }),
     });
 
@@ -227,7 +230,7 @@ describe("contrato de errores de borde", () => {
   it("señala el cuerpo completo cuando no es un objeto", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify([]),
     });
 
@@ -241,7 +244,7 @@ describe("contrato de errores de borde", () => {
   it("exige mesa o creación de mesa en el borde", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ pax: 2 }),
     });
 
@@ -257,7 +260,7 @@ describe("contrato de errores de negocio", () => {
   it("devuelve 404 al ampliar un servicio inexistente", async () => {
     const response = await fetch(`${baseUrl}/api/servicios/999999/pax`, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ pax: 3 }),
     });
 
@@ -268,7 +271,7 @@ describe("contrato de errores de negocio", () => {
   it("devuelve 404 al abrir una mesa inexistente", async () => {
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ mesaId: 999_999, pax: 2 }),
     });
 
@@ -289,7 +292,7 @@ describe("contrato de errores de negocio", () => {
 
     const response = await fetch(`${baseUrl}/api/servicios`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: authHeaders(token),
       body: JSON.stringify({ mesaId: ocupada.id, pax: 2 }),
     });
 

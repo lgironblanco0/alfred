@@ -14,6 +14,21 @@ export function clearToken(): void {
   window.sessionStorage.removeItem(TOKEN_KEY);
 }
 
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+
+  get requiresLogin(): boolean {
+    return this.status === 401;
+  }
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = getToken();
   const response = await fetch(path, {
@@ -26,10 +41,18 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const payload = (await response.json().catch(() => ({}))) as T & {
     error?: string;
+    code?: string;
     message?: string;
   };
   if (!response.ok) {
-    throw new Error(payload.message ?? payload.error ?? "No se pudo completar la acción");
+    if (response.status === 401) {
+      clearToken();
+    }
+    throw new ApiError(
+      response.status,
+      payload.code ?? "ERROR",
+      payload.message ?? payload.error ?? "No se pudo completar la acción",
+    );
   }
   return payload;
 }

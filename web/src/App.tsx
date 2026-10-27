@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { api, clearToken, getToken } from "./api";
+import { ApiError, api, clearToken, getToken } from "./api";
 import { CajaBoard } from "./components/CajaBoard";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { FloorBoard } from "./components/FloorBoard";
@@ -22,7 +22,7 @@ export function App() {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [payServicioId, setPayServicioId] = useState<number | null>(null);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [loginOpen, setLoginOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(() => !getToken());
   const [now, setNow] = useState(Date.now());
   const [view, setView] = useState<View>("SALA");
 
@@ -66,6 +66,10 @@ export function App() {
       await action();
       await refresh();
     } catch (caught) {
+      if (caught instanceof ApiError && caught.requiresLogin) {
+        setUsuario(null);
+        setLoginOpen(true);
+      }
       setError(caught instanceof Error ? caught.message : "Acción no disponible");
     } finally {
       setBusy(false);
@@ -162,7 +166,7 @@ export function App() {
                 onClick={() => setLoginOpen(true)}
                 className="w-full rounded-full bg-white/5 px-4 py-2 text-left text-[13px] text-soft hover:bg-white/10"
               >
-                Cobrar
+                Entrar
               </button>
             )}
           </div>
@@ -285,7 +289,10 @@ export function App() {
 
       {loginOpen ? (
         <LoginModal
-          onClose={() => setLoginOpen(false)}
+          dismissible={Boolean(usuario)}
+          onClose={() => {
+            if (usuario) setLoginOpen(false);
+          }}
           onSuccess={(nextUsuario) => {
             setUsuario(nextUsuario);
             setLoginOpen(false);

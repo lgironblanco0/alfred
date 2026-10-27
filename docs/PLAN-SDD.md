@@ -58,6 +58,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 0.5 Integración continua local | ✅ Hecho | c9baf3e | `npm run verify` en verde; workflow de GitHub Actions preparado para cuando exista remoto |
 | 2026-10-27 | 1.1 Recorrido guiado del backend | ✅ Hecho | 0b081ff | `docs/RECORRIDO-BACKEND.md`; verificación oral en 3 intentos. Confusión detectada: mezcla validación de forma (400, ruta) con regla de negocio (409, servicio) |
 | 2026-10-27 | 1.2 Validación y errores canónicos | ✅ Hecho | 354e440 | Contrato de error, cuerpos sin coerción, mesa exigida en el borde; 33/33 pruebas |
+| 2026-10-27 | 1.3 Proteger rutas de escritura | ✅ Hecho | Pendiente de commit | Matriz de permisos, `requireAuth` en 12 rutas, login obligatorio en frontend; 52/52 pruebas |
 
 ---
 
@@ -260,6 +261,8 @@ Verificación: pruebas en verde y errores uniformes.
 
 ### Bloque 1.3 — Proteger todas las rutas de escritura
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 52/52 pruebas
+
 **Teoría:** toda ruta que crea, modifica o borra datos necesita autenticación y, si aplica, rol.
 
 Tareas:
@@ -267,6 +270,14 @@ Tareas:
 - Aplicar `requireAuth` y `requireRole` según la matriz de permisos.
 - Decidir qué puede hacer cada rol.
 - Probar 401 sin token y 403 con rol insuficiente.
+
+Resultado:
+- `docs/PERMISOS.md` con matriz por rol y decisiones D-5 a D-9.
+- 12 rutas de escritura del salón protegidas con `requireAuth`; `pagar` mantiene además el rol.
+- Login obligatorio en el frontend; si el token caduca, la app vuelve a pedirlo.
+- 19 pruebas nuevas de autorización; los cuerpos de prueba usan IDs inexistentes para no escribir en `dev.db`.
+
+Deuda registrada: `GET /api/sala` sigue público (D-5) hasta que el login sea obligatorio en toda la app.
 
 Verificación: ninguna ruta de escritura queda abierta.
 

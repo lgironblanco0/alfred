@@ -272,6 +272,7 @@ Primero crea, luego vuelve a pedir `GET /api/sala` y repinta. No intenta mantene
 
 | Situación | Dónde se detecta | Respuesta |
 |---|---|---|
+| Falta el token | `requireAuth` | `401 UNAUTHORIZED` |
 | JSON mal formado | `express.json` | `400 INVALID_JSON` |
 | Cuerpo mayor de 100 KB | `express.json` | `413 PAYLOAD_TOO_LARGE` |
 | `pax` ausente o cero | Zod | `400 VALIDATION_ERROR` con `details` |
@@ -303,7 +304,7 @@ Primero crea, luego vuelve a pedir `GET /api/sala` y repinta. No intenta mantene
 
 ## 13. Deuda y avisos que este recorrido deja visibles
 
-1. La ruta no exige autenticación; por eso `request.usuario` es `undefined` y `actorId` no se registra.
+1. La ruta exige `requireAuth` desde el Bloque 1.3; `request.usuario` se rellena y el evento guarda `actorId`. Las rutas de líneas (`items`, `ready`) todavía no lo pasan: se corrige en 1.4.
 2. `createWalkIn` no es transaccional.
 3. Zod valida el tipo del asiento, pero no su rango respecto al pax.
 4. El frontend llama a `/api/sala` después de cada mutación; es correcto, pero se puede optimizar más adelante.
@@ -321,7 +322,7 @@ Sin mirar el documento, responde:
 3. ¿Qué ocurre si la mesa ya tiene un servicio abierto?
 4. ¿Qué tres cosas escribe Prisma en la base de datos al abrir un walk-in?
 5. ¿Por qué el frontend vuelve a pedir `/api/sala` después de crear el servicio?
-6. ¿Por qué `actorId` queda vacío hoy?
+6. ¿Qué middleware rellena `request.usuario` y qué ocurre si no está en la ruta?
 7. ¿Qué diferencia hay entre un error 400 y un error 500?
 8. Dibuja el recorrido desde `fetch` hasta SQLite, con al menos seis pasos.
 

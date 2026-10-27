@@ -15,6 +15,8 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Matriz de permisos por rol (`docs/PERMISOS.md`) y protección de las 12 rutas de escritura del salón.
+- Helper de autenticación para pruebas (`tests/helpers/auth.ts`) y 19 pruebas de autorización (`tests/authz.test.ts`).
 - Recorrido guiado del backend (`docs/RECORRIDO-BACKEND.md`): flujo de `POST /api/servicios` de la petición a SQLite, con errores canónicos y deuda detectada.
 - Contrato de errores y validación (`docs/ERRORES-Y-VALIDACION.md`) con 13 criterios de aceptación.
 - 10 pruebas unitarias del manejador de errores (`tests/errors.test.ts`).
@@ -22,13 +24,15 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Changed
 
+- Todas las rutas de escritura del salón exigen token; solo `GET /api/sala` y el login quedan públicos.
+- El frontend pide el código de empleado al arrancar: sin sesión no se puede operar.
 - El cuerpo JSON ya no se coacciona: `pax: "2"`, `pax: true` y `pax: null` devuelven `400 VALIDATION_ERROR`.
 - `POST /api/servicios` exige `mesaId` o `createTable` en el borde, con `path: "mesaId"`.
 - La coerción de tipos queda solo en los parámetros de ruta.
 
 ### Verified
 
-- `npm run verify` en verde: **33/33 pruebas**.
+- `npm run verify` en verde: **52/52 pruebas**.
 
 ---
 

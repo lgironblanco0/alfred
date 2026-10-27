@@ -3,11 +3,12 @@ import { api, setToken } from "../api";
 import type { Usuario } from "../types";
 
 type LoginModalProps = {
+  dismissible?: boolean;
   onClose: () => void;
   onSuccess: (usuario: Usuario) => void;
 };
 
-export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
+export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModalProps) {
   const [codigo, setCodigo] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +37,7 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
         }}
       >
         <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
-        <h2 className="mt-2 text-[26px] font-semibold tracking-tight">Cobrar en Caja</h2>
+        <h2 className="mt-2 text-[26px] font-semibold tracking-tight">Entrar en ALFRED</h2>
         <p className="mt-1 text-[14px] text-mute">
           Introduce tu código de empleado. No necesitas usuario ni contraseña.
         </p>
@@ -62,9 +63,11 @@ export function LoginModal({ onClose, onSuccess }: LoginModalProps) {
         {error ? <p className="mt-3 text-[13px] text-alert">{error}</p> : null}
 
         <div className="mt-6 flex justify-end gap-2">
-          <button type="button" className="rounded-full px-4 py-2 text-soft" onClick={onClose}>
-            Cancelar
-          </button>
+          {dismissible ? (
+            <button type="button" className="rounded-full px-4 py-2 text-soft" onClick={onClose}>
+              Cancelar
+            </button>
+          ) : null}
           <button
             type="submit"
             disabled={pending}

@@ -231,4 +231,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/PLANTILLA-BLOQUE.md`: plantilla para especificar un bloque nuevo.
 - `docs/ESTRATEGIA-DE-PRUEBAS.md`: niveles de prueba, base desechable y datos de prueba.
 - `docs/ERRORES-Y-VALIDACION.md`: contrato de error y reglas de validación de la API.
+- `docs/PERMISOS.md`: matriz de permisos por rol y protección de escrituras.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.
