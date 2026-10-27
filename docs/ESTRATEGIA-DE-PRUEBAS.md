@@ -236,8 +236,8 @@ No se acepta una funcionalidad nueva sin prueba salvo excepción documentada en 
 | Pruebas existentes | 78, en cinco archivos | Reorganizadas por nivel |
 | Base de datos | Temporal por ejecución (`scripts/test-with-db.mjs`) | Igual |
 | Aislamiento | Total: `dev.db` no se toca | Igual |
-| E2E | Ninguna | Flujos críticos con Playwright |
-| CI | Workflow listo, sin remoto | `npm run verify` en cada push |
+| E2E | 1 flujo crítico con Playwright (`e2e/sala.spec.ts`) | Flujos críticos ampliados |
+| CI | Workflow listo con Chromium, sin remoto | `npm run verify` en cada push |
 | Cobertura | No medida | Medida y orientada al riesgo |
 
 **Riesgo resuelto en el Bloque 2.1:** las pruebas ya no arrancan contra `dev.db`. El runner crea, migra, siembra y borra una base temporal. La igualdad del hash de `dev.db` antes y después de `npm test` es la evidencia.

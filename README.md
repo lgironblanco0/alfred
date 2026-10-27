@@ -107,7 +107,8 @@ Ejecuta, en orden:
 1. Typecheck del backend.
 2. Build del backend.
 3. Build del frontend.
-4. Pruebas automatizadas.
+4. Pruebas automatizadas (unitarias e integración).
+5. Pruebas E2E en Chromium.
 
 Si algún paso falla, el comando se detiene y devuelve error. Es el mismo comando que usa la integración continua.
 
@@ -119,8 +120,13 @@ También se pueden ejecutar por separado:
 | `npm run build` | Compila el backend en `dist/` |
 | `npm --prefix web run build` | Compila el frontend en `web/dist/` |
 | `npm test` | Crea una base temporal, la migra y siembra, ejecuta `node:test` y la borra |
+| `npm run test:e2e` | Crea otra base temporal y ejecuta Playwright en Chromium contra la app real |
 
-Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`).
+Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`). La primera vez hay que instalar Chromium:
+
+```powershell
+npx playwright install chromium
+```
 
 ---
 
@@ -132,9 +138,10 @@ Las pruebas cubren salud, errores canónicos, validación, autenticación, permi
 | `npm run dev:web` | Frontend Vite en desarrollo |
 | `npm run typecheck` | Typecheck del backend |
 | `npm run build` | Build del backend |
-| `npm run verify` | Typecheck + builds + tests |
+| `npm run verify` | Typecheck + builds + tests + E2E |
 | `npm start` | Ejecuta el backend compilado (`dist/src/server.js`) |
-| `npm test` | Pruebas automatizadas |
+| `npm test` | Pruebas unitarias e integración con base temporal |
+| `npm run test:e2e` | Playwright: flujo completo con base temporal |
 | `npm run db:migrate` | Aplica migraciones en desarrollo |
 | `npm run db:seed` | Datos iniciales idempotentes |
 | `npm run db:backup` | Copia `prisma/dev.db` a `prisma/backups/` |
@@ -236,4 +243,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/EMPLEADOS.md`: códigos individuales, plantilla y migración.
 - `docs/SESION.md`: caducidad, límite de intentos, logout y cabeceras de seguridad.
 - `docs/PRUEBAS-AISLADAS.md`: base desechable, seed y limpieza de las pruebas.
+- `docs/E2E.md`: flujo completo en Playwright y permiso negativo de cobro.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

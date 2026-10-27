@@ -7,8 +7,11 @@ on:
 
 jobs:
   verify:
-    name: Typecheck, builds y tests
+    name: Typecheck, builds, tests y E2E
     runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "file:./dev.db"
 
     steps:
       - name: Descargar código
@@ -29,10 +32,11 @@ jobs:
       - name: Instalar frontend
         run: npm --prefix web ci
 
-      - name: Preparar base de datos
-        run: |
-          npx prisma migrate deploy
-          npm run db:seed
+      - name: Generar cliente Prisma
+        run: npx prisma generate
+
+      - name: Instalar Chromium para Playwright
+        run: npx playwright install --with-deps chromium
 
       - name: Verificar
         run: npm run verify

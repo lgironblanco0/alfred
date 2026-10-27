@@ -17,16 +17,20 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 - Base de datos desechable para pruebas (`docs/PRUEBAS-AISLADAS.md`): `npm test` crea, migra y siembra una SQLite temporal, y la borra al terminar.
 - 3 pruebas de integración deterministas (`tests/integration.test.ts`): `409` al repetir mesa y actor en `APERTURA` y `PEDIDO`.
+- Pruebas E2E con Playwright (`docs/E2E.md`): entrar, abrir mesa, añadir, enviar, marcar listo y cobrar como gerente; un camarero no puede cobrar.
 
 ### Changed
 
 - `prisma/schema.prisma` lee `DATABASE_URL`; `.env` pasa a ser necesario para arrancar.
 - `npm test` usa una base temporal y ya no depende de `prisma/dev.db`.
+- `npm run verify` incluye ahora las pruebas E2E.
+- El proxy de Vite usa `ALFRED_API_URL`, y E2E levanta API en `3100` y web en `5180`.
+- La integración continua instala Chromium antes de verificar.
 
 ### Verified
 
-- `npm run verify` en verde: **78/78 pruebas**.
-- `prisma/dev.db` conserva su hash SHA-256 tras `npm test`.
+- `npm run verify` en verde: **78/78 pruebas** + **1 E2E**.
+- `prisma/dev.db` conserva su hash SHA-256 tras `npm test` y tras `npm run verify`.
 
 ---
 

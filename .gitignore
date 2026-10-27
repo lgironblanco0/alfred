@@ -24,5 +24,10 @@ prisma/backups/
 .DS_Store
 coverage/
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+
 # Metadatos de TypeScript
 *.tsbuildinfo

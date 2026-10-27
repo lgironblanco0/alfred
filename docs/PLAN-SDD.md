@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1 ✅) |
+| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.2 ✅) |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -63,6 +63,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 1.5 Código individual por empleado | ✅ Hecho | b81ef7a | Campo `codigo` único con migración (copia `dev-20261027-200648.db`), cinco altas nuevas, login por código, `409 CODE_IN_USE`; 62/62 pruebas |
 | 2026-10-27 | 1.6 Endurecimiento de sesión | ✅ Hecho | 975fd68 | Limitador `ip + código` con reloj inyectable, cabeceras de seguridad, revocación por desactivación y retorno al login; 75/75 pruebas |
 | 2026-10-27 | 2.1 Base desechable para pruebas | ✅ Hecho | e46bc2d | `DATABASE_URL` + runner temporal con migración, seed y limpieza; `409` y actor deterministas; 78/78 pruebas y hash de `dev.db` intacto |
+| 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | Pendiente de commit | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
 
 ---
 
@@ -384,12 +385,25 @@ Verificación: `npm run verify` incluye unitarias, integración y deja `dev.db` 
 
 ### Bloque 2.2 — Pruebas de extremo a extremo
 
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 78/78 pruebas y 1 E2E
+
 **Teoría:** una prueba E2E simula a una persona usando el navegador.
 
 Tareas:
 - Playwright.
 - Flujo: abrir mesa → añadir producto → enviar → marcar listo → cobrar como gerente.
 - Flujo negativo: camarero no cobra.
+
+Resultado:
+- Playwright con Chromium; `playwright.config.ts` levanta API en `3100` y Vite en `5180` con `ALFRED_API_URL`.
+- `scripts/e2e-with-db.mjs` reutiliza `scripts/temp-db.mjs`: base temporal, migración, seed y limpieza.
+- `e2e/sala.spec.ts`: Ana entra, abre una mesa libre, añade «Pan de cristal», envía el pase, lo marca listo en Cocina, comprueba que no puede cobrar y, tras entrar como gerente, cobra y la mesa queda libre.
+- `npm run verify` incluye E2E; CI instala Chromium.
+- Documento `docs/E2E.md`.
+
+Deuda registrada: solo Chromium y un flujo; accesibilidad automática (2.5), más navegadores y móviles (9) quedan fuera. Los puertos de E2E pueden chocar con otros proyectos abiertos: son configurables.
+
+Verificación: `npm run verify` cubre unitarias, integración y E2E.
 
 ### Bloque 2.3 — Contrato de API documentado
 
