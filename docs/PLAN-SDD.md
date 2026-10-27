@@ -32,7 +32,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 
 | Fase | Nombre | Estado |
 |---|---|---|
-| 0 | Fundación SDD y trazabilidad | 🟨 En curso (0.1 ✅, 0.2 ✅) |
+| 0 | Fundación SDD y trazabilidad | 🟨 En curso (0.1 ✅, 0.2 ✅, 0.3 ✅) |
 | 1 | Backend, seguridad y códigos individuales | ⬜ Pendiente |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ⬜ Pendiente |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
@@ -53,6 +53,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|---|---|
 | 2026-10-27 | 0.1 Línea base verificable | ✅ Hecho | e5de120 | Versiones alineadas a 0.1.0, README, `.env.example`, clean-room correcto; retiradas dos dependencias nativas sin uso |
 | 2026-10-27 | 0.2 Matriz de trazabilidad | ✅ Hecho | 64c8f2e | 163 requisitos clasificados: 10 probados, 61 implementados sin prueba, 24 parciales, 68 pendientes; 7 discrepancias documentadas |
+| 2026-10-27 | 0.3 DoD, changelog y plantilla | ✅ Hecho | Pendiente de commit | `CHANGELOG.md`, Definition of Done, plantilla de bloque y proceso de cambio de alcance |
 
 ---
 
@@ -153,7 +154,9 @@ Tareas:
 
 Verificación: ningún requisito del MVP queda sin estado.
 
-### Bloque 0.3 — DoD, changelog y plantilla de bloque
+### Bloque 0.3 - DoD, changelog y plantilla de bloque
+
+Estado: ✅ Hecho · Fecha: 2026-10-27 · Commit: pendiente de registrar · Verificación: documentos creados, enlazados en README y sin requisitos sin dueño
 
 Tareas:
 - Añadir `CHANGELOG.md`.
