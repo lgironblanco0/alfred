@@ -138,7 +138,7 @@ Las capturas no se guardan por defecto para no llenar el repositorio; Playwright
 
 ## 6. Registro de cierre
 
-**Estado:** ✅ Hecho. **Fecha:** 2026-10-28. **Commit:** pendiente de registrar tras el cierre.
+**Estado:** ✅ Hecho. **Fecha:** 2026-10-28. **Commit:** `bd8dc0a`.
 
 ### 6.1. Qué se hizo
 
