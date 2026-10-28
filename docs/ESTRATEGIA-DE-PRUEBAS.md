@@ -63,8 +63,9 @@ Solo los flujos que justifican el coste:
 3. Unir dos mesas con pedidos → la cuenta queda compartida.
 4. Reducir pax por debajo de un asiento ocupado → error visible.
 5. Recargar la página y recuperar la sesión.
+6. Auditoría `axe-core` A/AA, foco atrapado, `Escape`, etiquetas, objetivos táctiles y viewports de móvil/tablet.
 
-Herramienta prevista: **Playwright**.
+Herramienta: **Playwright + Chromium**, con `@axe-core/playwright` desde el Bloque 2.5.
 
 ### 2.4. Qué NO se prueba
 
@@ -72,6 +73,7 @@ Herramienta prevista: **Playwright**.
 - Librerías de terceros.
 - Estilos pixel perfect (para eso hay revisión visual).
 - Cada combinación posible de datos: se prueban clases de equivalencia y límites.
+- Lectores de pantalla reales, zoom al 200 % y navegadores distintos de Chromium: quedan para revisión manual o la fase 9.
 
 ---
 

@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.4 ✅) |
+| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.5 ✅; puerta técnica cumplida) |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -66,6 +66,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 2.2 Pruebas E2E | ✅ Hecho | ae2c12a | Playwright + 2 servidores con base temporal; flujo abrir→cobrar y camarero sin permiso; 1 E2E en verde y dentro de `verify` |
 | 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | c5c7578 | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
 | 2026-10-27 | 2.4 Observabilidad | ✅ Hecho | 7b9b80c | Logs con redacción, `userId`/`role`, `/ready` y pila solo fuera de producción; 9 pruebas y 99/99 en verde |
+| 2026-10-28 | 2.5 Accesibilidad y responsive | ✅ Hecho | pendiente | axe-core, foco atrapado, `Escape`, etiquetas, contraste, acuse, táctil y viewports de 390/768; 8 E2E nuevas; 99/99 + 9/9 en verde |
 
 ---
 
@@ -451,6 +452,8 @@ Verificación: `npm run verify` en verde y `/ready` comprobado con base sana y c
 
 ### Bloque 2.5 — Accesibilidad y responsive
 
+Estado: ✅ Hecho · Fecha: 2026-10-28 · Commit: pendiente de registrar · Verificación: `npm run verify` en verde con 99/99 pruebas + 9/9 E2E
+
 Nota de alcance: incluir las fricciones de uso detectadas por el usuario durante la prueba del MVP (ninguna grave) y priorizarlas junto a foco, teclado y contraste.
 
 Tareas:
@@ -458,7 +461,21 @@ Tareas:
 - Revisar en tablet y móvil.
 - Anotar y corregir las fricciones de uso observadas al operar la sala.
 
-**Puerta de fase 2:** `npm run verify` incluye unitarias, integración y E2E.
+Resultado:
+- `docs/ACCESIBILIDAD.md`: decisiones A-1 a A-7, 11 criterios de aceptación, fricciones registradas y verificación manual.
+- `@axe-core/playwright` y `e2e/accesibilidad.spec.ts`: 8 pruebas E2E sobre login, sala, inspector, cuenta, confirmación, walk-in, Cocina y Caja.
+- `useModalFocus`: foco inicial, trampa de `Tab`, pila de diálogos anidados, `Escape` y retorno al disparador. Corrige la doble ejecución de efectos de StrictMode.
+- Layout de una columna por debajo de `1024px`; navegación horizontal, inspector apilado y colas de Cocina/Barra/Caja adaptadas.
+- Etiquetas asociadas, enlace «Saltar al contenido», `nav` con `aria-current`, regiones `alert`/`status` y acuse «Cambios guardados».
+- Contraste AA: alerta `#fca5a5`, sutil `#9a9aa2`; objetivos principales de `44px` y compactos de `24px` con puntero grueso.
+- Reordenación de mesas con teclado (`KeyboardSensor`).
+- `npm run test:e2e` acepta argumentos de Playwright para ejecutar un archivo o patrón concreto.
+
+Fricciones incluidas: barra lateral fija, inspector a dos columnas, modales sin foco atrapado, confirmación sin `Escape`, etiquetas sin asociar, falta de acuse y objetivos táctiles pequeños. El usuario no aportó fricciones adicionales.
+
+Deuda registrada: la auditoría automática solo cubre Chromium; lector de pantalla real, zoom al 200 % y navegadores adicionales quedan para la fase 9 o una revisión manual. La CI remota sigue sin ejecutarse porque no hay repositorio remoto.
+
+**Puerta de fase 2:** `npm run verify` incluye unitarias, integración y E2E. ✅ Cumplida con 99/99 pruebas y 9 E2E; el cierre formal de la fase queda pendiente de revisión.
 
 ---
 

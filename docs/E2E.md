@@ -67,7 +67,7 @@ El flujo: entrar → abrir mesa → añadir producto → enviar pase → marcar 
 | Tema | Fase |
 |---|---|
 | Safari, Firefox y móviles reales | 9 |
-| Pruebas de accesibilidad automáticas | 2.5 |
+| Pruebas de accesibilidad automáticas | 2.5 (cubiertas en `e2e/accesibilidad.spec.ts`) |
 | Carga y rendimiento | 11 |
 | Capturas de pantalla en cada paso | No se prevé |
 
@@ -116,3 +116,4 @@ El recorrido comprueba, en un Chromium real:
 |---|---|---|
 | 2026-10-27 | 2.2 | Especificación del flujo E2E y del permiso negativo |
 | 2026-10-27 | 2.2 | Playwright, dos servidores con base temporal y un flujo completo en verde |
+| 2026-10-28 | 2.5 | 8 E2E de accesibilidad y responsive; el runner acepta argumentos de Playwright |

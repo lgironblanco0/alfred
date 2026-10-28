@@ -46,7 +46,10 @@ export function TableCard({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
-      onClick={() => onSelect(mesa.id)}
+      onClick={(event) => {
+        event.currentTarget.focus();
+        onSelect(mesa.id);
+      }}
       className={`flex flex-col justify-between rounded-[28px] border text-left transition duration-200 ${cardSize(pax, mesa.clase)} ${
         isDragging ? "opacity-70" : ""
       } ${

@@ -25,6 +25,7 @@ export function App() {
   const [loginOpen, setLoginOpen] = useState(() => !getToken());
   const [now, setNow] = useState(Date.now());
   const [view, setView] = useState<View>("SALA");
+  const [feedback, setFeedback] = useState<{ id: number; message: string } | null>(null);
 
   const refresh = useCallback(async () => {
     const next = await api.sala();
@@ -55,6 +56,12 @@ export function App() {
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = window.setTimeout(() => setFeedback(null), 4000);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
   const selected = useMemo(
     () => sala?.mesas.find((mesa) => mesa.id === selectedId) ?? null,
     [sala, selectedId],
@@ -63,9 +70,11 @@ export function App() {
   async function run(action: () => Promise<unknown>) {
     setBusy(true);
     setError(null);
+    setFeedback(null);
     try {
       await action();
       await refresh();
+      setFeedback({ id: Date.now(), message: "Cambios guardados" });
     } catch (caught) {
       if (caught instanceof ApiError && caught.requiresLogin) {
         setUsuario(null);
@@ -108,20 +117,56 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-canvas text-ink">
-      <div className="mx-auto grid min-h-screen max-w-[1600px] grid-cols-[220px_minmax(0,1fr)] gap-4 p-4">
-        <aside className="rounded-[32px] border border-line bg-panel p-5">
-          <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
-          <h1 className="mt-3 text-[28px] font-semibold tracking-tight">
-            {view === "SALA" ? "Sala" : view === "COCINA" ? "Cocina" : view === "BARRA" ? "Barra" : "Caja"}
-          </h1>
-          <p className="mt-2 text-[13px] leading-5 text-mute">Operación interna. Texto, estados y tiempos. Sin fotos.</p>
-          <div className="mt-8 space-y-2">
-            <NavButton label="Sala" active={view === "SALA"} onClick={() => setView("SALA")} />
-            <NavButton label="Cocina" active={view === "COCINA"} onClick={() => setView("COCINA")} />
-            <NavButton label="Barra" active={view === "BARRA"} onClick={() => setView("BARRA")} />
-            <NavButton label="Caja" active={view === "CAJA"} onClick={() => setView("CAJA")} />
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-accent focus:px-5 focus:py-3 focus:text-[14px] focus:font-semibold focus:text-on-accent"
+      >
+        Saltar al contenido
+      </a>
+      <div className="mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <aside className="rounded-[24px] border border-line bg-panel p-4 sm:p-5 lg:rounded-[32px]">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
+              <h1 className="mt-1 text-[24px] font-semibold tracking-tight sm:mt-3 sm:text-[28px]">
+                {view === "SALA" ? "Sala" : view === "COCINA" ? "Cocina" : view === "BARRA" ? "Barra" : "Caja"}
+              </h1>
+            </div>
+            <p className="text-[12px] text-mute lg:hidden">Operación de sala</p>
           </div>
-          <div className="mt-3 space-y-2">
+          <p className="mt-2 hidden text-[13px] leading-5 text-mute lg:block">
+            Operación interna. Texto, estados y tiempos. Sin fotos.
+          </p>
+          <nav
+            aria-label="Principal"
+            className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:mt-8 lg:block lg:space-y-2"
+          >
+            <NavButton
+              label="Sala"
+              active={view === "SALA"}
+              current={view === "SALA"}
+              onClick={() => setView("SALA")}
+            />
+            <NavButton
+              label="Cocina"
+              active={view === "COCINA"}
+              current={view === "COCINA"}
+              onClick={() => setView("COCINA")}
+            />
+            <NavButton
+              label="Barra"
+              active={view === "BARRA"}
+              current={view === "BARRA"}
+              onClick={() => setView("BARRA")}
+            />
+            <NavButton
+              label="Caja"
+              active={view === "CAJA"}
+              current={view === "CAJA"}
+              onClick={() => setView("CAJA")}
+            />
+          </nav>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:block lg:space-y-2">
             <NavButton label="Walk-in" onClick={() => setWalkInOpen(true)} />
             <NavButton
               label={mergeMode ? "Salir de unir" : "Unir mesas"}
@@ -134,18 +179,18 @@ export function App() {
               <button
                 type="button"
                 onClick={() => void joinSelected()}
-                className="w-full rounded-full bg-accent px-4 py-3 text-left text-[14px] font-semibold text-on-accent"
+                className="col-span-2 w-full rounded-full bg-accent px-4 py-3 text-left text-[14px] font-semibold text-on-accent sm:col-span-1 lg:col-span-1"
               >
                 Confirmar unión
               </button>
             ) : null}
           </div>
-          <div className="mt-10 space-y-3 text-[13px] text-mute">
+          <div className="mt-8 hidden space-y-3 text-[13px] text-mute lg:block">
             <Legend color="var(--color-ok)" label="< 10 min" />
             <Legend color="var(--color-warn)" label="10–20 min" />
             <Legend color="var(--color-alert)" label="> 20 min" />
           </div>
-          <div className="mt-8 border-t border-line pt-4">
+          <div className="mt-5 border-t border-line pt-4 lg:mt-8">
             {usuario ? (
               <>
                 <p className="text-[13px] font-semibold">{usuario.nombre}</p>
@@ -174,9 +219,31 @@ export function App() {
           </div>
         </aside>
 
-        <main className="rounded-[32px] border border-line bg-panel p-6">
+        <main
+          id="contenido-principal"
+          tabIndex={-1}
+          aria-busy={busy}
+          className="min-w-0 rounded-[24px] border border-line bg-panel p-4 sm:p-6 lg:rounded-[32px]"
+        >
+          {busy ? (
+            <p className="sr-only" role="status">
+              Guardando cambios…
+            </p>
+          ) : null}
+          {feedback ? (
+            <div
+              key={feedback.id}
+              role="status"
+              aria-live="polite"
+              className="mb-4 rounded-2xl border border-ok/30 bg-ok/10 px-4 py-3 text-[14px] text-ok"
+            >
+              {feedback.message}
+            </div>
+          ) : null}
           {error ? (
-            <div className="mb-4 rounded-2xl bg-alert/15 px-4 py-3 text-[14px] text-alert">{error}</div>
+            <div role="alert" className="mb-4 rounded-2xl bg-alert/15 px-4 py-3 text-[14px] text-alert">
+              {error}
+            </div>
           ) : null}
           {!sala ? (
             <p className="text-mute">Cargando sala…</p>
@@ -305,13 +372,26 @@ export function App() {
   );
 }
 
-function NavButton({ label, active, onClick }: { label: string; active?: boolean; onClick: () => void }) {
+function NavButton({
+  label,
+  active,
+  current,
+  onClick,
+}: {
+  label: string;
+  active?: boolean;
+  current?: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       type="button"
+      aria-current={current ? "page" : undefined}
       onClick={onClick}
-      className={`w-full rounded-full px-4 py-3 text-left text-[14px] font-medium hover:bg-white/10 ${
-        active ? "bg-accent text-on-accent hover:bg-accent-dim" : "bg-white/5 text-ink"
+      className={`min-h-11 w-full rounded-full px-4 py-3 text-left text-[14px] font-medium ${
+        active
+          ? "bg-accent text-on-accent hover:bg-accent-dim"
+          : "bg-white/5 text-ink hover:bg-white/10"
       }`}
     >
       {label}

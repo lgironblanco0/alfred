@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { api, setToken } from "../api";
+import { useModalFocus } from "../lib/useModalFocus";
 import type { Usuario } from "../types";
 
 type LoginModalProps = {
@@ -12,6 +13,11 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
   const [codigo, setCodigo] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const codeId = useId();
+  const errorId = useId();
+  const panelRef = useModalFocus<HTMLFormElement>(dismissible ? onClose : undefined);
 
   async function submit() {
     setPending(true);
@@ -30,6 +36,11 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
       <form
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={error ? `${descriptionId} ${errorId}` : descriptionId}
         className="w-full max-w-md rounded-[28px] border border-line bg-panel p-6"
         onSubmit={(event) => {
           event.preventDefault();
@@ -37,21 +48,31 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
         }}
       >
         <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
-        <h2 className="mt-2 text-[26px] font-semibold tracking-tight">Entrar en ALFRED</h2>
-        <p className="mt-1 text-[14px] text-mute">
+        <h2 id={titleId} className="mt-2 text-[26px] font-semibold tracking-tight">
+          Entrar en ALFRED
+        </h2>
+        <p id={descriptionId} className="mt-1 text-[14px] text-mute">
           Introduce tu código de empleado. No necesitas usuario ni contraseña.
         </p>
 
-        <label className="mt-5 block text-[12px] font-medium uppercase tracking-[0.14em] text-mute">
+        <label
+          htmlFor={codeId}
+          className="mt-5 block text-[12px] font-medium uppercase tracking-[0.14em] text-mute"
+        >
           Código de empleado
         </label>
         <input
+          id={codeId}
           type="text"
           required
-          autoFocus
+          data-autofocus
           autoComplete="off"
           value={codigo}
-          onChange={(event) => setCodigo(event.target.value)}
+          aria-invalid={error ? true : undefined}
+          onChange={(event) => {
+            setCodigo(event.target.value);
+            setError(null);
+          }}
           className="mt-2 w-full rounded-2xl border border-line bg-canvas px-4 py-3 text-[15px]"
           placeholder="Tu código de empleado"
         />
@@ -60,7 +81,11 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
           <span className="text-soft">2</span> Camareros · <span className="text-soft">3–7</span> Equipo
         </p>
 
-        {error ? <p className="mt-3 text-[13px] text-alert">{error}</p> : null}
+        {error ? (
+          <p id={errorId} role="alert" className="mt-3 text-[13px] text-alert">
+            {error}
+          </p>
+        ) : null}
 
         <div className="mt-6 flex justify-end gap-2">
           {dismissible ? (

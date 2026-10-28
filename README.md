@@ -6,7 +6,7 @@ Aplicación de gestión para hostelería: salón, comandas por asiento, Cocina, 
 - **Frontend:** React + Vite + TypeScript + Tailwind CSS.
 - **Acceso:** por código de empleado (`0` Gerente, `1` Encargado, `2` Camareros).
 
-Esta es la versión `0.2.0`: el MVP funcional del salón más la fundación SDD. No es una versión de producción.
+Esta es la versión `0.3.0`: el MVP funcional del salón más la fundación SDD y la Fase 2 de calidad en curso. No es una versión de producción.
 
 ---
 
@@ -108,7 +108,7 @@ Ejecuta, en orden:
 2. Build del backend.
 3. Build del frontend.
 4. Pruebas automatizadas (unitarias e integración).
-5. Pruebas E2E en Chromium.
+5. Pruebas E2E en Chromium: flujo completo, accesibilidad automática, foco y responsive.
 
 Si algún paso falla, el comando se detiene y devuelve error. Es el mismo comando que usa la integración continua.
 
@@ -122,7 +122,7 @@ También se pueden ejecutar por separado:
 | `npm test` | Crea una base temporal, la migra y siembra, ejecuta `node:test` y la borra |
 | `npm run test:e2e` | Crea otra base temporal y ejecuta Playwright en Chromium contra la app real |
 
-Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`). La primera vez hay que instalar Chromium:
+Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. Las E2E añaden el recorrido completo de sala, auditoría `axe-core` de accesibilidad, foco atrapado, `Escape`, etiquetas, objetivos táctiles y viewports de móvil y tablet. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`). La primera vez hay que instalar Chromium:
 
 ```powershell
 npx playwright install chromium
@@ -246,4 +246,5 @@ Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.
 - `docs/E2E.md`: flujo completo en Playwright y permiso negativo de cobro.
 - `docs/API.md`: contrato de las 21 rutas, permisos, formas de datos y errores.
 - `docs/OBSERVABILIDAD.md`: logs, redacción de datos sensibles, health y readiness.
+- `docs/ACCESIBILIDAD.md`: diálogos, foco, teclado, contraste, responsive y objetivos táctiles.
 - `docs/PLAN-SDD.md`: plan de trabajo SDD por bloques y estado de avance.

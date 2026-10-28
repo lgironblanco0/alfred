@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { estacionDeProducto } from "../lib/estacion";
 import { clockTime, lineSeatLabel, money, splitPreview } from "../lib/format";
+import { useModalFocus } from "../lib/useModalFocus";
 import type { Linea, Mesa, Producto } from "../types";
 
 const reasons = ["Kitchen Error", "Customer Changed Mind", "Wrong Table", "86 / Unavailable"];
@@ -62,6 +63,18 @@ export function Inspector({
   const [removeId, setRemoveId] = useState<number | null>(null);
   const [destino, setDestino] = useState<Destino>("COCINA");
   const [accountOpen, setAccountOpen] = useState(false);
+  const titleId = useId();
+  const descriptionId = useId();
+  const paxId = useId();
+  const promoId = useId();
+  const accountTitleId = useId();
+  const removeTitleId = useId();
+  const panelRef = useModalFocus<HTMLDivElement>(onClose);
+  const accountPanelRef = useModalFocus<HTMLDivElement>(
+    () => setAccountOpen(false),
+    accountOpen && Boolean(mesa?.servicio),
+  );
+  const removePanelRef = useModalFocus<HTMLDivElement>(() => setRemoveId(null), Boolean(removeId));
 
   const servicio = mesa?.servicio ?? null;
   const pending = servicio?.lineas.filter((linea) => linea.estado === "PENDIENTE") ?? [];
@@ -92,19 +105,6 @@ export function Inspector({
   const grupos = useMemo(() => grupoCategoria(visibles), [visibles]);
 
   useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (event.key !== "Escape") return;
-      if (removeId) {
-        setRemoveId(null);
-        return;
-      }
-      onClose();
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose, removeId]);
-
-  useEffect(() => {
     if (seat !== "share" && servicio && seat > servicio.pax) {
       setSeat("share");
     }
@@ -121,21 +121,32 @@ export function Inspector({
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-0 sm:p-4"
+      onClick={onClose}
+    >
       <div
-        className="relative flex h-[94vh] w-full max-w-[1320px] flex-col overflow-hidden rounded-[28px] border border-line bg-panel shadow-2xl"
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+        className="relative flex h-[100dvh] w-full max-w-[1320px] flex-col overflow-hidden rounded-none border border-line bg-panel shadow-2xl sm:h-[94vh] sm:rounded-[28px]"
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
-          <div>
+        <p id={descriptionId} className="sr-only">
+          Comanda, asientos y carta de la mesa seleccionada.
+        </p>
+        <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
+          <div className="min-w-0">
             <p className="text-[12px] uppercase tracking-[0.16em] text-mute">
               {servicio ? `Servicio ${servicio.id}` : mesa.zona === "RESTAURANTE" ? "Comedor" : mesa.zona === "TERRAZA" ? "Terraza" : "Barra"}
             </p>
-            <h2 className="mt-1 text-[30px] font-semibold tracking-tight">
+            <h2 id={titleId} className="mt-1 truncate text-[24px] font-semibold tracking-tight sm:text-[30px]">
               {servicio ? servicio.mesaLabels.join(" + ") : mesa.label}
             </h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {servicio ? (
               <button
                 type="button"
@@ -147,6 +158,7 @@ export function Inspector({
             ) : null}
             <button
               type="button"
+              data-autofocus
               onClick={onClose}
               className="rounded-full bg-white/5 px-4 py-2 text-[13px] font-medium text-soft hover:bg-white/10"
             >
@@ -155,7 +167,7 @@ export function Inspector({
           </div>
         </header>
 
-        <div className="border-b border-line px-5 py-3">
+        <div className="border-b border-line px-4 py-3 sm:px-5">
           <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
             <SeatMap
               compact
@@ -177,8 +189,11 @@ export function Inspector({
                 </div>
                 {servicio ? (
                   <div className="flex items-center gap-2">
-                    <label className="text-[12px] text-mute">Pax</label>
+                    <label htmlFor={paxId} className="text-[12px] text-mute">
+                      Pax
+                    </label>
                     <input
+                      id={paxId}
                       type="number"
                       min={1}
                       value={servicio.pax}
@@ -209,6 +224,7 @@ export function Inspector({
               <div className="grid grid-cols-2 gap-1 rounded-full bg-sunken p-1">
                 <button
                   type="button"
+                  aria-pressed={destino === "COCINA"}
                   onClick={() => setDestino("COCINA")}
                   className={`rounded-full px-4 py-2 text-[14px] font-semibold ${destino === "COCINA" ? "bg-accent text-on-accent" : "text-soft hover:bg-white/5"}`}
                 >
@@ -216,6 +232,7 @@ export function Inspector({
                 </button>
                 <button
                   type="button"
+                  aria-pressed={destino === "BARRA"}
                   onClick={() => setDestino("BARRA")}
                   className={`rounded-full px-4 py-2 text-[14px] font-semibold ${destino === "BARRA" ? "bg-accent text-on-accent" : "text-soft hover:bg-white/5"}`}
                 >
@@ -227,9 +244,12 @@ export function Inspector({
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="grid min-h-full grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div
+            data-testid="inspector-columns"
+            className="grid min-h-full grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+          >
             {/* Comanda de la mesa */}
-            <section className="border-r border-line">
+            <section className="border-b border-line lg:border-b-0 lg:border-r">
               <div className="border-b border-line px-5 py-4">
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute">Comanda</h3>
@@ -336,111 +356,147 @@ export function Inspector({
         </div>
 
         {accountOpen && servicio ? (
-              <div className="absolute inset-y-0 right-0 z-20 flex w-[380px] max-w-[92%] flex-col border-l border-line bg-panel shadow-2xl">
-                <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                  <h3 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute">Cuenta</h3>
+          <div
+            className="absolute inset-0 z-20 flex justify-end bg-black/40"
+            onClick={() => setAccountOpen(false)}
+          >
+            <div
+              ref={accountPanelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={accountTitleId}
+              className="flex h-full w-full flex-col border-l border-line bg-panel shadow-2xl sm:w-[380px] sm:max-w-[92%]"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-line px-5 py-4">
+                <h3
+                  id={accountTitleId}
+                  className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute"
+                >
+                  Cuenta
+                </h3>
+                <button
+                  type="button"
+                  data-autofocus
+                  onClick={() => setAccountOpen(false)}
+                  className="rounded-full bg-white/5 px-3 py-1 text-[12px] text-soft hover:bg-white/10"
+                >
+                  Cerrar
+                </button>
+              </div>
+              <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+                <div className="flex gap-2">
+                  <label htmlFor={promoId} className="sr-only">
+                    Código promocional
+                  </label>
+                  <input
+                    id={promoId}
+                    value={promo}
+                    onChange={(event) => setPromo(event.target.value.toUpperCase())}
+                    placeholder="Código promo"
+                    className="min-w-0 flex-1 rounded-full border border-line bg-canvas px-4 py-2 text-[14px]"
+                  />
                   <button
                     type="button"
-                    onClick={() => setAccountOpen(false)}
-                    className="rounded-full bg-white/5 px-3 py-1 text-[12px] text-soft hover:bg-white/10"
+                    onClick={() => onPromo(promo)}
+                    className="rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium"
                   >
-                    Cerrar
+                    Aplicar
                   </button>
                 </div>
-                <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
-                  <div className="flex gap-2">
-                    <input
-                      value={promo}
-                      onChange={(event) => setPromo(event.target.value.toUpperCase())}
-                      placeholder="Código promo"
-                      className="min-w-0 flex-1 rounded-full border border-line bg-canvas px-4 py-2 text-[14px]"
-                    />
+                {servicio.descuentoCodigo ? (
+                  <p className="text-[12px] text-accent">
+                    {servicio.descuentoCodigo} · -{money(servicio.discount)}
+                  </p>
+                ) : (
+                  <p className="text-[12px] text-subtle">STAFF10 · MESA5 · INVITADO</p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {["NINGUNO", "IGUAL", "ASIENTO"].map((modo) => (
                     <button
+                      key={modo}
                       type="button"
-                      onClick={() => onPromo(promo)}
-                      className="rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium"
+                      aria-pressed={servicio.splitModo === modo}
+                      onClick={() => onSplit(modo)}
+                      className={`rounded-full px-3 py-1 text-[12px] ${
+                        servicio.splitModo === modo ? "bg-accent text-on-accent" : "bg-white/5 text-soft"
+                      }`}
                     >
-                      Aplicar
+                      {modo === "NINGUNO" ? "Única" : modo === "IGUAL" ? "Split igual" : "Por asiento"}
                     </button>
-                  </div>
-                  {servicio.descuentoCodigo ? (
-                    <p className="text-[12px] text-accent">
-                      {servicio.descuentoCodigo} · -{money(servicio.discount)}
-                    </p>
-                  ) : (
-                    <p className="text-[12px] text-subtle">STAFF10 · MESA5 · INVITADO</p>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    {["NINGUNO", "IGUAL", "ASIENTO"].map((modo) => (
-                      <button
-                        key={modo}
-                        type="button"
-                        onClick={() => onSplit(modo)}
-                        className={`rounded-full px-3 py-1 text-[12px] ${
-                          servicio.splitModo === modo ? "bg-accent text-on-accent" : "bg-white/5 text-soft"
-                        }`}
-                      >
-                        {modo === "NINGUNO" ? "Única" : modo === "IGUAL" ? "Split igual" : "Por asiento"}
-                      </button>
+                  ))}
+                </div>
+                <div className="space-y-1 text-[14px]">
+                  <Row label="Subtotal" value={money(servicio.subtotal)} />
+                  <Row label="Descuento" value={money(servicio.discount)} />
+                  <Row label="Total" value={money(servicio.total)} strong />
+                </div>
+                {split.length > 1 ? (
+                  <div className="space-y-1 border-t border-line pt-3">
+                    {split.map((part) => (
+                      <Row key={part.label} label={part.label} value={money(part.amount)} />
                     ))}
                   </div>
-                  <div className="space-y-1 text-[14px]">
-                    <Row label="Subtotal" value={money(servicio.subtotal)} />
-                    <Row label="Descuento" value={money(servicio.discount)} />
-                    <Row label="Total" value={money(servicio.total)} strong />
-                  </div>
-                  {split.length > 1 ? (
-                    <div className="space-y-1 border-t border-line pt-3">
-                      {split.map((part) => (
-                        <Row key={part.label} label={part.label} value={money(part.amount)} />
+                ) : null}
+                <div className="border-t border-line pt-3">
+                  <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
+                    Historial
+                  </p>
+                  {servicio.eventos.length === 0 ? (
+                    <p className="text-[12px] text-subtle">Sin movimientos registrados.</p>
+                  ) : (
+                    <ul className="space-y-1.5">
+                      {servicio.eventos.slice(0, 8).map((evento) => (
+                        <li key={evento.id} className="flex gap-2 text-[12px]">
+                          <span className="shrink-0 text-subtle">{clockTime(evento.createdAt)}</span>
+                          <span className="min-w-0 flex-1 text-soft">
+                            {evento.detalle}
+                            <span className="text-subtle"> · {evento.actor?.nombre ?? "sin identificar"}</span>
+                          </span>
+                        </li>
                       ))}
-                    </div>
-                  ) : null}
-                  <div className="border-t border-line pt-3">
-                    <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
-                      Historial
-                    </p>
-                    {servicio.eventos.length === 0 ? (
-                      <p className="text-[12px] text-subtle">Sin movimientos registrados.</p>
-                    ) : (
-                      <ul className="space-y-1.5">
-                        {servicio.eventos.slice(0, 8).map((evento) => (
-                          <li key={evento.id} className="flex gap-2 text-[12px]">
-                            <span className="shrink-0 text-subtle">{clockTime(evento.createdAt)}</span>
-                            <span className="min-w-0 flex-1 text-soft">
-                              {evento.detalle}
-                              <span className="text-subtle"> · {evento.actor?.nombre ?? "sin identificar"}</span>
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <div className="rounded-2xl border border-line bg-sunken px-4 py-3 text-[12px] text-subtle">
-                    El cobro se realiza desde <span className="font-semibold text-soft">Caja</span>. Solo Encargado o Gerente pueden cobrar.
-                  </div>
+                    </ul>
+                  )}
                 </div>
-                <div className="border-t border-line p-4">
-                  <button
-                    type="button"
-                    onClick={onCancel}
-                    className="w-full rounded-full bg-alert/15 py-3 text-[14px] font-semibold text-alert"
-                  >
-                    Cancelar / liberar mesa
-                  </button>
+                <div className="rounded-2xl border border-line bg-sunken px-4 py-3 text-[12px] text-subtle">
+                  El cobro se realiza desde <span className="font-semibold text-soft">Caja</span>. Solo Encargado o Gerente pueden cobrar.
                 </div>
               </div>
-            ) : null}
+              <div className="border-t border-line p-4">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className="w-full rounded-full bg-alert/15 py-3 text-[14px] font-semibold text-alert"
+                >
+                  Cancelar / liberar mesa
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         {removeId ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4" onClick={() => setRemoveId(null)}>
-            <div className="w-full max-w-md rounded-[24px] border border-line bg-panel p-4" onClick={(event) => event.stopPropagation()}>
-              <p className="text-[15px] font-semibold">Motivo de anulación</p>
+          <div
+            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+            onClick={() => setRemoveId(null)}
+          >
+            <div
+              ref={removePanelRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={removeTitleId}
+              className="w-full max-w-md rounded-[24px] border border-line bg-panel p-4"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <h3 id={removeTitleId} className="text-[15px] font-semibold">
+                Motivo de anulación
+              </h3>
               <div className="mt-3 grid gap-2">
-                {reasons.map((reason) => (
+                {reasons.map((reason, index) => (
                   <button
                     key={reason}
                     type="button"
+                    data-autofocus={index === 0 ? true : undefined}
                     onClick={() => {
                       onAnular(removeId, reason);
                       setRemoveId(null);
@@ -451,7 +507,11 @@ export function Inspector({
                   </button>
                 ))}
               </div>
-              <button type="button" className="mt-3 w-full py-2 text-[13px] text-mute" onClick={() => setRemoveId(null)}>
+              <button
+                type="button"
+                className="mt-3 w-full py-2 text-[13px] text-mute"
+                onClick={() => setRemoveId(null)}
+              >
                 Cerrar
               </button>
             </div>
@@ -529,6 +589,9 @@ function SeatMap({
             <button
               key={value}
               type="button"
+              data-compact-target
+              aria-pressed={selected}
+              aria-label={`Asiento ${value}${count > 0 ? `, ${count} línea(s)` : ", libre"}`}
               onClick={() => onSelectSeat(value)}
               title={`Asiento ${value}${count > 0 ? ` · ${count} línea(s)` : " · libre"}`}
               className={`absolute grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border font-semibold transition ${size} ${
@@ -554,6 +617,7 @@ function SeatMap({
       <div className="mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-2">
         <button
           type="button"
+          aria-pressed={seat === "share"}
           onClick={() => onSelectSeat("share")}
           className={`rounded-full px-3 py-1.5 text-[12px] font-medium ${
             seat === "share" ? "bg-accent text-on-accent" : "bg-white/5 text-soft hover:bg-white/10"
@@ -605,12 +669,22 @@ function ItemList({
           </div>
           <div className="mt-2 flex gap-2">
             {linea.estado === "CALLED" ? (
-              <button type="button" className="text-[12px] font-medium text-ok" onClick={() => onReady(linea.id)}>
+              <button
+                type="button"
+                data-compact-target
+                className="text-[12px] font-medium text-ok"
+                onClick={() => onReady(linea.id)}
+              >
                 Marcar READY
               </button>
             ) : null}
             {linea.estado !== "PAID" && linea.estado !== "ANULADO" ? (
-              <button type="button" className="text-[12px] font-medium text-alert" onClick={() => onAskRemove(linea.id)}>
+              <button
+                type="button"
+                data-compact-target
+                className="text-[12px] font-medium text-alert"
+                onClick={() => onAskRemove(linea.id)}
+              >
                 Quitar
               </button>
             ) : null}

@@ -58,14 +58,14 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 | Estado | Filas |
 |---|---:|
-| ✅ Probado | 10 |
-| 🟨 Implementado sin prueba | 61 |
+| ✅ Probado | 20 |
+| 🟨 Implementado sin prueba | 60 |
 | ⛔ Parcial o contradictorio | 24 |
 | ⬜ Pendiente | 68 |
 | 🚫 Fuera de alcance | 0 |
-| **Total** | **163** |
+| **Total** | **172** |
 
-**Lectura:** hay mucha funcionalidad construida, pero solo 10 requisitos tienen prueba automatizada. La mayoría del salón está implementada y sin red de seguridad. Eso es exactamente lo que las fases 1 y 2 deben corregir.
+**Lectura:** tras el Bloque 2.5 hay 20 requisitos con prueba automatizada. La accesibilidad y el responsive ya tienen red de seguridad; la mayoría de las filas restantes siguen pendientes de actualizar en sus fases. Eso es exactamente lo que las fases 1 y 2 deben corregir.
 
 ---
 
@@ -103,7 +103,7 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 | SAL-09 | Una mesa unida muestra las etiquetas de todas sus mesas | §8.3, §12 | La tarjeta muestra `Mesa 2 + Mesa 3` | `src/sala/serialize.ts`, `web/src/components/TableCard.tsx` | — | 🟨 |
 | SAL-10 | El estado se distingue sin depender solo del color | §8.6 | Hay texto además del color | `web/src/components/TableCard.tsx` | — | 🟨 |
 | SAL-11 | El temporizador de mesa se actualiza sin recargar la página | §8.6 | El tiempo cambia solo cada 15 s | `web/src/App.tsx:53` | — | 🟨 |
-| SAL-12 | La vista funciona en tablet y móvil | §4.2, §13 | Sin desbordes en pantallas pequeñas | `web/src/components/*` | `manual` | 🟨 |
+| SAL-12 | La vista funciona en tablet y móvil | §4.2, §13 | Sin desbordes en pantallas pequeñas | `web/src/App.tsx`, `web/src/components/Inspector.tsx` | `e2e/accesibilidad.spec.ts` | ✅ |
 | SAL-13 | Cancelar un servicio libera la mesa y registra motivo | §7.2 | El servicio queda CANCELADA y la mesa libre | `src/sala/service.ts:202` | — | 🟨 |
 | SAL-14 | Un servicio no se borra: termina PAGADA o CANCELADA | §6.4 | No existe ruta de borrado físico | `prisma/schema.prisma` | — | 🟨 |
 
@@ -318,7 +318,23 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 ---
 
-## 16. Producción y operación
+## 16. Accesibilidad y responsive
+
+| ID | Requisito | Fuente | Criterio verificable | Implementación | Prueba | Estado |
+|---|---|---|---|---|---|---|
+| ACC-01 | Los modales son diálogos nombrados y con foco atrapado | `ACCESIBILIDAD.md` A-5, CA-01 | `Tab` y `Shift+Tab` no salen del diálogo | `web/src/lib/useModalFocus.ts` | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-02 | `Escape` cierra el diálogo superior y devuelve el foco | A-5, CA-02 | Al cerrar, el disparador vuelve a tener el foco | `web/src/lib/useModalFocus.ts` | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-03 | Las pantallas principales no tienen violaciones axe A/AA | A-1, CA-04 | `axe-core` devuelve cero violaciones | Componentes web | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-04 | Las etiquetas visibles están asociadas a su campo | CA-05 | Login, walk-in, pax y promo tienen nombre accesible | Componentes web | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-05 | Navegación con landmark, salto de contenido y vista activa | A-7, CA-06 | Existen `nav`, enlace de salto y `aria-current` | `web/src/App.tsx` | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-06 | Sin scroll horizontal en móvil y tablet | A-3, CA-07 | `scrollWidth` no supera el viewport | Layout responsive | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-07 | El inspector se apila y ocupa el ancho en móvil | A-3, CA-08 | Una columna a `390px` y sin desbordes | `web/src/components/Inspector.tsx` | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-08 | Objetivos táctiles principales de al menos `44px` | A-4, CA-09 | Controles principales ≥44; compactos ≥24 | `web/src/index.css`, componentes | `e2e/accesibilidad.spec.ts` | ✅ |
+| ACC-09 | Errores y acuses se anuncian con regiones vivas | A-6, CA-10 | `role="alert"` y `role="status"` visibles | `web/src/App.tsx`, modales | `e2e/accesibilidad.spec.ts` | ✅ |
+
+---
+
+## 17. Producción y operación
 
 | ID | Requisito | Fuente | Criterio verificable | Implementación | Prueba | Estado |
 |---|---|---|---|---|---|---|
@@ -330,7 +346,7 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 ---
 
-## 17. Discrepancias detectadas
+## 18. Discrepancias detectadas
 
 Estas no son fallos nuevos: son diferencias entre lo que dice la spec y lo que hace el código. Deben resolverse en la fase correspondiente.
 
@@ -346,7 +362,7 @@ Estas no son fallos nuevos: son diferencias entre lo que dice la spec y lo que h
 
 ---
 
-## 18. Huecos de prueba prioritarios
+## 19. Huecos de prueba prioritarios
 
 Ordenados por riesgo, no por facilidad. Estos son los candidatos naturales para las fases 1 y 2.
 
@@ -363,8 +379,9 @@ Ordenados por riesgo, no por facilidad. Estos son los candidatos naturales para 
 
 ---
 
-## 19. Historial
+## 20. Historial
 
 | Fecha | Bloque | Cambio |
 |---|---|---|
 | 2026-10-27 | 0.2 | Creación de la matriz con 163 filas, discrepancias y huecos de prueba |
+| 2026-10-28 | 2.5 | 9 filas de accesibilidad/responsive en ✅; SAL-12 pasa a probado; resumen actualizado a 172 filas |

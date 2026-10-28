@@ -16,7 +16,7 @@ let failed = false;
 try {
   console.log(`Base de pruebas E2E: ${database.databaseUrl}`);
   prepareDatabase("e2e", env);
-  runNode("e2e", ["node_modules/@playwright/test/cli.js", "test"], env);
+  runNode("e2e", ["node_modules/@playwright/test/cli.js", "test", ...process.argv.slice(2)], env);
 } catch (error) {
   failed = true;
   console.error(`\n${error instanceof Error ? error.message : String(error)}`);

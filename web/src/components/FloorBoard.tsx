@@ -1,12 +1,18 @@
 import {
   DndContext,
+  KeyboardSensor,
   PointerSensor,
   closestCenter,
   useSensor,
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { SortableContext, arrayMove, rectSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
 import type { Mesa, MesaZona } from "../types";
 import { TableCard } from "./TableCard";
 
@@ -53,7 +59,10 @@ export function FloorBoard({
   onSelect,
   onReorder,
 }: FloorBoardProps) {
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   function handleDragEnd(zona: MesaZona, clase: Mesa["clase"] | undefined, event: DragEndEvent) {
     const { active, over } = event;
@@ -79,9 +88,11 @@ export function FloorBoard({
 
         return (
           <section key={zone.id}>
-            <div className="mb-4 flex items-baseline justify-between">
-              <h2 className="text-[28px] font-semibold tracking-tight">{zone.label}</h2>
-              <p className="text-[12px] uppercase tracking-[0.16em] text-mute">Arrastra para reordenar</p>
+            <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-[22px] font-semibold tracking-tight sm:text-[28px]">{zone.label}</h2>
+              <p className="text-[12px] uppercase tracking-[0.16em] text-mute">
+                Arrastra o usa Espacio y flechas para reordenar
+              </p>
             </div>
             {sections.map((section) => {
               const cards = cardsFor(mesas, zone.id, section.clase);

@@ -15,6 +15,11 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Added
 
+- Accesibilidad y responsive (`docs/ACCESIBILIDAD.md`): diálogos con foco atrapado, `Escape` y devolución de foco; enlace de salto; `nav` con vista activa; feedback de guardado con regiones vivas; layout de una columna en móvil y tablet.
+- 8 pruebas E2E de accesibilidad y responsive (`e2e/accesibilidad.spec.ts`): `axe-core` con WCAG A/AA, foco, etiquetas, objetivos táctiles y viewports de `390 × 844` y `768 × 1024`.
+- `@axe-core/playwright` como dependencia de desarrollo.
+- Hook `useModalFocus` para foco inicial, foco atrapado, pila de diálogos anidados y retorno al disparador.
+- Reordenación de mesas con teclado mediante `KeyboardSensor` de dnd-kit.
 - Base de datos desechable para pruebas (`docs/PRUEBAS-AISLADAS.md`): `npm test` crea, migra y siembra una SQLite temporal, y la borra al terminar.
 - 3 pruebas de integración deterministas (`tests/integration.test.ts`): `409` al repetir mesa y actor en `APERTURA` y `PEDIDO`.
 - Pruebas E2E con Playwright (`docs/E2E.md`): entrar, abrir mesa, añadir, enviar, marcar listo y cobrar como gerente; un camarero no puede cobrar.
@@ -25,6 +30,12 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Changed
 
+- El layout pasa de una rejilla fija de `220px` a una columna por debajo de `1024px`; navegación y acciones se reorganizan en móvil.
+- El inspector, la cuenta y las colas de Cocina/Barra/Caja se apilan y ajustan al ancho disponible.
+- Los modales de login, walk-in, confirmación, inspector, cuenta y anulación usan semántica `dialog`, etiquetas asociadas y cierre con `Escape`.
+- El color de alerta sube a `#fca5a5` y el texto sutil a `#9a9aa2` para cumplir contraste AA sobre los fondos del tema.
+- Con puntero grueso, los controles principales miden al menos `44px`; los compactos, al menos `24px` con separación.
+- `npm run test:e2e` acepta argumentos de Playwright, por ejemplo para ejecutar un solo archivo o un patrón.
 - `login` y `/me` devuelven la misma forma de usuario, con `activo` y sin `passwordHash`.
 - Nueva ruta pública `GET /ready`; `/health` sigue siendo liveness sin consultar la base.
 - Los archivos de prueba se ejecutan en serie para evitar carreras al crear mesas.
@@ -36,7 +47,10 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ### Verified
 
-- `npm run verify` en verde: **99/99 pruebas** + **1 E2E**.
+- `npm run verify` en verde: **99/99 pruebas** + **9 E2E**.
+- 8 E2E nuevas de accesibilidad/responsive y el flujo de negocio original siguen en verde.
+- `axe-core` no detecta violaciones WCAG A/AA en login, sala, inspector, cuenta, confirmación, walk-in, Cocina y Caja.
+- Sin desbordamiento horizontal a `390px` ni a `768px`; inspector apilado en móvil.
 - La suite completa se ejecutó tres veces seguidas en verde tras hacerla secuencial.
 - `prisma/dev.db` conserva su hash SHA-256 tras `npm test` y tras `npm run verify`.
 

@@ -85,12 +85,12 @@ export function KitchenBoard({ sala, destino, now, busy, onReady }: KitchenBoard
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-5 flex items-end justify-between gap-4">
+      <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">
             {destino === "COCINA" ? "Cocina" : "Barra"}
           </p>
-          <h1 className="mt-2 text-[30px] font-semibold tracking-tight">Comandas en curso</h1>
+          <h1 className="mt-2 text-[24px] font-semibold tracking-tight sm:text-[30px]">Comandas en curso</h1>
           <p className="mt-1 text-[14px] text-mute">
             {inProgress.length} en preparación · {ready.length} listas
           </p>
@@ -136,15 +136,18 @@ function Section({
         {tickets.map(({ linea, servicioId, mesaLabel }) => {
           const minutes = elapsedMinutes(linea.calledAt ?? linea.createdAt, now);
           return (
-            <li key={linea.id} className="flex items-center gap-4 px-5 py-4">
+            <li
+              key={linea.id}
+              className="flex flex-wrap items-center gap-3 px-4 py-4 sm:flex-nowrap sm:gap-4 sm:px-5"
+            >
               <span className={`w-14 shrink-0 text-[15px] font-semibold ${toneClass[timerTone(minutes)]}`}>
                 {formatTimer(minutes)}
               </span>
-              <div className="w-44 shrink-0">
+              <div className="min-w-0 flex-1 sm:w-44 sm:flex-none">
                 <p className="text-[15px] font-semibold">{mesaNombre(mesaLabel)}</p>
                 <p className="text-[13px] text-soft">{asientoNombre(linea)}</p>
               </div>
-              <div className="min-w-0 flex-1">
+              <div className="order-last w-full min-w-0 sm:order-none sm:w-auto sm:flex-1">
                 <p className="truncate text-[16px] font-semibold tracking-tight">
                   {linea.cantidad} × {linea.nombre}
                 </p>
@@ -158,12 +161,12 @@ function Section({
                   type="button"
                   disabled={busy}
                   onClick={() => onReady(linea.id)}
-                  className="shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-on-accent disabled:opacity-40"
+                  className="w-full shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-on-accent disabled:opacity-40 sm:w-auto"
                 >
                   Marcar listo
                 </button>
               ) : (
-                <span className="w-[104px] shrink-0 text-right text-[12px] text-ok">Listo</span>
+                <span className="w-full shrink-0 text-right text-[12px] text-ok sm:w-[104px]">Listo</span>
               )}
             </li>
           );

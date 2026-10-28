@@ -46,15 +46,15 @@ export function CajaBoard({ sala, now, busy, usuario, onLogin, onRequestPay }: C
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-5 flex items-end justify-between gap-4">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
         <div>
           <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">Caja</p>
-          <h1 className="mt-2 text-[30px] font-semibold tracking-tight">Cuentas abiertas</h1>
+          <h1 className="mt-2 text-[24px] font-semibold tracking-tight sm:text-[30px]">Cuentas abiertas</h1>
           <p className="mt-1 text-[14px] text-mute">
             {cuentas.length} mesas · {money(totalAbierto)} pendiente de cobro
           </p>
         </div>
-        <div className="text-right">
+        <div className="text-left sm:text-right">
           {usuario ? (
             <>
               <p className="text-[13px] font-semibold">{usuario.nombre}</p>
@@ -91,18 +91,21 @@ export function CajaBoard({ sala, now, busy, usuario, onLogin, onRequestPay }: C
                 Math.floor((now - new Date(servicio.openedAt).getTime()) / 60000),
               );
               return (
-                <li key={servicio.id} className="flex items-center gap-4 px-5 py-4">
-                  <div className="w-44 shrink-0">
+                <li
+                  key={servicio.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-4 sm:flex sm:gap-4 sm:px-5"
+                >
+                  <div className="min-w-0 sm:w-44 sm:shrink-0">
                     <p className="text-[16px] font-semibold">{mesas}</p>
                     <p className="text-[12px] text-subtle">
                       Servicio {servicio.id} · {servicio.pax} pax
                     </p>
                   </div>
-                  <div className="w-20 shrink-0">
+                  <div className="w-16 shrink-0 text-right sm:w-20 sm:text-left">
                     <p className="text-[14px] text-soft">{formatTimer(minutos)}</p>
                     <p className="text-[11px] text-subtle">Abierta</p>
                   </div>
-                  <div className="min-w-0 flex-1">
+                  <div className="hidden min-w-0 flex-1 sm:block">
                     <p className="text-[13px] text-mute">
                       {servicio.lineas.filter((linea) => linea.estado !== "ANULADO").length} líneas
                     </p>
@@ -112,14 +115,14 @@ export function CajaBoard({ sala, now, busy, usuario, onLogin, onRequestPay }: C
                       </p>
                     ) : null}
                   </div>
-                  <p className="w-28 shrink-0 text-right text-[20px] font-semibold tracking-tight">
+                  <p className="text-right text-[20px] font-semibold tracking-tight sm:w-28 sm:shrink-0">
                     {money(servicio.total)}
                   </p>
                   <button
                     type="button"
                     disabled={busy || Boolean(usuario && !puedeCobrar)}
                     onClick={() => (puedeCobrar ? onRequestPay(servicio.id) : onLogin())}
-                    className="shrink-0 rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-30"
+                    className="col-span-2 w-full shrink-0 rounded-full bg-accent px-5 py-2 text-[13px] font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-30 sm:w-auto"
                   >
                     {!usuario ? "Cobrar" : puedeCobrar ? "Cobrar" : "Sin permiso"}
                   </button>
