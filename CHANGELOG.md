@@ -13,7 +13,14 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
-Sin cambios pendientes.
+### Changed
+
+- CI remota activa en GitHub Actions sobre el repositorio privado `lgironblanco0/alfred`: cada push a `master` ejecuta `npm run verify`.
+- El workflow usa `actions/checkout@v5`, `actions/setup-node@v5` y el runner fijado a `ubuntu-24.04` para evitar avisos de deprecación y migraciones sorpresa.
+
+### Verified
+
+- Primera ejecución de la CI en verde (`41335380953`, 1m38s): 99/99 pruebas y 9 E2E en Ubuntu.
 
 ---
 

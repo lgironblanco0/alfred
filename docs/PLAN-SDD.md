@@ -68,6 +68,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 2.4 Observabilidad | ✅ Hecho | 7b9b80c | Logs con redacción, `userId`/`role`, `/ready` y pila solo fuera de producción; 9 pruebas y 99/99 en verde |
 | 2026-10-28 | 2.5 Accesibilidad y responsive | ✅ Hecho | bd8dc0a | axe-core, foco atrapado, `Escape`, etiquetas, contraste, acuse, táctil y viewports de 390/768; 8 E2E nuevas; 99/99 + 9/9 en verde |
 | 2026-11-01 | Fase 2 completa | ✅ Cerrada | 21a448f | Versión `0.4.0`, 99/99 + 9/9 en verde y tag local `v0.4.0` |
+| 2026-11-01 | CI remota | ✅ Hecho | 06f04aa | Repositorio privado `lgironblanco0/alfred`, push de `master` y tags, primera ejecución en verde (1m38s) y workflow actualizado |
 
 ---
 
@@ -484,7 +485,7 @@ La fase se cierra con los cinco bloques en ✅ y el tag local `v0.4.0`. La versi
 
 Lo que queda fuera no bloquea el cierre:
 
-- La CI remota sigue sin ejecutarse porque el repositorio no tiene remoto. El flujo está definido y `npm run verify` es el mismo comando.
+- La CI remota no se había ejecutado porque el repositorio no tenía remoto. ✅ Resuelta el 2026-11-01: repositorio privado `lgironblanco0/alfred`; primera ejecución `41335380953` en verde (1m38s) con 99/99 pruebas y 9 E2E. El workflow se actualizó a `actions/checkout@v5`, `actions/setup-node@v5` y `ubuntu-24.04`.
 - La accesibilidad se limita a Chromium y a comprobaciones automáticas; lector de pantalla real, zoom al `200 %` y navegadores adicionales quedan para la fase 9 o revisión manual.
 - Las deudas funcionales de fases futuras (búsqueda global, unión generalizada, `mesaId` por línea, idempotencia de envío/cobro, métricas, OpenAPI y retención) siguen registradas en sus documentos y no se abordan aquí.
 

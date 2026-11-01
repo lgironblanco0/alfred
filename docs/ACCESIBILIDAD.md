@@ -187,7 +187,7 @@ Las capturas no se guardan por defecto para no llenar el repositorio; Playwright
 - La auditoría automática solo cubre Chromium y estados alcanzables con datos de semilla.
 - No se ha probado con un lector de pantalla real (NVDA, VoiceOver) ni con zoom al `200 %`; queda como revisión manual y para la fase 9.
 - No hay pruebas con Firefox, WebKit ni dispositivos físicos.
-- La CI remota sigue sin ejecutarse porque el repositorio no tiene remoto.
+- La CI remota no se había ejecutado porque el repositorio no tenía remoto. ✅ Resuelta el 2026-11-01: repositorio privado `lgironblanco0/alfred` y primera ejecución en verde (99/99 + 9/9).
 - La tabla de fricciones queda abierta: cualquier observación nueva se añade sin borrar las anteriores.
 
 ### 6.6. Por qué se cierra

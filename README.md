@@ -110,7 +110,7 @@ Ejecuta, en orden:
 4. Pruebas automatizadas (unitarias e integración).
 5. Pruebas E2E en Chromium: flujo completo, accesibilidad automática, foco y responsive.
 
-Si algún paso falla, el comando se detiene y devuelve error. Es el mismo comando que usa la integración continua.
+Si algún paso falla, el comando se detiene y devuelve error. Es el mismo comando que usa la integración continua: cada push a `master` ejecuta `Verify` en GitHub Actions sobre el repositorio privado `lgironblanco0/alfred`.
 
 También se pueden ejecutar por separado:
 
