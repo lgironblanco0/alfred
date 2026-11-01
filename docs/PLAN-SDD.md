@@ -67,7 +67,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | c5c7578 | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
 | 2026-10-27 | 2.4 Observabilidad | ✅ Hecho | 7b9b80c | Logs con redacción, `userId`/`role`, `/ready` y pila solo fuera de producción; 9 pruebas y 99/99 en verde |
 | 2026-10-28 | 2.5 Accesibilidad y responsive | ✅ Hecho | bd8dc0a | axe-core, foco atrapado, `Escape`, etiquetas, contraste, acuse, táctil y viewports de 390/768; 8 E2E nuevas; 99/99 + 9/9 en verde |
-| 2026-11-01 | Fase 2 completa | ✅ Cerrada | pendiente | Versión `0.4.0`, 99/99 + 9/9 en verde y tag local `v0.4.0` |
+| 2026-11-01 | Fase 2 completa | ✅ Cerrada | 21a448f | Versión `0.4.0`, 99/99 + 9/9 en verde y tag local `v0.4.0` |
 
 ---
 
