@@ -13,6 +13,14 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
+Sin cambios pendientes.
+
+---
+
+## [0.4.0] - 2026-11-01
+
+Cierre de la Fase 2: pruebas aisladas, E2E, contrato de API, observabilidad, accesibilidad y responsive.
+
 ### Added
 
 - Accesibilidad y responsive (`docs/ACCESIBILIDAD.md`): diálogos con foco atrapado, `Escape` y devolución de foco; enlace de salto; `nav` con vista activa; feedback de guardado con regiones vivas; layout de una columna en móvil y tablet.
@@ -53,6 +61,7 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 - Sin desbordamiento horizontal a `390px` ni a `768px`; inspector apilado en móvil.
 - La suite completa se ejecutó tres veces seguidas en verde tras hacerla secuencial.
 - `prisma/dev.db` conserva su hash SHA-256 tras `npm test` y tras `npm run verify`.
+- Tag local `v0.4.0`. La CI remota sigue pendiente porque el repositorio no tiene remoto.
 
 ---
 

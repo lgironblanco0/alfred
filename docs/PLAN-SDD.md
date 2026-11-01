@@ -34,7 +34,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 |---|---|---|
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
-| 2 | Calidad: pruebas, CI, API y observabilidad | 🟨 En curso (2.1–2.5 ✅; puerta técnica cumplida) |
+| 2 | Calidad: pruebas, CI, API y observabilidad | ✅ Cerrada (2.1–2.5) · tag `v0.4.0` |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
@@ -67,6 +67,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-27 | 2.3 Contrato de API | ✅ Hecho | c5c7578 | `docs/API.md` con 20 rutas; 12 pruebas de contrato; usuario unificado; 90/90 pruebas; suite secuencial |
 | 2026-10-27 | 2.4 Observabilidad | ✅ Hecho | 7b9b80c | Logs con redacción, `userId`/`role`, `/ready` y pila solo fuera de producción; 9 pruebas y 99/99 en verde |
 | 2026-10-28 | 2.5 Accesibilidad y responsive | ✅ Hecho | bd8dc0a | axe-core, foco atrapado, `Escape`, etiquetas, contraste, acuse, táctil y viewports de 390/768; 8 E2E nuevas; 99/99 + 9/9 en verde |
+| 2026-11-01 | Fase 2 completa | ✅ Cerrada | pendiente | Versión `0.4.0`, 99/99 + 9/9 en verde y tag local `v0.4.0` |
 
 ---
 
@@ -475,7 +476,19 @@ Fricciones incluidas: barra lateral fija, inspector a dos columnas, modales sin 
 
 Deuda registrada: la auditoría automática solo cubre Chromium; lector de pantalla real, zoom al 200 % y navegadores adicionales quedan para la fase 9 o una revisión manual. La CI remota sigue sin ejecutarse porque no hay repositorio remoto.
 
-**Puerta de fase 2:** `npm run verify` incluye unitarias, integración y E2E. ✅ Cumplida con 99/99 pruebas y 9 E2E; el cierre formal de la fase queda pendiente de revisión.
+**Puerta de fase 2:** `npm run verify` incluye unitarias, integración y E2E. ✅ Cumplida con 99/99 pruebas y 9 E2E.
+
+#### Cierre de la fase 2 (2026-11-01)
+
+La fase se cierra con los cinco bloques en ✅ y el tag local `v0.4.0`. La versión sube de `0.3.0` a `0.4.0` en backend y web.
+
+Lo que queda fuera no bloquea el cierre:
+
+- La CI remota sigue sin ejecutarse porque el repositorio no tiene remoto. El flujo está definido y `npm run verify` es el mismo comando.
+- La accesibilidad se limita a Chromium y a comprobaciones automáticas; lector de pantalla real, zoom al `200 %` y navegadores adicionales quedan para la fase 9 o revisión manual.
+- Las deudas funcionales de fases futuras (búsqueda global, unión generalizada, `mesaId` por línea, idempotencia de envío/cobro, métricas, OpenAPI y retención) siguen registradas en sus documentos y no se abordan aquí.
+
+Próxima fase: **3 — Gerencia** (carta, empleados, histórico y arqueo).
 
 ---
 
