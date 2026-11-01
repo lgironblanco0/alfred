@@ -8,17 +8,17 @@ on:
 jobs:
   verify:
     name: Typecheck, builds, tests y E2E
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     env:
       DATABASE_URL: "file:./dev.db"
 
     steps:
       - name: Descargar código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
