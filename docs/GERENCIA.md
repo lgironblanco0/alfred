@@ -179,7 +179,9 @@ Ocultar el botón de Gerencia a un camarero es comodidad, no seguridad. Todas la
 - [x] `npm run verify` en verde.
 - [x] `dev.db` sin cambios.
 - [x] README, CHANGELOG, API, plan y trazabilidad actualizados.
-- [ ] Commit, push y CI en verde.
+- [x] Commit, push y CI en verde.
+
+> Commit `c92490e`; CI `41338142600` en verde (1m47s) con 110/110 pruebas y 11/11 E2E. Tag anotado `v0.5.0`.
 
 ---
 
@@ -207,7 +209,7 @@ Los códigos `0`–`7` se mantienen. La contraseña de seed sigue el patrón `AL
 - `npm test`: **110/110 pruebas**.
 - `npm run test:e2e`: **11/11**, incluidos los dos casos nuevos de Gerencia y las auditorías `axe-core`.
 - `npm run verify`: en verde.
-- Base desechable en todas las pruebas; `dev.db` solo recibió la migración, previa copia `prisma/backups/dev-20261101-192317.db`.
+- Base desechable en todas las pruebas; `dev.db` solo recibió la migración y el seed de la plantilla, previa copia `prisma/backups/dev-20261101-192317.db`. Hash final de `dev.db`: `6471AB3A3C76F4928F8D65450FADE6EB856C9268D81796FFB42753332215F2C0`.
 
 ### 8.3. Decisiones que cambiaron durante la implementación
 

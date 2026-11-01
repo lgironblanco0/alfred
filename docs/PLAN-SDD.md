@@ -35,7 +35,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ✅ Cerrada (2.1–2.5) · tag `v0.4.0` |
-| 3 | Gerencia: carta, empleados, histórico y arqueo | ✅ Cerrada (3.1–3.6) |
+| 3 | Gerencia: carta, empleados, histórico y arqueo | ✅ Cerrada (3.1–3.6) · tag `v0.5.0` |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
 | 6 | Tiempo real y colores | ⬜ Pendiente |
@@ -72,7 +72,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-11-01 | 3.4 Empleados | ✅ Hecho | — | Seed 8–13 con rol explícito; alta, cambio de rol y desactivación; último gerente protegido con `409 LAST_MANAGER`; pruebas `gerencia.test.ts` |
 | 2026-11-01 | 3.5 Histórico | ✅ Hecho | — | `GET /api/historico` y `/:id`, solo cerradas, filtros por fecha/estado, paginación y detalle con líneas, eventos y método de pago |
 | 2026-11-01 | 3.6 Arqueo | ✅ Hecho | — | `SesionCaja`, una sola caja abierta, esperado en vivo con fondo + efectivo, cierre con foto y diferencia, pantalla de Gerencia y E2E de cobro con tarjeta |
-| 2026-11-01 | Fase 3 completa | ✅ Cerrada | pendiente | Carta congelada (G-1); `npm run verify` en verde con 110/110 pruebas y 11/11 E2E |
+| 2026-11-01 | Fase 3 completa | ✅ Cerrada | c92490e | Carta congelada (G-1); `npm run verify` en verde con 110/110 pruebas y 11/11 E2E; CI `41338142600` en verde; tag `v0.5.0` |
 
 ---
 
