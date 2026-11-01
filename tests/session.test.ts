@@ -135,7 +135,7 @@ describe("límite de intentos en el login", () => {
     const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ codigo: "9" }),
+      body: JSON.stringify({ codigo: "999999" }),
     });
 
     assert.equal(response.status, 401);

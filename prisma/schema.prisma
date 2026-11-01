@@ -8,15 +8,17 @@ generator client {
 }
 
 model Usuario {
-  id           Int              @id @default(autoincrement())
-  codigo       String           @unique
-  nombre       String
-  email        String           @unique
-  passwordHash String
-  rol          String           @default("CAMARERO")
-  activo       Boolean          @default(true)
-  createdAt    DateTime         @default(now())
-  eventos      EventoServicio[]
+  id            Int              @id @default(autoincrement())
+  codigo        String           @unique
+  nombre        String
+  email         String           @unique
+  passwordHash  String
+  rol           String           @default("CAMARERO")
+  activo        Boolean          @default(true)
+  createdAt     DateTime         @default(now())
+  eventos       EventoServicio[]
+  cajasAbiertas SesionCaja[]     @relation("CajaAbierta")
+  cajasCerradas SesionCaja[]     @relation("CajaCerrada")
 }
 
 model Mesa {
@@ -84,6 +86,7 @@ model Servicio {
   descuentoTipo   String?
   descuentoValor  Int?
   splitModo       String           @default("NINGUNO")
+  metodoPago      String?
   mesas           ServicioMesa[]
   lineas          LineaPedido[]
   eventos         EventoServicio[]
@@ -135,4 +138,24 @@ model EventoServicio {
   createdAt  DateTime @default(now())
 
   @@index([actorId])
+}
+
+model SesionCaja {
+  id               Int       @id @default(autoincrement())
+  estado           String    @default("ABIERTA")
+  fondoInicial     Int       @default(0)
+  abiertaAt        DateTime  @default(now())
+  abiertaPorId     Int?
+  abiertaPor       Usuario?  @relation("CajaAbierta", fields: [abiertaPorId], references: [id], onDelete: SetNull)
+  cerradaAt        DateTime?
+  cerradaPorId     Int?
+  cerradaPor       Usuario?  @relation("CajaCerrada", fields: [cerradaPorId], references: [id], onDelete: SetNull)
+  efectivoEsperado Int?
+  efectivoContado  Int?
+  diferencia       Int?
+  notas            String?
+  createdAt        DateTime  @default(now())
+
+  @@index([estado])
+  @@index([abiertaAt])
 }

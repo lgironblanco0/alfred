@@ -47,7 +47,7 @@ Reglas del código:
 
 ## 3. Plantilla actual
 
-Ocho empleados tras el seed:
+Catorce empleados tras el seed (Fase 3):
 
 | Código | Nombre | Rol |
 |---|---|---|
@@ -59,10 +59,18 @@ Ocho empleados tras el seed:
 | `5` | Ana Ruiz | CAMARERO |
 | `6` | Diego Salas | CAMARERO |
 | `7` | Nora Vidal | CAMARERO |
+| `8` | Elena Vargas | GERENTE |
+| `9` | Raúl Domínguez | ENCARGADO |
+| `10` | Carmen Ortiz | CAMARERO |
+| `11` | Iván Serrano | CAMARERO |
+| `12` | Paula Méndez | CAMARERO |
+| `13` | Hugo Navarro | CAMARERO |
 
 **Decisión E-1 — Los códigos 0, 1 y 2 se mantienen.** Son los que el equipo conoce y con los que está documentada la app. Eliminarlos rompería el acceso sin aportar nada. Quedan como datos iniciales y su código `2` sigue siendo compartido: la app lo permite, pero **no distingue** entre camareros.
 
-**Decisión E-2 — Los códigos 3–7 son individuales.** Con ellos la auditoría sí identifica a la persona. El nombre que aparece en el histórico es el del usuario autenticado.
+**Decisión E-2 — Los códigos 3–13 son individuales.** Con ellos la auditoría sí identifica a la persona. El nombre que aparece en el histórico es el del usuario autenticado.
+
+**Decisión E-4 — Los empleados se desactivan, nunca se borran.** `activo = false` conserva eventos, actores e histórico. El servidor impide dejar el sistema sin ningún gerente activo.
 
 **Decisión E-3 — Los nombres son de ejemplo.** Se pueden cambiar con el seed o desde la API de usuarios. El código es lo que importa para el login.
 

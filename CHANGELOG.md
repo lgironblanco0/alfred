@@ -13,14 +13,36 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
+Sin cambios pendientes.
+
+---
+
+## [0.5.0] - 2026-11-01
+
+Cierre de la Fase 3: empleados, histórico de cuentas y arqueo de caja. La carta actual se acepta como carta de prueba y no se modifica (decisión G-1).
+
+### Added
+
+- Plantilla ficticia en el seed (`8`–`13`): Elena Vargas y Raúl Domínguez como gerente y encargado, y cuatro camareros. Los códigos `0`–`7` se mantienen.
+- Gerencia (`docs/GERENCIA.md`): pestañas de Histórico, Caja y Empleados. El camarero no ve la sección; el encargado ve Histórico y Caja; el gerente añade Empleados.
+- Histórico de cuentas (`GET /api/historico`, `GET /api/historico/:id`): solo servicios `PAGADA`/`CANCELADA`, filtros por `closedAt`, paginación y detalle con líneas, eventos y actor.
+- Arqueo de caja (`SesionCaja`): una sola sesión abierta, fondo inicial, resumen en vivo, cierre con foto de esperado/contado/diferencia y notas. Solo gerente y encargado.
+- `metodoPago` en `Servicio` (`EFECTIVO` o `TARJETA`) y diálogo de cobro con método explícito.
+- Protección del último gerente activo con `409 LAST_MANAGER`.
+- 11 pruebas nuevas de Gerencia (`tests/gerencia.test.ts`) y 2 E2E (`e2e/gerencia.spec.ts`).
+
 ### Changed
 
 - CI remota activa en GitHub Actions sobre el repositorio privado `lgironblanco0/alfred`: cada push a `master` ejecuta `npm run verify`.
 - El workflow usa `actions/checkout@v5`, `actions/setup-node@v5` y el runner fijado a `ubuntu-24.04` para evitar avisos de deprecación y migraciones sorpresa.
+- El cobro sin método indicado sigue asumiendo `EFECTIVO` para no romper clientes anteriores.
+- Los cobros históricos sin método se contabilizan como efectivo en el arqueo, porque antes de esta fase esa era la única opción.
 
 ### Verified
 
-- Primera ejecución de la CI en verde (`41335380953`, 1m38s): 99/99 pruebas y 9 E2E en Ubuntu.
+- `npm run verify` en verde: **110/110 pruebas** y **11/11 E2E**, incluidas las auditorías `axe-core`.
+- Migración aplicada sobre copia previa de `dev.db` (`prisma/backups/dev-20261101-192317.db`).
+- Primera ejecución de la CI de la Fase 2 en verde (`41335380953`, 1m38s).
 
 ---
 

@@ -35,7 +35,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 0 | Fundación SDD y trazabilidad | ✅ Hecho |
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ✅ Cerrada (2.1–2.5) · tag `v0.4.0` |
-| 3 | Gerencia: carta, empleados, histórico y arqueo | ⬜ Pendiente |
+| 3 | Gerencia: carta, empleados, histórico y arqueo | ✅ Cerrada (3.1–3.6) |
 | 4 | Cobro completo | ⬜ Pendiente |
 | 5 | Reservas | ⬜ Pendiente |
 | 6 | Tiempo real y colores | ⬜ Pendiente |
@@ -69,6 +69,10 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 2026-10-28 | 2.5 Accesibilidad y responsive | ✅ Hecho | bd8dc0a | axe-core, foco atrapado, `Escape`, etiquetas, contraste, acuse, táctil y viewports de 390/768; 8 E2E nuevas; 99/99 + 9/9 en verde |
 | 2026-11-01 | Fase 2 completa | ✅ Cerrada | 21a448f | Versión `0.4.0`, 99/99 + 9/9 en verde y tag local `v0.4.0` |
 | 2026-11-01 | CI remota | ✅ Hecho | 06f04aa | Repositorio privado `lgironblanco0/alfred`, push de `master` y tags, primera ejecución en verde (1m38s) y workflow actualizado |
+| 2026-11-01 | 3.4 Empleados | ✅ Hecho | — | Seed 8–13 con rol explícito; alta, cambio de rol y desactivación; último gerente protegido con `409 LAST_MANAGER`; pruebas `gerencia.test.ts` |
+| 2026-11-01 | 3.5 Histórico | ✅ Hecho | — | `GET /api/historico` y `/:id`, solo cerradas, filtros por fecha/estado, paginación y detalle con líneas, eventos y método de pago |
+| 2026-11-01 | 3.6 Arqueo | ✅ Hecho | — | `SesionCaja`, una sola caja abierta, esperado en vivo con fondo + efectivo, cierre con foto y diferencia, pantalla de Gerencia y E2E de cobro con tarjeta |
+| 2026-11-01 | Fase 3 completa | ✅ Cerrada | pendiente | Carta congelada (G-1); `npm run verify` en verde con 110/110 pruebas y 11/11 E2E |
 
 ---
 
@@ -499,6 +503,8 @@ Próxima fase: **3 — Gerencia** (carta, empleados, histórico y arqueo).
 
 ### Bloque 3.1 — Especificación de Gerencia
 
+Estado: ✅ Hecho · Fecha: 2026-11-01 · Documento: `docs/GERENCIA.md`
+
 Historias:
 - Como gerente quiero cambiar precios.
 - Como gerente quiero añadir/eliminar platos y bebidas.
@@ -506,25 +512,23 @@ Historias:
 - Como gerente quiero consultar cuentas históricas.
 - Como gerente quiero abrir/cerrar caja y ver diferencias.
 
-Cada historia con criterios de aceptación y contrato de API.
+Resultado: decisiones G-1 a G-8, 12 criterios de aceptación y contrato de API. La carta se congela; el alcance real son empleados, histórico y arqueo.
 
 ### Bloque 3.2 — Backend de carta
 
-**Teoría:** CRUD = crear, leer, actualizar, borrar. El borrado de productos usados debe ser lógico (`activo = false`), no físico.
+Estado: ✅ Cerrado sin cambios · Fecha: 2026-11-01
 
-Tareas:
-- Endpoints de productos con permisos de gerente.
-- Validación de precio en céntimos y categoría.
-- Pruebas.
+La carta actual se acepta como carta de prueba. No se añaden endpoints ni cambios de modelo.
 
 ### Bloque 3.3 — Pantalla de carta
 
-Tareas:
-- Listado, alta, edición y baja.
-- Cambio de precio y disponibilidad.
-- Confirmación antes de eliminar.
+Estado: ✅ Cerrado sin cambios · Fecha: 2026-11-01
+
+No se construye pantalla de carta en esta fase. Cualquier cambio se tratará como petición nueva.
 
 ### Bloque 3.4 — Backend y pantalla de empleados
+
+Estado: ✅ Hecho · Fecha: 2026-11-01 · Pruebas: `tests/gerencia.test.ts` · E2E: `e2e/gerencia.spec.ts`
 
 Tareas:
 - CRUD de empleados.
@@ -532,14 +536,22 @@ Tareas:
 - Protección del último gerente.
 - Pruebas.
 
+Resultado: el seed incorpora seis empleados ficticios con rol explícito (`8`–`13`). El gerente crea empleados, cambia rol y desactiva; nunca se borran. El backend impide dejar el sistema sin un gerente activo (`409 LAST_MANAGER`). La pantalla de empleados solo se muestra al gerente.
+
 ### Bloque 3.5 — Histórico de cuentas
+
+Estado: ✅ Hecho · Fecha: 2026-11-01 · Pruebas: `tests/gerencia.test.ts`
 
 Tareas:
 - Endpoint de servicios cerrados con filtros por fecha.
 - Detalle con líneas, pagos y eventos.
 - Pantalla de histórico.
 
+Resultado: `GET /api/historico` filtra por `desde`, `hasta` y `estado` sobre `closedAt`, pagina con `limit`/`offset` y solo devuelve `PAGADA`/`CANCELADA`. El detalle incluye líneas, eventos con actor, total y `metodoPago`. Encargado y gerente acceden; camarero recibe `403`.
+
 ### Bloque 3.6 — Arqueo de caja
+
+Estado: ✅ Hecho · Fecha: 2026-11-01 · Pruebas: `tests/gerencia.test.ts` · E2E: `e2e/gerencia.spec.ts`
 
 **Teoría:** arqueo = comparar lo esperado por el sistema con lo contado físicamente.
 
@@ -548,7 +560,9 @@ Tareas:
 - Diferencia y motivo.
 - Pantalla y pruebas.
 
-**Puerta de fase 3:** todo lo de Gerencia funciona solo con rol `GERENTE`.
+Resultado: `SesionCaja` guarda una única apertura, el fondo, los actores y la foto del cierre. El esperado se calcula en el servidor como `fondo + cobros PAGADA en EFECTIVO cerrados dentro de la sesión`; la tarjeta se mide pero no entra en el cajón. El cierre congela esperado, contado, diferencia y notas. El cobro exige `EFECTIVO` o `TARJETA` desde la UI, con `EFECTIVO` por defecto.
+
+**Puerta de fase 3:** ✅ Empleados, histórico y arqueo funcionan con rol `GERENTE` y `ENCARGADO` según la especificación; el camarero recibe `403` en todas las rutas nuevas. La carta queda congelada por decisión G-1.
 
 ---
 

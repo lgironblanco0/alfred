@@ -68,6 +68,14 @@ const empleados = [
   { codigo: "5", nombre: "Ana Ruiz", rol: "CAMARERO" },
   { codigo: "6", nombre: "Diego Salas", rol: "CAMARERO" },
   { codigo: "7", nombre: "Nora Vidal", rol: "CAMARERO" },
+  // Plantilla ficticia de la Fase 3. El rol va explícito para que la demo
+  // cubra los tres niveles de permiso con varias personas por nivel.
+  { codigo: "8", nombre: "Elena Vargas", rol: "GERENTE" },
+  { codigo: "9", nombre: "Raúl Domínguez", rol: "ENCARGADO" },
+  { codigo: "10", nombre: "Carmen Ortiz", rol: "CAMARERO" },
+  { codigo: "11", nombre: "Iván Serrano", rol: "CAMARERO" },
+  { codigo: "12", nombre: "Paula Méndez", rol: "CAMARERO" },
+  { codigo: "13", nombre: "Hugo Navarro", rol: "CAMARERO" },
 ] as const;
 
 async function main(): Promise<void> {

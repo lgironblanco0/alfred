@@ -50,6 +50,9 @@ Roles: `CAMARERO` (código 2), `ENCARGADO` (1), `GERENTE` (0).
 | `POST /api/lineas/:id/anular` | 401 | ✅ | ✅ | ✅ |
 | `PATCH /api/mesas/layout` | 401 | ✅ | ✅ | ✅ |
 | `GET/POST/PATCH /api/usuarios/**` | 401 | 403 | 403 | ✅ |
+| `GET /api/historico`, `/api/historico/:id` | 401 | 403 | ✅ | ✅ |
+| `GET /api/caja`, `/api/caja/sesiones` | 401 | 403 | ✅ | ✅ |
+| `POST /api/caja/abrir`, `/api/caja/cerrar` | 401 | 403 | ✅ | ✅ |
 
 ¹ Ver decisión D-5.
 

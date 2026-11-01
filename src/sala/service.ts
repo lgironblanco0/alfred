@@ -408,7 +408,11 @@ export async function setSplit(servicioId: number, splitModo: string, actorId?: 
   });
 }
 
-export async function payServicio(servicioId: number, actorId?: number) {
+export async function payServicio(
+  servicioId: number,
+  actorId?: number,
+  metodoPago: "EFECTIVO" | "TARJETA" = "EFECTIVO",
+) {
   const servicio = await loadServicio(servicioId);
   if (servicio.estado !== "ABIERTA") {
     throw new HttpError(409, "El servicio no está abierto");
@@ -424,7 +428,14 @@ export async function payServicio(servicioId: number, actorId?: number) {
     data: {
       estado: "PAGADA",
       closedAt: new Date(),
-      eventos: { create: { tipo: "PAGO", detalle: "Cuenta cobrada", actorId } },
+      metodoPago,
+      eventos: {
+        create: {
+          tipo: "PAGO",
+          detalle: `Cuenta cobrada en ${metodoPago === "TARJETA" ? "tarjeta" : "efectivo"}`,
+          actorId,
+        },
+      },
     },
     include: servicioInclude,
   });

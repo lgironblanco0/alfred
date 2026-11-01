@@ -251,15 +251,15 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 | CAJ-01 | Cada movimiento de dinero tiene importe, método, tipo, actor y referencia | §11.3 | Existe una entidad de pago | No existe | — | ⬜ |
 | CAJ-02 | El estado PAGADO se deriva de movimientos válidos | §11.3 | No se marca pagado sin pago | `POST /pagar` marca PAGADA sin movimiento | — | ⛔ |
 | CAJ-03 | No se cobra dos veces por doble clic | Fase 4 | La segunda petición no duplica el cobro | Sin idempotencia | — | ⬜ |
-| CAJ-04 | Efectivo, tarjeta y pago mixto | Fase 4 | Se registra el método | No implementado | — | ⬜ |
+| CAJ-04 | Efectivo, tarjeta y pago mixto | Fase 4 | Se registra el método | `metodoPago` `EFECTIVO`/`TARJETA`; mixto pendiente | `tests/gerencia.test.ts` | ⛔ |
 | CAJ-05 | Pago parcial y saldo pendiente | Fase 4 | Se puede pagar una parte | No implementado | — | ⬜ |
 | CAJ-06 | División por asiento o importe | Fase 4 | El cliente elige cómo dividir | Solo campo `splitModo`, sin pagos | — | ⛔ |
 | CAJ-07 | Propina y cambio | Fase 4 | Se calcula el cambio | No implementado | — | ⬜ |
 | CAJ-08 | Ticket o recibo | Fase 4 | Se genera un resumen | No implementado | — | ⬜ |
 | CAJ-09 | Devolución con motivo e idempotencia | §11.3 | No se devuelve más de lo cobrado | No implementado | — | ⬜ |
-| CAJ-10 | Arqueo desde movimientos, no desde el navegador | §11.3 | El efectivo esperado sale del servidor | No implementado | — | ⬜ |
-| CAJ-11 | Los cierres no se modifican; se ajustan con auditoría | §11.3 | Un cierre es inmutable | No implementado | — | ⬜ |
-| CAJ-12 | Histórico de cuentas cobradas | Fase 3 | Se consultan cuentas cerradas | No implementado | — | ⬜ |
+| CAJ-10 | Arqueo desde movimientos, no desde el navegador | §11.3 | El efectivo esperado sale del servidor | `src/caja/service.ts` | `tests/gerencia.test.ts` | ✅ |
+| CAJ-11 | Los cierres no se modifican; se ajustan con auditoría | §11.3 | Un cierre es inmutable | Sin ruta de edición; inmutabilidad fuerte pendiente | `tests/gerencia.test.ts` | ⛔ |
+| CAJ-12 | Histórico de cuentas cobradas | Fase 3 | Se consultan cuentas cerradas | `GET /api/historico` | `tests/gerencia.test.ts` | ✅ |
 
 ---
 
@@ -282,13 +282,13 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 | ID | Requisito | Fuente | Criterio verificable | Implementación | Prueba | Estado |
 |---|---|---|---|---|---|---|
-| GER-01 | Gestionar carta: alta, baja y edición | Fase 3 | El gerente modifica productos | No implementado | — | ⬜ |
-| GER-02 | Cambiar precios | Fase 3 | El precio nuevo aplica a líneas nuevas | No implementado | — | ⬜ |
-| GER-03 | Gestionar empleados y códigos | Fase 3 | Alta/baja y código único | Backend parcial, códigos compartidos | — | ⛔ |
-| GER-04 | Consultar cuentas históricas | Fase 3 | Filtro por fecha y detalle | No implementado | — | ⬜ |
-| GER-05 | Arqueo de caja | Fase 3 | Apertura, cierre y diferencia | No implementado | — | ⬜ |
+| GER-01 | Gestionar carta: alta, baja y edición | Fase 3 | El gerente modifica productos | Cerrado por decisión G-1: carta de prueba aceptada | — | ⬜ |
+| GER-02 | Cambiar precios | Fase 3 | El precio nuevo aplica a líneas nuevas | Cerrado por decisión G-1: carta de prueba aceptada | — | ⬜ |
+| GER-03 | Gestionar empleados y códigos | Fase 3 | Alta/baja y código único | `src/routes/usuarios.ts` y pantalla de Gerencia; desactivación sin borrado | `tests/gerencia.test.ts` + `e2e/gerencia.spec.ts` | ✅ |
+| GER-04 | Consultar cuentas históricas | Fase 3 | Filtro por fecha y detalle | `src/historico/service.ts` y pantalla de Gerencia | `tests/gerencia.test.ts` | ✅ |
+| GER-05 | Arqueo de caja | Fase 3 | Apertura, cierre y diferencia | `src/caja/service.ts` y pantalla de Gerencia | `tests/gerencia.test.ts` + `e2e/gerencia.spec.ts` | ✅ |
 | GER-06 | Auditar quién hizo cada acción | Fase 1.4 | Todos los eventos tienen actor | Actor opcional y rutas abiertas | — | ⛔ |
-| GER-07 | Proteger al último gerente | Fase 3 | No se puede eliminar el único gerente | No implementado | — | ⬜ |
+| GER-07 | Proteger al último gerente | Fase 3 | No se puede eliminar el único gerente | `assertManagerRemains` en `src/routes/usuarios.ts` | `tests/gerencia.test.ts` | ✅ |
 
 ---
 

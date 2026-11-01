@@ -4,9 +4,9 @@ Aplicación de gestión para hostelería: salón, comandas por asiento, Cocina, 
 
 - **Backend:** Node.js + TypeScript + Express + Prisma + SQLite.
 - **Frontend:** React + Vite + TypeScript + Tailwind CSS.
-- **Acceso:** por código de empleado (`0` Gerente, `1` Encargado, `2` Camareros).
+- **Acceso:** por código de empleado (gerente, encargado y camareros).
 
-Esta es la versión `0.4.0`: el MVP funcional del salón, la fundación SDD y la Fase 2 de calidad cerrada (pruebas aisladas, E2E, contrato de API, observabilidad, accesibilidad y responsive). No es una versión de producción.
+Esta es la versión `0.5.0`: el MVP del salón, la Fase 2 de calidad y la Fase 3 de Gerencia (empleados, histórico de cuentas y arqueo de caja). No es una versión de producción.
 
 ---
 
@@ -45,7 +45,7 @@ npm run db:seed
 ```
 
 - `db:migrate` aplica las migraciones de `prisma/migrations`.
-- `db:seed` crea mesas, productos, promociones y los empleados `0`–`7`. Es idempotente: se puede ejecutar varias veces sin duplicar datos.
+- `db:seed` crea mesas, productos, promociones y los empleados `0`–`13`. Es idempotente: se puede ejecutar varias veces sin duplicar datos.
 
 La base se guarda en `prisma/dev.db` (según `DATABASE_URL`) y no se versiona en git.
 
@@ -86,11 +86,13 @@ Vite redirige `/api` y `/health` al backend en el puerto `3000`, así que el nav
 
 | Código | Rol | Puede cobrar |
 |---|---|---|
-| `0` | Gerente | Sí |
-| `1` | Encargado | Sí |
-| `2` | Camareros | No |
+| `0`, `3`, `8` | Gerente | Sí |
+| `1`, `4`, `9` | Encargado | Sí |
+| `2`, `5`–`7`, `10`–`13` | Camarero | No |
 
-En esta versión el código `2` es compartido por todos los camareros. La identificación individual llega en una fase posterior.
+Los códigos `3`–`13` son individuales; el `2` sigue siendo el acceso compartido de camareros. La contraseña de seed de cada empleado es `ALFRED-EMPLEADO-<codigo>`.
+
+Gerencia solo aparece a gerente y encargado. Dentro de ella, **Empleados** es exclusivo del gerente; **Histórico** y **Caja** los ven ambos. El arqueo y el histórico se comprueban también en el servidor, no solo ocultando botones.
 
 ---
 
@@ -196,7 +198,7 @@ El backend carga `.env` al arrancar (`src/config.ts`):
 │   ├── middleware/       Autenticación y autorización
 │   └── auth/             Contraseñas y tokens
 ├── web/                  Frontend React + Vite
-│   └── src/components/   Sala, comanda, Cocina, Barra y Caja
+│   └── src/components/   Sala, comanda, Cocina, Barra, Caja y Gerencia
 ├── prisma/               Esquema, migraciones, seed y base local
 ├── tests/                Pruebas del backend
 ├── scripts/              Utilidades (copia de seguridad)

@@ -29,6 +29,10 @@ const paxBody = z.object({
   pax: z.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
 });
 
+const payBody = z.object({
+  metodoPago: z.enum(["EFECTIVO", "TARJETA"]).optional(),
+});
+
 const mergeBody = z.object({
   mesaIds: z.array(z.number().int().positive()).max(50, "Demasiadas mesas en una sola unión").optional(),
 });
@@ -200,7 +204,8 @@ salaRouter.post(
   requireRole("ENCARGADO", "GERENTE"),
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
-    const servicio = await sala.payServicio(id, request.usuario?.id);
+    const { metodoPago } = parseInput(payBody, request.body);
+    const servicio = await sala.payServicio(id, request.usuario?.id, metodoPago);
     response.json(serializeServicio(servicio));
   }),
 );

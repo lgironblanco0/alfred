@@ -1,4 +1,4 @@
-# Contrato de API — Bloque 2.3
+# Contrato de API — Bloques 2.3 y 3.4–3.6
 
 Qué promete la API de ALFRED, campo por campo, y cómo se comprueba que no cambia por accidente.
 
@@ -115,12 +115,21 @@ Leyenda de permisos: **Público** · **Autenticado** (cualquier rol) · **Gerent
 | POST | `/api/usuarios` | Gerente | 201 | `{ usuario }` |
 | PATCH | `/api/usuarios/:id` | Gerente | 200 | `{ usuario }` |
 | PATCH | `/api/usuarios/:id/password` | Gerente | 204 | Sin cuerpo |
+| GET | `/api/historico` | Encargado o gerente | 200 | `{ servicios, total, limit, offset }` |
+| GET | `/api/historico/:id` | Encargado o gerente | 200 | `{ servicio }` |
+| GET | `/api/caja` | Encargado o gerente | 200 | `{ sesion, resumen }` |
+| POST | `/api/caja/abrir` | Encargado o gerente | 201 | `{ sesion }` |
+| POST | `/api/caja/cerrar` | Encargado o gerente | 200 | `{ sesion, resumen }` |
+| GET | `/api/caja/sesiones` | Encargado o gerente | 200 | `{ sesiones }` |
 
 **Decisión C-6 — `GET /api/sala` es público.**
 El salón se muestra antes de entrar y el login es un modal sobre la sala. Es una decisión de producto ya tomada (D-5); el contrato la refleja. El resto de rutas exige token.
 
 **Decisión C-7 — Los empleados y sus contraseñas son solo de gerencia.**
 `/api/usuarios` se monta con `requireAuth` + `requireRole("GERENTE")` a nivel de router. Un camarero recibe `403 FORBIDDEN`, no `404`: la ruta existe y el permiso es lo que falta (D-7).
+
+**Decisión C-8 — Histórico y caja son de encargado y gerente.**
+`/api/historico` y `/api/caja` se montan con `requireAuth` + `requireRole("ENCARGADO", "GERENTE")`. El camarero recibe `403 FORBIDDEN`. La comprobación se repite en el servidor aunque la UI oculte la sección (G-8).
 
 ---
 
@@ -227,6 +236,7 @@ Estados: `PENDIENTE`, `CALLED`, `READY`, `PAID`, `ANULADO`.
   "descuentoTipo": null,
   "descuentoValor": null,
   "splitModo": "NINGUNO",
+  "metodoPago": null,
   "mesaIds": [1],
   "mesaLabels": ["1"],
   "lineas": [],
@@ -238,6 +248,32 @@ Estados: `PENDIENTE`, `CALLED`, `READY`, `PAID`, `ANULADO`.
 ```
 
 `subtotal`, `discount` y `total` son céntimos calculados en el servidor. El cliente no los envía ni los recalcula para cobrar.
+
+`metodoPago` es `"EFECTIVO"`, `"TARJETA"` o `null` mientras el servicio está abierto.
+
+### 5.8. `SesionCaja`
+
+```json
+{
+  "id": 3,
+  "estado": "CERRADA",
+  "fondoInicial": 10000,
+  "abiertaAt": "2026-11-01T19:00:00.000Z",
+  "abiertaPor": { "id": 2, "nombre": "Responsable" },
+  "cerradaAt": "2026-11-01T23:00:00.000Z",
+  "cerradaPor": { "id": 2, "nombre": "Responsable" },
+  "efectivoEsperado": 13500,
+  "efectivoContado": 13000,
+  "diferencia": -500,
+  "notas": "Faltan 5 €"
+}
+```
+
+`efectivoEsperado`, `efectivoContado`, `diferencia`, `cerradaAt`, `cerradaPor` y `notas` son `null` mientras la sesión está abierta. Todos los importes van en céntimos.
+
+### 5.9. `ResumenCaja`
+
+`solo lectura`: `ventasEfectivo`, `ventasTarjeta`, `totalCobrado`, `numeroCobros` y `efectivoEsperado`, todos calculados en el servidor. El esperado es `fondoInicial + ventasEfectivo` de los cobros cerrados dentro de la sesión.
 
 ---
 
@@ -393,7 +429,64 @@ Valores: `NINGUNO`, `IGUAL`, `ASIENTO`. Salida `200`: `Servicio`. Errores: `400`
 
 ### POST `/api/servicios/:id/pagar`
 
-Sin cuerpo. Marca el servicio como pagado y libera las mesas. **Solo `ENCARGADO` o `GERENTE`.** Salida `200`: `Servicio` con `estado: "PAGADA"`. Errores: `401`, `403 FORBIDDEN`, `404`, `409`.
+```json
+{ "metodoPago": "TARJETA" }
+```
+
+`metodoPago` es opcional (`EFECTIVO` o `TARJETA`); sin él se asume `EFECTIVO`. Marca el servicio como pagado y libera las mesas. **Solo `ENCARGADO` o `GERENTE`.** Salida `200`: `Servicio` con `estado: "PAGADA"` y `metodoPago`. Errores: `400`, `401`, `403 FORBIDDEN`, `404`, `409`.
+
+### GET `/api/historico`
+
+Parámetros de consulta: `desde`, `hasta` (ISO 8601), `estado` (`PAGADA` o `CANCELADA`), `limit` (1–100, por defecto 20) y `offset` (por defecto 0). Solo incluye servicios cerrados. Salida `200`:
+
+```json
+{ "servicios": [Servicio], "total": 12, "limit": 20, "offset": 0 }
+```
+
+Errores: `400`, `401`, `403 FORBIDDEN`.
+
+### GET `/api/historico/:id`
+
+Salida `200`: `{ "servicio": Servicio }`. Un servicio `ABIERTA` devuelve `404 NOT_FOUND`. Errores: `400`, `401`, `403`, `404`.
+
+### GET `/api/caja`
+
+Salida `200`:
+
+```json
+{
+  "sesion": SesionCaja | null,
+  "resumen": {
+    "ventasEfectivo": 3500,
+    "ventasTarjeta": 1200,
+    "totalCobrado": 4700,
+    "numeroCobros": 2,
+    "efectivoEsperado": 13500
+  }
+}
+```
+
+Si no hay caja abierta, `sesion` es `null` y el resumen vale cero. Errores: `401`, `403`.
+
+### POST `/api/caja/abrir`
+
+```json
+{ "fondoInicial": 10000 }
+```
+
+Salida `201`: `{ "sesion": SesionCaja }`. Solo puede existir una sesión abierta; la segunda devuelve `409 CAJA_ABIERTA`. Errores: `400`, `401`, `403`, `409`.
+
+### POST `/api/caja/cerrar`
+
+```json
+{ "efectivoContado": 13000, "notas": "Faltan 5 €" }
+```
+
+Calcula y congela `efectivoEsperado`, guarda `efectivoContado`, `diferencia = contado - esperado`, actor y fecha. Salida `200`: `{ "sesion": SesionCaja, "resumen": ResumenCaja }`. Sin caja abierta devuelve `409 CAJA_NO_ABIERTA`. Errores: `400`, `401`, `403`, `409`.
+
+### GET `/api/caja/sesiones`
+
+Parámetro `limit` (1–50, por defecto 10). Salida `200`: `{ "sesiones": [SesionCaja] }`, solo cierres, del más reciente al más antiguo. Errores: `400`, `401`, `403`.
 
 ### PATCH `/api/mesas/layout`
 
@@ -457,12 +550,15 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 | CA-6 | Un servicio recién abierto devuelve todas las claves del contrato y totales en céntimos | `tests/api-contract.test.ts` |
 | CA-7 | `POST /pagar` da `403` a un camarero y `200` a un gerente | `tests/api-contract.test.ts` + `tests/authz.test.ts` |
 | CA-8 | Una ruta inexistente devuelve `404 NOT_FOUND` | `tests/api-contract.test.ts` |
+| CA-9 | `/api/historico` y `/api/caja` devuelven `403` a un camarero y la forma documentada a un encargado | `tests/gerencia.test.ts` + `tests/api-contract.test.ts` |
+| CA-10 | El cobro guarda `metodoPago` y el arqueo calcula el esperado solo con efectivo | `tests/gerencia.test.ts` |
+| CA-11 | Una segunda apertura de caja devuelve `409 CAJA_ABIERTA` y el cierre guarda la diferencia | `tests/gerencia.test.ts` |
 
 ---
 
 ## 8. Definición de terminado
 
-- [x] Documento con las 21 rutas, permisos, entrada, salida y errores.
+- [x] Documento con las 27 rutas, permisos, entrada, salida y errores.
 - [x] `login` y `/me` comparten forma de usuario.
 - [x] Pruebas de contrato sobre la API real con base desechable.
 - [x] El conjunto exacto de claves está fijado en las pruebas.
@@ -471,7 +567,7 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 
 ### 8.1. Evidencia
 
-- `docs/API.md`: 21 rutas, reglas comunes, 15 códigos de error y formas de datos.
+- `docs/API.md`: 27 rutas, reglas comunes, 15 códigos de error y formas de datos.
 - `tests/api-contract.test.ts`: **12 pruebas** que fijan el conjunto exacto de claves de `Usuario`, `Mesa`, `Producto`, `Servicio`, `Linea` y `Evento`.
 - `POST /api/auth/login` incluye `activo`, igual que `/api/auth/me`; ninguna respuesta incluye `passwordHash`.
 - Permisos comprobados: `/api/usuarios` da `401` sin token, `403` a camarero y `200` a gerente; `/pagar` da `403` a camarero y `200` a gerente.

@@ -54,6 +54,7 @@ export function serializeServicio(servicio: ServicioWithRelations) {
     splitModo: servicio.splitModo,
     mesaIds: servicio.mesas.map((link) => link.mesaId),
     mesaLabels: labels,
+    metodoPago: servicio.metodoPago ?? null,
     lineas: servicio.lineas
       .slice()
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())

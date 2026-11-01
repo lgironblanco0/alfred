@@ -3,13 +3,15 @@ import { ApiError, api, clearToken, getToken } from "./api";
 import { CajaBoard } from "./components/CajaBoard";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { FloorBoard } from "./components/FloorBoard";
+import { GerenciaBoard } from "./components/GerenciaBoard";
 import { Inspector } from "./components/Inspector";
 import { KitchenBoard } from "./components/KitchenBoard";
 import { LoginModal } from "./components/LoginModal";
+import { PayDialog } from "./components/PayDialog";
 import { WalkInModal } from "./components/WalkInModal";
 import type { Sala, Usuario } from "./types";
 
-type View = "SALA" | "COCINA" | "BARRA" | "CAJA";
+type View = "SALA" | "COCINA" | "BARRA" | "CAJA" | "GERENCIA";
 
 export function App() {
   const [sala, setSala] = useState<Sala | null>(null);
@@ -66,6 +68,21 @@ export function App() {
     () => sala?.mesas.find((mesa) => mesa.id === selectedId) ?? null,
     [sala, selectedId],
   );
+
+  const puedeGerencia = usuario?.rol === "GERENTE" || usuario?.rol === "ENCARGADO";
+  const titulos: Record<View, string> = {
+    SALA: "Sala",
+    COCINA: "Cocina",
+    BARRA: "Barra",
+    CAJA: "Caja",
+    GERENCIA: "Gerencia",
+  };
+
+  useEffect(() => {
+    if (view === "GERENCIA" && !puedeGerencia) {
+      setView("SALA");
+    }
+  }, [puedeGerencia, view]);
 
   async function run(action: () => Promise<unknown>) {
     setBusy(true);
@@ -129,7 +146,7 @@ export function App() {
             <div>
               <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
               <h1 className="mt-1 text-[24px] font-semibold tracking-tight sm:mt-3 sm:text-[28px]">
-                {view === "SALA" ? "Sala" : view === "COCINA" ? "Cocina" : view === "BARRA" ? "Barra" : "Caja"}
+                {titulos[view]}
               </h1>
             </div>
             <p className="text-[12px] text-mute lg:hidden">Operación de sala</p>
@@ -165,6 +182,14 @@ export function App() {
               current={view === "CAJA"}
               onClick={() => setView("CAJA")}
             />
+            {puedeGerencia ? (
+              <NavButton
+                label="Gerencia"
+                active={view === "GERENCIA"}
+                current={view === "GERENCIA"}
+                onClick={() => setView("GERENCIA")}
+              />
+            ) : null}
           </nav>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:block lg:space-y-2">
             <NavButton label="Walk-in" onClick={() => setWalkInOpen(true)} />
@@ -245,7 +270,15 @@ export function App() {
               {error}
             </div>
           ) : null}
-          {!sala ? (
+          {view === "GERENCIA" && usuario && puedeGerencia ? (
+            <GerenciaBoard
+              usuario={usuario}
+              onRequiresLogin={() => {
+                setUsuario(null);
+                setLoginOpen(true);
+              }}
+            />
+          ) : !sala ? (
             <p className="text-mute">Cargando sala…</p>
           ) : view === "SALA" ? (
             <FloorBoard
@@ -257,6 +290,8 @@ export function App() {
               onSelect={onSelect}
               onReorder={(items) => void run(() => api.layout(items))}
             />
+          ) : view === "GERENCIA" ? (
+            <p className="text-mute">Inicia sesión como encargado o gerente para ver Gerencia.</p>
           ) : view === "CAJA" ? (
             <CajaBoard
               sala={sala}
@@ -341,16 +376,13 @@ export function App() {
       ) : null}
 
       {payServicioId ? (
-        <ConfirmDialog
-          title="Cobrar cuenta"
-          body="Se marca el servicio como pagado y la mesa queda libre. Confirma que el cobro se ha realizado."
-          confirmLabel="Confirmar cobro"
+        <PayDialog
           onCancel={() => setPayServicioId(null)}
-          onConfirm={() => {
+          onConfirm={(metodoPago) => {
             const servicioId = payServicioId;
             setPayServicioId(null);
             if (servicioId) {
-              void run(() => api.pagar(servicioId));
+              void run(() => api.pagar(servicioId, metodoPago));
             }
           }}
         />

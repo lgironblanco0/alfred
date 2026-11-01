@@ -30,6 +30,7 @@ const SERVICIO_KEYS = [
   "lineas",
   "mesaIds",
   "mesaLabels",
+  "metodoPago",
   "openedAt",
   "origen",
   "pax",
@@ -53,6 +54,15 @@ const LINEA_KEYS = [
   "productoId",
 ];
 const EVENTO_KEYS = ["actor", "createdAt", "detalle", "id", "tipo"];
+const HISTORICO_KEYS = ["limit", "offset", "servicios", "total"];
+const CAJA_KEYS = ["resumen", "sesion"];
+const RESUMEN_KEYS = [
+  "efectivoEsperado",
+  "numeroCobros",
+  "totalCobrado",
+  "ventasEfectivo",
+  "ventasTarjeta",
+];
 
 interface Respuesta<T> {
   status: number;
@@ -64,6 +74,7 @@ let server: Server;
 let baseUrl: string;
 let tokenCamarero: string;
 let tokenGerente: string;
+let tokenEncargado: string;
 let usuarioCamarero: { id: number; nombre: string };
 
 before(async () => {
@@ -83,6 +94,7 @@ before(async () => {
   baseUrl = `http://127.0.0.1:${address.port}`;
   tokenCamarero = await login(baseUrl, "5");
   tokenGerente = await login(baseUrl, "0");
+  tokenEncargado = await login(baseUrl, "1");
 
   const me = await request<{ usuario: typeof usuarioCamarero }>("/api/auth/me", {
     headers: authHeaders(tokenCamarero),
@@ -276,6 +288,31 @@ describe("contrato: empleados solo para gerencia", () => {
     assert.ok(response.body.usuarios.length > 0);
     assert.deepEqual(keys(response.body.usuarios[0]), USUARIO_LIST_KEYS);
     assert.equal("passwordHash" in response.body.usuarios[0], false);
+  });
+});
+
+describe("contrato: histórico y caja", () => {
+  it("un encargado ve la forma documentada y un camarero recibe 403", async () => {
+    const historico = await request<Record<string, unknown>>("/api/historico", {
+      headers: authHeaders(tokenEncargado),
+    });
+    assert.equal(historico.status, 200);
+    assert.deepEqual(keys(historico.body), HISTORICO_KEYS);
+
+    const caja = await request<{ resumen: Record<string, unknown>; sesion: unknown }>("/api/caja", {
+      headers: authHeaders(tokenEncargado),
+    });
+    assert.equal(caja.status, 200);
+    assert.deepEqual(keys(caja.body), CAJA_KEYS);
+    assert.deepEqual(keys(caja.body.resumen), RESUMEN_KEYS);
+
+    for (const path of ["/api/historico", "/api/caja", "/api/caja/sesiones"]) {
+      const response = await request<{ code: string; message: string }>(path, {
+        headers: authHeaders(tokenCamarero),
+      });
+      assert.equal(response.status, 403, `${path} debe devolver 403`);
+      assertError(response.body, "FORBIDDEN");
+    }
   });
 });
 
