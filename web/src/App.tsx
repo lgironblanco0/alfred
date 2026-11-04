@@ -59,6 +59,13 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    const events = new EventSource("/api/eventos/sse");
+    const refreshOnEvent = () => { void refresh().catch(() => undefined); };
+    events.addEventListener("actualizacion", refreshOnEvent);
+    return () => { events.removeEventListener("actualizacion", refreshOnEvent); events.close(); };
+  }, [refresh]);
+
+  useEffect(() => {
     if (!feedback) return;
     const timer = window.setTimeout(() => setFeedback(null), 4000);
     return () => window.clearTimeout(timer);

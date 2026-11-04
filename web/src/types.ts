@@ -4,6 +4,16 @@ export type LineaEstado = "PENDIENTE" | "CALLED" | "READY" | "PAID" | "ANULADO";
 export type MetodoPago = "EFECTIVO" | "TARJETA";
 export type Rol = "CAMARERO" | "ENCARGADO" | "GERENTE";
 
+export type Informe = {
+  dias: number;
+  desde: string;
+  cuentas: number;
+  ventas: number;
+  ticketMedio: number;
+  porDia: Array<{ fecha: string; cuentas: number; ventas: number }>;
+  productos: Array<{ nombre: string; unidades: number; ventas: number }>;
+};
+
 export type Linea = {
   id: number;
   productoId: number;

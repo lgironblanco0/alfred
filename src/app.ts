@@ -14,6 +14,8 @@ import { securityHeaders } from "./middleware/securityHeaders";
 import { authRouter } from "./routes/auth";
 import { cajaRouter } from "./routes/caja";
 import { historicoRouter } from "./routes/historico";
+import { informesRouter } from "./routes/informes";
+import { eventosRouter } from "./routes/eventos";
 import { salaRouter } from "./routes/sala";
 import { usuariosRouter } from "./routes/usuarios";
 
@@ -57,6 +59,8 @@ app.get(
 app.use("/api/auth", authRouter);
 app.use("/api/usuarios", requireAuth, requireRole("GERENTE"), usuariosRouter);
 app.use("/api/historico", requireAuth, requireRole("ENCARGADO", "GERENTE"), historicoRouter);
+app.use("/api/informes", requireAuth, requireRole("ENCARGADO", "GERENTE"), informesRouter);
+app.use("/api/eventos", eventosRouter);
 app.use("/api/caja", requireAuth, requireRole("ENCARGADO", "GERENTE"), cajaRouter);
 app.use("/api", salaRouter);
 

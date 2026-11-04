@@ -8,9 +8,10 @@ import type {
   Rol,
   SesionCaja,
   Usuario,
+  Informe,
 } from "../types";
 
-type Tab = "HISTORICO" | "CAJA" | "EMPLEADOS";
+type Tab = "HISTORICO" | "CAJA" | "INFORMES" | "EMPLEADOS";
 
 type GerenciaBoardProps = {
   usuario: Usuario;
@@ -49,6 +50,7 @@ export function GerenciaBoard({ usuario, onRequiresLogin }: GerenciaBoardProps) 
   const [notas, setNotas] = useState("");
 
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
+  const [informe, setInforme] = useState<Informe | null>(null);
   const [nuevo, setNuevo] = useState({
     codigo: "",
     nombre: "",
@@ -61,6 +63,7 @@ export function GerenciaBoard({ usuario, onRequiresLogin }: GerenciaBoardProps) 
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: "HISTORICO", label: "Histórico" },
     { id: "CAJA", label: "Caja" },
+    { id: "INFORMES", label: "Informes" },
     ...(esGerente ? [{ id: "EMPLEADOS" as Tab, label: "Empleados" }] : []),
   ];
 
@@ -115,11 +118,17 @@ export function GerenciaBoard({ usuario, onRequiresLogin }: GerenciaBoardProps) 
     if (respuesta) setEmpleados(respuesta.usuarios);
   }, [ejecutar, esGerente]);
 
+  const cargarInforme = useCallback(async () => {
+    const respuesta = await ejecutar(() => api.informes(30));
+    if (respuesta) setInforme(respuesta);
+  }, [ejecutar]);
+
   useEffect(() => {
     if (tab === "HISTORICO") void cargarHistorico(0);
     if (tab === "CAJA") void cargarCaja();
     if (tab === "EMPLEADOS") void cargarEmpleados();
-  }, [cargarCaja, cargarEmpleados, cargarHistorico, tab]);
+    if (tab === "INFORMES") void cargarInforme();
+  }, [cargarCaja, cargarEmpleados, cargarHistorico, cargarInforme, tab]);
 
   function confirmar(mensaje: string) {
     setAviso(mensaje);
@@ -332,6 +341,22 @@ export function GerenciaBoard({ usuario, onRequiresLogin }: GerenciaBoardProps) 
               </div>
             </>
           )}
+        </section>
+      ) : null}
+
+      {tab === "INFORMES" && informe ? (
+        <section aria-labelledby="titulo-informes" className="space-y-5">
+          <div className="flex items-end justify-between gap-3">
+            <div><h2 id="titulo-informes" className="text-[20px] font-semibold">Informes básicos</h2><p className="text-[13px] text-mute">Últimos {informe.dias} días</p></div>
+            <button type="button" onClick={() => void cargarInforme()} className="rounded-full bg-white/10 px-4 py-2 text-[13px]">Actualizar</button>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Metric label="Ventas" value={money(informe.ventas)} /><Metric label="Cuentas" value={String(informe.cuentas)} /><Metric label="Ticket medio" value={money(informe.ticketMedio)} />
+          </div>
+          <div className="grid gap-5 lg:grid-cols-2">
+            <div className="rounded-2xl border border-line bg-sunken p-4"><h3 className="font-semibold">Ventas por día</h3><ul className="mt-3 space-y-2 text-[13px]">{informe.porDia.map((dia) => <li key={dia.fecha} className="flex justify-between"><span>{dia.fecha} · {dia.cuentas} cuentas</span><strong>{money(dia.ventas)}</strong></li>)}</ul></div>
+            <div className="rounded-2xl border border-line bg-sunken p-4"><h3 className="font-semibold">Productos más vendidos</h3><ul className="mt-3 space-y-2 text-[13px]">{informe.productos.slice(0, 10).map((producto) => <li key={producto.nombre} className="flex justify-between"><span>{producto.nombre}</span><strong>{producto.unidades} uds.</strong></li>)}</ul></div>
+          </div>
         </section>
       ) : null}
 
@@ -561,6 +586,10 @@ export function GerenciaBoard({ usuario, onRequiresLogin }: GerenciaBoardProps) 
       ) : null}
     </div>
   );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-2xl border border-line bg-sunken p-4"><p className="text-[11px] uppercase tracking-[0.14em] text-mute">{label}</p><p className="mt-1 text-[22px] font-semibold">{value}</p></div>;
 }
 
 function Dato({ label, valor, destacado = false }: { label: string; valor: string; destacado?: boolean }) {

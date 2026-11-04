@@ -10,6 +10,8 @@ import type {
   Usuario,
 } from "./types";
 
+type Informe = import("./types").Informe;
+
 const TOKEN_KEY = "alfred.token";
 
 export function getToken(): string | null {
@@ -140,6 +142,7 @@ export const api = {
     return request<HistoricoPage>(`/api/historico?${query.toString()}`);
   },
   caja: () => request<Caja>("/api/caja"),
+  informes: (dias = 30) => request<Informe>(`/api/informes?dias=${dias}`),
   abrirCaja: (fondoInicial: number) =>
     request<{ sesion: SesionCaja }>("/api/caja/abrir", {
       method: "POST",
