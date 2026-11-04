@@ -12,11 +12,21 @@ const mesas = [
     clase: "MESA",
     layoutOrder: numeroMesa,
   })),
-  ...[1, 2, 3, 4].map((numeroMesa) => ({
+  ...[1, 2, 3, 4, 5].map((numeroMesa) => ({
     numeroMesa,
     capacidad: 4,
     tipo: "CUADRADA",
     zona: "TERRAZA",
+    clase: "MESA",
+    layoutOrder: numeroMesa,
+  })),
+  // Tercera zona de comedor (bloque 4.0): misma rejilla de cinco mesas que
+  // Comedor y Terraza para que la sala se lea de un vistazo.
+  ...[1, 2, 3, 4, 5].map((numeroMesa) => ({
+    numeroMesa,
+    capacidad: 4,
+    tipo: "CUADRADA",
+    zona: "COMEDOR_2",
     clase: "MESA",
     layoutOrder: numeroMesa,
   })),

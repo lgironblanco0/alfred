@@ -11,4 +11,10 @@ export const servicioInclude = {
       actor: { select: { id: true, nombre: true } },
     },
   },
+  pagos: {
+    orderBy: { createdAt: "asc" as const },
+    include: {
+      actor: { select: { id: true, nombre: true } },
+    },
+  },
 };

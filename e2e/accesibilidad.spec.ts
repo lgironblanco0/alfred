@@ -91,10 +91,8 @@ test("el inspector atrapa el foco, deja acuse y se cierra con Escape", async ({ 
   await entrar(page);
 
   const mesa = page.getByRole("button", { name: /Libre/ }).first();
-  const mesaLabel = (await mesa.innerText()).split("\n")[0].trim();
-  const mesaFila = page
-    .getByRole("button", { name: new RegExp(`^${escaparRegex(mesaLabel)}\\b`) })
-    .first();
+  const mesaLabel = (await mesa.getAttribute("data-mesa-label")) ?? "";
+  const mesaFila = page.locator(`[data-mesa-label="${mesaLabel}"]`).first();
   await mesa.click();
 
   const inspector = page.getByRole("dialog", { name: mesaLabel });

@@ -39,6 +39,9 @@ export function TableCard({
   const tone = servicio ? timerTone(minutes) : "ok";
   const joined = servicio && servicio.mesaLabels.length > 1 ? servicio.mesaLabels.join(" · ") : mesa.label;
 
+  const mesaNumero = joined.replace(/[^0-9]/g, "") || String(mesa.numeroMesa);
+  const mesaTitulo = servicio ? `MESA ${mesaNumero}` : `MESA ${mesaNumero}`;
+
   return (
     <button
       type="button"
@@ -46,24 +49,35 @@ export function TableCard({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
+      data-mesa-label={joined}
+      data-mesa-numero={mesaNumero}
       onClick={(event) => {
         event.currentTarget.focus();
         onSelect(mesa.id);
       }}
-      className={`flex flex-col justify-between rounded-[28px] border text-left transition duration-200 ${cardSize(pax, mesa.clase)} ${
+      className={`group relative flex min-h-[110px] flex-col justify-between rounded-2xl border text-left transition duration-200 ${cardSize(pax, mesa.clase)} ${
         isDragging ? "opacity-70" : ""
       } ${
         selected
-          ? "border-accent bg-accent/10 ring-1 ring-accent"
+          ? "border-accent ring-2 ring-accent/40"
           : mergeSelected
-            ? "border-alert bg-alert/10"
+            ? "border-alert ring-1 ring-alert/40"
             : servicio
-              ? "border-line bg-raised"
-              : "border-line bg-transparent"
+              ? "border-transparent bg-neutral-900 shadow-[0_12px_40px_rgba(0,0,0,0.45)] hover:bg-neutral-850"
+              : "border-line bg-panel/60 hover:bg-panel"
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-[20px] font-semibold tracking-tight">{joined}</span>
+        <div className="flex flex-col">
+          <span className={`text-[18px] font-bold tracking-tight ${servicio ? "text-ink" : "text-soft"}`}>
+            {mesaTitulo}
+          </span>
+          {servicio ? (
+            <span className="mt-0.5 text-[11px] text-mute">{servicio.pax} pax</span>
+          ) : (
+            <span className="mt-0.5 text-[11px] uppercase tracking-[0.16em] text-mute">Libre</span>
+          )}
+        </div>
         {servicio ? (
           <span
             className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide ${
@@ -76,21 +90,21 @@ export function TableCard({
           >
             {formatTimer(minutes)}
           </span>
-        ) : (
-          <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-subtle">Libre</span>
-        )}
+        ) : null}
       </div>
       <div className="mt-3 flex items-end justify-between">
-        <span className="text-[13px] text-soft">
-          {pax} pax{pax > mesa.capacidad ? " · ampliada" : ""}
-        </span>
         {servicio ? (
-          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ok">
-            {mergeMode ? "Unir" : "Activa"}
-          </span>
+          <>
+            <span className="text-[14px] font-semibold text-ink">{(servicio.total / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" })}</span>
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ok">
+              {mergeMode ? "Unir" : "Activa"}
+            </span>
+          </>
         ) : mergeMode ? (
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Añadir</span>
-        ) : null}
+        ) : (
+          <span className="text-[11px] text-subtle">Sin servicio</span>
+        )}
       </div>
     </button>
   );

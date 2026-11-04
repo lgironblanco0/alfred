@@ -241,9 +241,13 @@ Estados: `PENDIENTE`, `CALLED`, `READY`, `PAID`, `ANULADO`.
   "mesaLabels": ["1"],
   "lineas": [],
   "eventos": [],
+  "pagos": [],
   "subtotal": 0,
   "discount": 0,
-  "total": 0
+  "total": 0,
+  "pagado": 0,
+  "propinaTotal": 0,
+  "saldo": 0
 }
 ```
 
@@ -430,10 +434,36 @@ Valores: `NINGUNO`, `IGUAL`, `ASIENTO`. Salida `200`: `Servicio`. Errores: `400`
 ### POST `/api/servicios/:id/pagar`
 
 ```json
-{ "metodoPago": "TARJETA" }
+{
+  "metodoPago": "EFECTIVO",
+  "importe": 1200,
+  "propina": 100,
+  "efectivoEntregado": 2000,
+  "concepto": "Asiento 1"
+}
 ```
 
-`metodoPago` es opcional (`EFECTIVO` o `TARJETA`); sin él se asume `EFECTIVO`. Marca el servicio como pagado y libera las mesas. **Solo `ENCARGADO` o `GERENTE`.** Salida `200`: `Servicio` con `estado: "PAGADA"` y `metodoPago`. Errores: `400`, `401`, `403 FORBIDDEN`, `404`, `409`.
+Cobro parcial, completo o por partes. `metodoPago` es opcional (`EFECTIVO` o `TARJETA`); sin él se asume `EFECTIVO`. `importe` y `propina` van en céntimos. Si se omite `importe`, se cobra el saldo. La propina no reduce el saldo. El servicio pasa a `PAGADA` solo cuando `saldo` llega a 0 (también una cuenta a 0).
+
+También acepta `pagos[]` para un cobro mixto en la misma petición:
+
+```json
+{
+  "pagos": [
+    { "metodoPago": "EFECTIVO", "importe": 800, "propina": 50, "recibido": 1000, "concepto": "Asiento 1" },
+    { "metodoPago": "TARJETA", "importe": 400, "concepto": "Asiento 2" }
+  ]
+}
+```
+
+La suma de `importe` no puede superar el saldo. **Solo `ENCARGADO` o `GERENTE`.** Salida `200`: `Servicio` con `pagos`, `pagado`, `propinaTotal` y `saldo`. Errores: `400` (efectivo insuficiente, importe por encima del saldo), `401`, `403 FORBIDDEN`, `404`, `409`.
+
+`idempotencyKey` opcional evita duplicar un cobro reintentado.
+
+### POST `/api/servicios/:id/devolver`
+
+Solo `GERENTE`. Recibe `{ "importe": 500, "motivo": "Producto cancelado" }` en céntimos.
+Registra una devolución parcial o total como pago negativo y como evento de auditoría. Errores: `400`, `401`, `403`, `404`, `409`.
 
 ### GET `/api/historico`
 

@@ -93,11 +93,30 @@ export const api = {
     request<Servicio>(`/api/servicios/${id}/promo`, { method: "POST", body: JSON.stringify({ codigo }) }),
   split: (id: number, splitModo: string) =>
     request<Servicio>(`/api/servicios/${id}/split`, { method: "POST", body: JSON.stringify({ splitModo }) }),
-  pagar: (id: number, metodoPago: MetodoPago) =>
+  pagar: (
+    id: number,
+    body: {
+      metodoPago?: MetodoPago;
+      efectivoEntregado?: number;
+      importe?: number;
+      propina?: number;
+      concepto?: string;
+      pagos?: Array<{
+        metodoPago: MetodoPago;
+        importe: number;
+        propina?: number;
+        recibido?: number;
+        concepto?: string;
+      }>;
+      idempotencyKey?: string;
+    },
+  ) =>
     request<Servicio>(`/api/servicios/${id}/pagar`, {
       method: "POST",
-      body: JSON.stringify({ metodoPago }),
+      body: JSON.stringify(body),
     }),
+  devolver: (id: number, importe: number, motivo: string) =>
+    request<Servicio>(`/api/servicios/${id}/devolver`, { method: "POST", body: JSON.stringify({ importe, motivo }) }),
   layout: (items: Array<{ id: number; layoutOrder: number }>) =>
     request<Sala>("/api/mesas/layout", { method: "PATCH", body: JSON.stringify({ items }) }),
   empleados: () => request<{ usuarios: Empleado[] }>("/api/usuarios"),

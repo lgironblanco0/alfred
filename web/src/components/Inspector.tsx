@@ -77,11 +77,29 @@ export function Inspector({
   const removePanelRef = useModalFocus<HTMLDivElement>(() => setRemoveId(null), Boolean(removeId));
 
   const servicio = mesa?.servicio ?? null;
+  const allActive = servicio?.lineas.filter((linea) => linea.estado !== "ANULADO") ?? [];
   const pending = servicio?.lineas.filter((linea) => linea.estado === "PENDIENTE") ?? [];
   const called = servicio?.lineas.filter((linea) => ["CALLED", "READY", "PAID"].includes(linea.estado)) ?? [];
   const calledCocina = called.filter((linea) => linea.destino === "COCINA");
   const calledBarra = called.filter((linea) => linea.destino === "BARRA");
   const split = servicio ? splitPreview(servicio) : [];
+
+  const sharedLines = useMemo(
+    () => allActive.filter((linea) => linea.esCompartido || linea.numeroAsiento == null),
+    [allActive],
+  );
+  const bySeat = useMemo(() => {
+    if (!servicio) return new Map<number, Linea[]>();
+    const map = new Map<number, Linea[]>();
+    for (let seat = 1; seat <= servicio.pax; seat += 1) map.set(seat, []);
+    for (const linea of allActive) {
+      if (linea.esCompartido || linea.numeroAsiento == null) continue;
+      const list = map.get(linea.numeroAsiento) ?? [];
+      list.push(linea);
+      map.set(linea.numeroAsiento, list);
+    }
+    return map;
+  }, [allActive, servicio]);
   const seatLines = servicio
     ? servicio.lineas.filter(
         (linea) =>
@@ -140,7 +158,15 @@ export function Inspector({
         <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
           <div className="min-w-0">
             <p className="text-[12px] uppercase tracking-[0.16em] text-mute">
-              {servicio ? `Servicio ${servicio.id}` : mesa.zona === "RESTAURANTE" ? "Comedor" : mesa.zona === "TERRAZA" ? "Terraza" : "Barra"}
+              {servicio
+                ? `Servicio ${servicio.id}`
+                : mesa.zona === "RESTAURANTE"
+                  ? "Comedor"
+                  : mesa.zona === "TERRAZA"
+                    ? "Terraza"
+                    : mesa.zona === "COMEDOR_2"
+                      ? "Comedor 2"
+                      : "Barra"}
             </p>
             <h2 id={titleId} className="mt-1 truncate text-[24px] font-semibold tracking-tight sm:text-[30px]">
               {servicio ? servicio.mesaLabels.join(" + ") : mesa.label}
@@ -181,7 +207,7 @@ export function Inspector({
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h4 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
-                    {seat === "share" ? "Compartido" : `Asiento ${seat}`}
+                    {seat === "share" ? "Compartido (arriba)" : `Asiento ${seat}`}
                   </h4>
                   <p className="text-[13px] text-soft">
                     {seatUnits} uds · {money(seatTotal)}
@@ -252,7 +278,10 @@ export function Inspector({
             <section className="border-b border-line lg:border-b-0 lg:border-r">
               <div className="border-b border-line px-5 py-4">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute">Comanda</h3>
+                  <div>
+                    <h3 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute">Consumos</h3>
+                    <p className="mt-1 text-[11px] text-subtle">Agrupados por pedido · compartido arriba</p>
+                  </div>
                   <button
                     type="button"
                     disabled={busy || !servicio || pending.length === 0}
@@ -265,6 +294,60 @@ export function Inspector({
               </div>
 
               <div className="space-y-5 px-5 py-4">
+                {servicio ? (
+                  <>
+                    <div className="rounded-2xl border border-line bg-sunken">
+                      <div className="flex items-center justify-between border-b border-line px-4 py-2">
+                        <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">Compartido</p>
+                        <span className="text-[11px] text-subtle">{sharedLines.length} línea(s)</span>
+                      </div>
+                      {sharedLines.length === 0 ? (
+                        <p className="px-4 py-2 text-[12px] text-subtle">Sin consumiciones para compartir.</p>
+                      ) : (
+                        <ul className="divide-y divide-line">
+                          {sharedLines.map((linea) => (
+                            <li key={linea.id} className="flex items-center justify-between gap-3 px-4 py-2">
+                              <div className="min-w-0">
+                                <p className="truncate text-[14px] font-medium">
+                                  {linea.nombre} <span className="text-mute">x{linea.cantidad}</span>
+                                </p>
+                                <p className="text-[11px] text-subtle">{lineSeatLabel(linea)} · {linea.estado}</p>
+                              </div>
+                              <span className="shrink-0 text-[13px] text-soft">{money(linea.precioUnitario * linea.cantidad)}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    {Array.from(bySeat.entries()).map(([seat, items]) => (
+                      <div key={seat} className="rounded-2xl border border-line bg-sunken">
+                        <div className="flex items-center justify-between border-b border-line px-4 py-2">
+                          <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">Asiento {seat}</p>
+                          <span className="text-[11px] text-subtle">{items.length} línea(s)</span>
+                        </div>
+                        {items.length === 0 ? (
+                          <p className="px-4 py-2 text-[12px] text-subtle">Sin consumiciones en este asiento.</p>
+                        ) : (
+                          <ul className="divide-y divide-line">
+                            {items.map((linea) => (
+                              <li key={linea.id} className="flex items-center justify-between gap-3 px-4 py-2">
+                                <div className="min-w-0">
+                                  <p className="truncate text-[14px] font-medium">
+                                    {linea.nombre} <span className="text-mute">x{linea.cantidad}</span>
+                                  </p>
+                                  <p className="text-[11px] text-subtle">{lineSeatLabel(linea)} · {linea.estado}</p>
+                                </div>
+                                <span className="shrink-0 text-[13px] text-soft">{money(linea.precioUnitario * linea.cantidad)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </>
+                ) : null}
+
                 <div>
                   <h4 className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
                     Pendientes ({pending.length})
@@ -313,7 +396,7 @@ export function Inspector({
             <section>
               <div className="border-b border-line px-5 py-3">
                 <p className="text-[13px] text-soft">
-                  Tomando nota para <span className="font-semibold text-accent">{seat === "share" ? "cuenta compartida" : `asiento ${seat}`}</span>
+                  Tomando nota para <span className="font-semibold text-accent">{seat === "share" ? "compartido" : `asiento ${seat}`}</span>
                 </p>
               </div>
 
@@ -437,7 +520,14 @@ export function Inspector({
                       <Row key={part.label} label={part.label} value={money(part.amount)} />
                     ))}
                   </div>
-                ) : null}
+                 ) : null}
+                 <button
+                   type="button"
+                   onClick={() => window.print()}
+                   className="w-full rounded-full bg-white/10 py-2 text-[13px] font-medium text-soft"
+                 >
+                   Imprimir resumen / ticket
+                 </button>
                 <div className="border-t border-line pt-3">
                   <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
                     Historial
@@ -623,7 +713,7 @@ function SeatMap({
             seat === "share" ? "bg-accent text-on-accent" : "bg-white/5 text-soft hover:bg-white/10"
           }`}
         >
-          Compartido{shared > 0 ? ` · ${shared}` : ""}
+          Compartido (arriba){shared > 0 ? ` · ${shared}` : ""}
         </button>
         <div className="flex items-center gap-3 text-[10px] text-subtle">
           <span className="flex items-center gap-1">

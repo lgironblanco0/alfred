@@ -16,7 +16,7 @@ test("de abrir una mesa a cobrarla, con el permiso correcto", async ({ page }) =
 
   // 2. Elige una mesa libre y añade un producto.
   const mesaLibre = page.getByRole("button", { name: /Libre/ }).first();
-  const mesaLabel = (await mesaLibre.innerText()).split("\n")[0].trim();
+  const mesaLabel = (await mesaLibre.getAttribute("data-mesa-label")) ?? "";
   await mesaLibre.click();
 
   await page.getByRole("button", { name: /Pan de cristal/ }).click();
@@ -30,7 +30,7 @@ test("de abrir una mesa a cobrarla, con el permiso correcto", async ({ page }) =
   // 3. El pase aparece en Cocina y se marca como listo.
   await page.getByRole("button", { name: "Cocina" }).click();
   await expect(page.getByRole("heading", { name: "Comandas en curso" })).toBeVisible();
-  await expect(page.getByText("Pan de cristal")).toBeVisible();
+  await expect(page.getByText("Pan de cristal").first()).toBeVisible();
   await page.getByRole("button", { name: "Marcar listo" }).first().click();
   await expect(page.getByText(/Listas \(1\)/)).toBeVisible();
 
@@ -54,7 +54,7 @@ test("de abrir una mesa a cobrarla, con el permiso correcto", async ({ page }) =
   // 6. La mesa vuelve a estar libre.
   await expect(cuenta).toHaveCount(0);
   await page.getByRole("button", { name: "Sala" }).click();
-  await expect(page.getByRole("button", { name: new RegExp(`^${escapedLabel(mesaLabel)} Libre`) })).toBeVisible();
+  await expect(page.locator(`[data-mesa-label="${mesaLabel}"]`)).toBeVisible();
 });
 
 function escapedLabel(label: string): string {

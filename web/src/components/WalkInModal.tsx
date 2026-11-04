@@ -5,6 +5,7 @@ import type { Mesa, MesaZona } from "../types";
 const zones: Array<{ id: MesaZona; label: string }> = [
   { id: "RESTAURANTE", label: "Comedor" },
   { id: "TERRAZA", label: "Terraza" },
+  { id: "COMEDOR_2", label: "Comedor 2" },
   { id: "BARRA", label: "Barra" },
 ];
 

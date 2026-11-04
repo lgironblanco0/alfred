@@ -1,4 +1,4 @@
-export type MesaZona = "RESTAURANTE" | "TERRAZA" | "BARRA";
+export type MesaZona = "RESTAURANTE" | "TERRAZA" | "COMEDOR_2" | "BARRA";
 export type MesaClase = "MESA" | "PUNTO_BARRA";
 export type LineaEstado = "PENDIENTE" | "CALLED" | "READY" | "PAID" | "ANULADO";
 export type MetodoPago = "EFECTIVO" | "TARJETA";
@@ -18,6 +18,19 @@ export type Linea = {
   precioUnitario: number;
   createdAt: string;
   calledAt: string | null;
+};
+
+export type PagoServicio = {
+  id: number;
+  metodoPago: string;
+  importe: number;
+  propina: number;
+  recibido: number | null;
+  cambio: number | null;
+  concepto: string | null;
+  idempotencyKey?: string | null;
+  createdAt: string;
+  actor: { id: number; nombre: string } | null;
 };
 
 export type Servicio = {
@@ -42,9 +55,13 @@ export type Servicio = {
     createdAt: string;
     actor: { id: number; nombre: string } | null;
   }>;
+  pagos?: PagoServicio[];
   subtotal: number;
   discount: number;
   total: number;
+  pagado?: number;
+  propinaTotal?: number;
+  saldo?: number;
 };
 
 export type Mesa = {

@@ -17,6 +17,7 @@ model Usuario {
   activo        Boolean          @default(true)
   createdAt     DateTime         @default(now())
   eventos       EventoServicio[]
+  pagos         Pago[]
   cajasAbiertas SesionCaja[]     @relation("CajaAbierta")
   cajasCerradas SesionCaja[]     @relation("CajaCerrada")
 }
@@ -90,6 +91,27 @@ model Servicio {
   mesas           ServicioMesa[]
   lineas          LineaPedido[]
   eventos         EventoServicio[]
+  pagos           Pago[]
+}
+
+model Pago {
+  id            Int       @id @default(autoincrement())
+  servicioId    Int
+  servicio      Servicio  @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  metodoPago    String
+  importe       Int
+  propina       Int       @default(0)
+  recibido      Int?
+  cambio        Int?
+  concepto      String?
+  idempotencyKey String?
+  actorId       Int?
+  actor         Usuario?  @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  createdAt     DateTime  @default(now())
+
+  @@index([servicioId])
+  @@index([actorId])
+  @@unique([servicioId, idempotencyKey])
 }
 
 model ServicioMesa {

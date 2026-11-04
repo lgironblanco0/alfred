@@ -116,7 +116,10 @@ export function CajaBoard({ sala, now, busy, usuario, onLogin, onRequestPay }: C
                     ) : null}
                   </div>
                   <p className="text-right text-[20px] font-semibold tracking-tight sm:w-28 sm:shrink-0">
-                    {money(servicio.total)}
+                    {money(servicio.saldo ?? servicio.total)}
+                    {(servicio.pagado ?? 0) > 0 ? (
+                      <span className="block text-[11px] font-normal text-mute">de {money(servicio.total)}</span>
+                    ) : null}
                   </p>
                   <button
                     type="button"

@@ -10,6 +10,18 @@ type ServicioWithRelations = Servicio & {
     createdAt: Date;
     actor?: { id: number; nombre: string } | null;
   }[];
+  pagos?: Array<{
+    id: number;
+    metodoPago: string;
+    importe: number;
+    propina: number;
+    recibido: number | null;
+    cambio: number | null;
+    concepto: string | null;
+    idempotencyKey: string | null;
+    createdAt: Date;
+    actor?: { id: number; nombre: string } | null;
+  }>;
 };
 
 export function centsToLabel(cents: number): string {
@@ -40,6 +52,23 @@ export function serializeServicio(servicio: ServicioWithRelations) {
   const labels = servicio.mesas
     .map((link) => mesaLabel(link.mesa))
     .sort((a, b) => a.localeCompare(b, "es"));
+
+  const pagos = (servicio.pagos ?? []).map((pago) => ({
+    id: pago.id,
+    metodoPago: pago.metodoPago,
+    importe: pago.importe,
+    propina: pago.propina,
+    recibido: pago.recibido,
+    cambio: pago.cambio,
+    concepto: pago.concepto,
+    idempotencyKey: pago.idempotencyKey,
+    createdAt: pago.createdAt.toISOString(),
+    actor: pago.actor ? { id: pago.actor.id, nombre: pago.actor.nombre } : null,
+  }));
+
+  const pagado = pagos.reduce((sum, pago) => sum + pago.importe, 0);
+  const propinaTotal = pagos.reduce((sum, pago) => sum + pago.propina, 0);
+  const saldo = Math.max(0, total - pagado);
 
   return {
     id: servicio.id,
@@ -80,9 +109,13 @@ export function serializeServicio(servicio: ServicioWithRelations) {
       createdAt: evento.createdAt.toISOString(),
       actor: evento.actor ? { id: evento.actor.id, nombre: evento.actor.nombre } : null,
     })),
+    pagos,
     subtotal,
     discount,
     total,
+    pagado,
+    propinaTotal,
+    saldo,
   };
 }
 
@@ -92,6 +125,9 @@ export function mesaLabel(mesa: Mesa): string {
   }
   if (mesa.zona === "TERRAZA") {
     return `T${mesa.numeroMesa}`;
+  }
+  if (mesa.zona === "COMEDOR_2") {
+    return `C2-${mesa.numeroMesa}`;
   }
   if (mesa.zona === "BARRA") {
     return `B${mesa.numeroMesa}`;

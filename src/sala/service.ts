@@ -408,36 +408,196 @@ export async function setSplit(servicioId: number, splitModo: string, actorId?: 
   });
 }
 
-export async function payServicio(
-  servicioId: number,
-  actorId?: number,
-  metodoPago: "EFECTIVO" | "TARJETA" = "EFECTIVO",
-) {
-  const servicio = await loadServicio(servicioId);
-  if (servicio.estado !== "ABIERTA") {
-    throw new HttpError(409, "El servicio no está abierto");
-  }
+export async function payServicio(input: {
+  servicioId: number;
+  actorId?: number;
+  metodoPago?: "EFECTIVO" | "TARJETA";
+  efectivoEntregado?: number;
+  importe?: number;
+  propina?: number;
+  concepto?: string;
+  pagos?: Array<{
+    metodoPago: "EFECTIVO" | "TARJETA";
+    importe: number;
+    propina?: number;
+    recibido?: number;
+    concepto?: string;
+  }>;
+  idempotencyKey?: string;
+}) {
+  const { computeTotals } = await import("./serialize.js");
 
-  await prisma.lineaPedido.updateMany({
-    where: { servicioId, estado: { in: ["PENDIENTE", "CALLED", "READY"] } },
-    data: { estado: "PAID" },
-  });
+  return prisma.$transaction(async (tx) => {
+    const servicio = await tx.servicio.findUnique({
+      where: { id: input.servicioId },
+      include: servicioInclude,
+    });
+    if (!servicio) {
+      throw new HttpError(404, "Servicio no encontrado");
+    }
+    if (servicio.estado !== "ABIERTA") {
+      if (input.idempotencyKey && servicio.pagos.some((pago) => pago.idempotencyKey === input.idempotencyKey)) return servicio;
+      throw new HttpError(409, "El servicio no está abierto");
+    }
+    if (input.idempotencyKey && servicio.pagos.some((pago) => pago.idempotencyKey === input.idempotencyKey)) return servicio;
 
-  return prisma.servicio.update({
-    where: { id: servicioId },
-    data: {
-      estado: "PAGADA",
-      closedAt: new Date(),
-      metodoPago,
-      eventos: {
-        create: {
-          tipo: "PAGO",
-          detalle: `Cuenta cobrada en ${metodoPago === "TARJETA" ? "tarjeta" : "efectivo"}`,
-          actorId,
+    const { total } = computeTotals(servicio as any);
+    const pagadoExistente = (servicio.pagos ?? []).reduce(
+      (sum: number, pago: { importe: number }) => sum + pago.importe,
+      0,
+    );
+    const saldoActual = Math.max(0, total - pagadoExistente);
+
+    const pagosARegistrar: Array<{
+      metodoPago: string;
+      importe: number;
+      propina: number;
+      recibido: number | null;
+      cambio: number | null;
+      concepto: string | null;
+    }> = [];
+
+    if (input.pagos && input.pagos.length > 0) {
+      const suma = input.pagos.reduce((sum, pago) => sum + Math.floor(pago.importe), 0);
+      if (suma > saldoActual) {
+        throw new HttpError(400, "El importe supera el saldo pendiente");
+      }
+      for (const pago of input.pagos) {
+        const propina = Math.max(0, Math.floor(pago.propina ?? 0));
+        const importe = Math.floor(pago.importe);
+        if (importe <= 0) {
+          throw new HttpError(400, "El importe debe ser positivo");
+        }
+        const recibido = pago.metodoPago === "EFECTIVO" && typeof pago.recibido === "number" ? Math.floor(pago.recibido) : null;
+        if (pago.metodoPago === "EFECTIVO" && recibido !== null && recibido < importe + propina) {
+          throw new HttpError(400, "El efectivo entregado no es suficiente");
+        }
+        const cambio = pago.metodoPago === "EFECTIVO" && recibido !== null ? Math.max(0, recibido - (importe + propina)) : null;
+        pagosARegistrar.push({
+          metodoPago: pago.metodoPago,
+          importe,
+          propina,
+          recibido,
+          cambio,
+          concepto: pago.concepto?.trim() || null,
+        });
+      }
+    } else {
+      const metodoPago = input.metodoPago ?? "EFECTIVO";
+      const propina = Math.max(0, Math.floor(input.propina ?? 0));
+      const importeSolicitado =
+        typeof input.importe === "number" ? Math.floor(input.importe) : saldoActual;
+      if (importeSolicitado <= 0 && saldoActual > 0) {
+        throw new HttpError(400, "El importe debe ser positivo");
+      }
+      if (importeSolicitado > saldoActual) {
+        throw new HttpError(400, "El importe supera el saldo pendiente");
+      }
+      const importe = importeSolicitado;
+      if (importe <= 0 && propina > 0) {
+        throw new HttpError(400, "No queda saldo por cobrar");
+      }
+      if (importe > 0) {
+        const recibido = metodoPago === "EFECTIVO" && typeof input.efectivoEntregado === "number" ? Math.floor(input.efectivoEntregado) : null;
+        if (metodoPago === "EFECTIVO" && recibido !== null && recibido < importe + propina) {
+          throw new HttpError(400, "El efectivo entregado no es suficiente");
+        }
+        const cambio = metodoPago === "EFECTIVO" && recibido !== null ? Math.max(0, recibido - (importe + propina)) : null;
+        pagosARegistrar.push({
+          metodoPago,
+          importe,
+          propina,
+          recibido,
+          cambio,
+          concepto: input.concepto?.trim() || null,
+        });
+      }
+    }
+
+    for (const pago of pagosARegistrar) {
+      await tx.pago.create({
+        data: {
+          servicioId: input.servicioId,
+          metodoPago: pago.metodoPago,
+          importe: pago.importe,
+          propina: pago.propina,
+          recibido: pago.recibido,
+          cambio: pago.cambio,
+          concepto: pago.concepto,
+          actorId: input.actorId,
+          idempotencyKey: input.idempotencyKey,
         },
+      });
+    }
+
+    const pagosTras = await tx.pago.findMany({
+      where: { servicioId: input.servicioId },
+    });
+    const pagadoTras = pagosTras.reduce((sum, pago) => sum + pago.importe, 0);
+    const saldoTras = Math.max(0, total - pagadoTras);
+    const metodos = [...new Set(pagosTras.map((pago) => pago.metodoPago))];
+    const metodoPagoFinal =
+      metodos.length === 1
+        ? metodos[0]
+        : metodos.length > 1
+          ? "MIXTO"
+          : (input.metodoPago ?? "EFECTIVO");
+
+    await tx.eventoServicio.create({
+      data: {
+        servicioId: input.servicioId,
+        tipo: "PAGO",
+        detalle:
+          pagosARegistrar.length === 0
+            ? "Cuenta sin saldo cobrada"
+            : pagosARegistrar.length === 1
+              ? `Cobro · ${pagosARegistrar[0].metodoPago} · importe ${pagosARegistrar[0].importe} céntimos${pagosARegistrar[0].propina > 0 ? ` · propina ${pagosARegistrar[0].propina}` : ""}${pagosARegistrar[0].cambio !== null ? ` · cambio ${pagosARegistrar[0].cambio}` : ""}`
+              : `Cobro por partes · ${pagosARegistrar.length} pagos · ${pagosARegistrar.reduce((s, p) => s + p.importe, 0)} céntimos`,
+        actorId: input.actorId,
       },
-    },
-    include: servicioInclude,
+      select: { id: true },
+    });
+
+    if (saldoTras === 0) {
+      await tx.lineaPedido.updateMany({
+        where: { servicioId: input.servicioId, estado: { in: ["PENDIENTE", "CALLED", "READY"] } },
+        data: { estado: "PAID" },
+      });
+      await tx.servicio.update({
+        where: { id: input.servicioId },
+        data: {
+          estado: "PAGADA",
+          closedAt: new Date(),
+          metodoPago: metodoPagoFinal,
+        },
+      });
+    } else {
+      await tx.servicio.update({
+        where: { id: input.servicioId },
+        data: {
+          metodoPago: metodoPagoFinal,
+        },
+      });
+    }
+
+    const actualizado = await tx.servicio.findUnique({
+      where: { id: input.servicioId },
+      include: servicioInclude,
+    });
+    return actualizado as any;
+  });
+}
+
+export async function refundServicio(servicioId: number, importe: number, motivo: string, actorId?: number) {
+  return prisma.$transaction(async (tx) => {
+    const servicio = await tx.servicio.findUnique({ where: { id: servicioId }, include: servicioInclude });
+    if (!servicio) throw new HttpError(404, "Servicio no encontrado");
+    if (servicio.estado !== "PAGADA") throw new HttpError(409, "Solo se puede devolver una cuenta pagada");
+    const pagado = (servicio.pagos ?? []).reduce((sum, pago) => sum + pago.importe, 0);
+    if (importe > pagado) throw new HttpError(400, "La devolución supera lo cobrado");
+    await tx.pago.create({ data: { servicioId, metodoPago: "DEVOLUCION", importe: -importe, concepto: motivo, actorId } });
+    await tx.eventoServicio.create({ data: { servicioId, tipo: "DEVOLUCION", detalle: `Devolución de ${importe} céntimos: ${motivo}`, actorId } });
+    return tx.servicio.findUnique({ where: { id: servicioId }, include: servicioInclude }) as any;
   });
 }
 

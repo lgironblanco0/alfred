@@ -324,15 +324,17 @@ export function App() {
             onAdd={(input) => {
               if (!selected) return;
               void run(async () => {
-                let servicioId = selected.servicio?.id;
-                if (!servicioId) {
-                  const creado = await api.walkIn({
-                    mesaId: selected.id,
-                    pax: Math.max(1, selected.capacidad),
-                  });
-                  servicioId = creado.id;
+                if (selected.servicio?.id) {
+                  await api.addItem(selected.servicio.id, input);
+                  return;
                 }
-                await api.addItem(servicioId, input);
+                const creado = await api.walkIn({
+                  mesaId: selected.id,
+                  zona: selected.zona,
+                  clase: selected.clase,
+                  pax: Math.max(1, selected.capacidad),
+                });
+                await api.addItem(creado.id, input);
               });
             }}
             onAnular={(lineaId, motivo) => void run(() => api.anular(lineaId, motivo))}
@@ -377,12 +379,35 @@ export function App() {
 
       {payServicioId ? (
         <PayDialog
+          servicio={sala?.mesas.flatMap((mesa) => (mesa.servicio?.id === payServicioId ? [mesa.servicio] : [])).find(Boolean) ?? {
+            id: payServicioId,
+            estado: "ABIERTA",
+            pax: 1,
+            origen: "WALK_IN",
+            openedAt: new Date().toISOString(),
+            closedAt: null,
+            descuentoCodigo: null,
+            descuentoTipo: null,
+            descuentoValor: null,
+            splitModo: "NINGUNO",
+            mesaIds: [],
+            mesaLabels: [],
+            metodoPago: null,
+            lineas: [],
+            eventos: [],
+            pagos: [],
+            subtotal: 0,
+            discount: 0,
+            total: 0,
+            pagado: 0,
+            saldo: 0,
+          }}
           onCancel={() => setPayServicioId(null)}
-          onConfirm={(metodoPago) => {
+          onConfirm={(body) => {
             const servicioId = payServicioId;
             setPayServicioId(null);
             if (servicioId) {
-              void run(() => api.pagar(servicioId, metodoPago));
+              void run(() => api.pagar(servicioId, body));
             }
           }}
         />

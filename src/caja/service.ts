@@ -59,8 +59,13 @@ async function buildResumen(
 
   for (const servicio of servicios) {
     const { total } = computeTotals(servicio);
-    // Los cobros anteriores a G-4 no tienen método: eran efectivo por definición.
-    if (servicio.metodoPago === "TARJETA") {
+    const pagos = servicio.pagos ?? [];
+    if (pagos.length > 0) {
+      for (const pago of pagos) {
+        if (pago.metodoPago === "TARJETA") ventasTarjeta += pago.importe;
+        else ventasEfectivo += pago.importe;
+      }
+    } else if (servicio.metodoPago === "TARJETA") {
       ventasTarjeta += total;
     } else {
       ventasEfectivo += total;

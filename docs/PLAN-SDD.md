@@ -36,7 +36,7 @@ Estado: ✅ Hecho · Fecha: AAAA-MM-DD · Commit: abc1234 · Verificación: npm 
 | 1 | Backend, seguridad y códigos individuales | ✅ Cerrada (1.1–1.6) |
 | 2 | Calidad: pruebas, CI, API y observabilidad | ✅ Cerrada (2.1–2.5) · tag `v0.4.0` |
 | 3 | Gerencia: carta, empleados, histórico y arqueo | ✅ Cerrada (3.1–3.6) · tag `v0.5.0` |
-| 4 | Cobro completo | ⬜ Pendiente |
+| 4 | Cobro completo | ✅ Cerrada |
 | 5 | Reservas | ⬜ Pendiente |
 | 6 | Tiempo real y colores | ⬜ Pendiente |
 | 7 | Comanda flexible | ⬜ Pendiente |
@@ -611,7 +611,7 @@ Tareas:
 - Devolución total o parcial con motivo.
 - Evento y permiso de gerente.
 
-**Puerta de fase 4:** se puede cobrar de varias formas y el saldo siempre cuadra.
+**Puerta de fase 4:** ✅ se puede cobrar de varias formas, con propina, cambio, devolución e idempotencia; el saldo siempre cuadra.
 
 ---
 

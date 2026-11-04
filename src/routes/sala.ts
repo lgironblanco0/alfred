@@ -15,7 +15,7 @@ const idParams = z.object({
 const walkInBody = z
   .object({
     mesaId: z.number().int("El identificador debe ser entero").positive("El identificador debe ser positivo").optional(),
-    zona: z.enum(["RESTAURANTE", "TERRAZA", "BARRA"]).optional(),
+    zona: z.enum(["RESTAURANTE", "TERRAZA", "COMEDOR_2", "BARRA"]).optional(),
     clase: z.enum(["MESA", "PUNTO_BARRA"]).optional(),
     pax: z.number().int("pax debe ser entero").positive("pax debe ser mayor que cero"),
     createTable: z.boolean().optional(),
@@ -30,7 +30,32 @@ const paxBody = z.object({
 });
 
 const payBody = z.object({
+  idempotencyKey: z.string().trim().min(8).max(100).optional(),
   metodoPago: z.enum(["EFECTIVO", "TARJETA"]).optional(),
+  efectivoEntregado: z
+    .number()
+    .int("El efectivo entregado debe ir en céntimos")
+    .nonnegative("El efectivo entregado no puede ser negativo")
+    .optional(),
+  importe: z.number().int("El importe debe ir en céntimos").positive("El importe debe ser positivo").optional(),
+  propina: z.number().int("La propina debe ir en céntimos").nonnegative("La propina no puede ser negativa").optional(),
+  concepto: z.string().trim().max(200).optional(),
+  pagos: z
+    .array(
+      z.object({
+        metodoPago: z.enum(["EFECTIVO", "TARJETA"]),
+        importe: z.number().int().positive(),
+        propina: z.number().int().nonnegative().optional(),
+        recibido: z.number().int().nonnegative().optional(),
+        concepto: z.string().trim().max(200).optional(),
+      }),
+    )
+    .optional(),
+});
+
+const refundBody = z.object({
+  importe: z.number().int().positive(),
+  motivo: z.string().trim().min(3).max(500),
 });
 
 const mergeBody = z.object({
@@ -204,8 +229,30 @@ salaRouter.post(
   requireRole("ENCARGADO", "GERENTE"),
   asyncRoute(async (request, response) => {
     const { id } = parseInput(idParams, request.params);
-    const { metodoPago } = parseInput(payBody, request.body);
-    const servicio = await sala.payServicio(id, request.usuario?.id, metodoPago);
+    const input = parseInput(payBody, request.body);
+    const servicio = await sala.payServicio({
+      servicioId: id,
+      actorId: request.usuario?.id,
+      metodoPago: input.metodoPago,
+      efectivoEntregado: input.efectivoEntregado,
+      importe: input.importe,
+      propina: input.propina,
+      concepto: input.concepto,
+      pagos: input.pagos,
+      idempotencyKey: input.idempotencyKey,
+    });
+    response.json(serializeServicio(servicio));
+  }),
+);
+
+salaRouter.post(
+  "/servicios/:id/devolver",
+  requireAuth,
+  requireRole("GERENTE"),
+  asyncRoute(async (request, response) => {
+    const { id } = parseInput(idParams, request.params);
+    const input = parseInput(refundBody, request.body);
+    const servicio = await sala.refundServicio(id, input.importe, input.motivo, request.usuario?.id);
     response.json(serializeServicio(servicio));
   }),
 );

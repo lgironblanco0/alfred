@@ -60,7 +60,7 @@ test("cobrar con tarjeta, consultar histórico y cerrar la caja", async ({ page 
   // Abre una mesa y pide un producto.
   await page.getByRole("button", { name: "Sala", exact: true }).click();
   const mesaLibre = page.getByRole("button", { name: /Libre/ }).first();
-  const mesaLabel = (await mesaLibre.innerText()).split("\n")[0].trim();
+  const mesaLabel = (await mesaLibre.getAttribute("data-mesa-label")) ?? "";
   await mesaLibre.click();
   await page.getByRole("button", { name: /Pan de cristal/ }).click();
   await page.getByRole("button", { name: "Enviar pase" }).click();
