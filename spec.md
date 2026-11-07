@@ -67,10 +67,10 @@ Las funcionalidades aplazadas no deben condicionar el modelo de datos principal 
 |---|---|
 | Frontend | React 19, Vite 7, Tailwind CSS 4, TypeScript, dnd-kit |
 | Backend | Node.js, Express 5, TypeScript |
-| Base de datos | SQLite |
+| Base de datos | PostgreSQL |
 | ORM | Prisma 5.22 |
 | Seguridad | JWT y autorización por roles |
-| Testing | Pruebas unitarias e integración; framework pendiente de concretar |
+| Testing | `node:test` (unitarias e integración) y Playwright (E2E) |
 
 Principios:
 

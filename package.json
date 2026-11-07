@@ -13,8 +13,9 @@
     "dev": "tsx src/server.ts",
     "dev:web": "npm --prefix web run dev",
     "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "db:backup": "node scripts/backup-db.mjs",
+    "db:create-admin": "tsx scripts/create-admin.ts",
     "postinstall": "prisma skills sync || exit 0"
   },
   "prisma": {

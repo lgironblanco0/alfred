@@ -221,7 +221,7 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 | SEG-07 | Rate limiting en reservas públicas | §11.4 | Ráfaga de reservas se limita | No implementado | — | ⬜ |
 | SEG-08 | No registrar contraseñas, tokens ni pagos | §11.4 | Los logs no contienen secretos | `src/middleware/requestLogger.ts` (sin prueba) | — | 🟨 |
 | SEG-09 | No confiar en roles, importes ni estados del cliente | §11.4 | El servidor ignora esos campos | Roles desde JWT; totales calculados | — | 🟨 |
-| SEG-10 | Cabeceras de seguridad HTTP | Fase 1.6 | Helmet o equivalente | No implementado | — | ⬜ |
+| SEG-10 | Cabeceras de seguridad HTTP | Fase 1.6 | Helmet o equivalente | `src/middleware/securityHeaders.ts` | — | 🟨 |
 | SEG-11 | Revocación y rotación de JWT | §13 | Un token robado puede revocarse | No implementado | — | ⬜ |
 
 ---
@@ -230,17 +230,17 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 | ID | Requisito | Fuente | Criterio verificable | Implementación | Prueba | Estado |
 |---|---|---|---|---|---|---|
-| DAT-01 | Una base nueva se migra desde cero | §12 | `npm run db:migrate` crea la base | `prisma/migrations` | `manual` (clean-room 2026-10-27) | 🟨 |
+| DAT-01 | Una base nueva se migra desde cero | §12 | `npm run db:deploy` aplica las migraciones | `prisma/migrations` | `manual` | 🟨 |
 | DAT-02 | El seed es idempotente | §12 | Ejecutarlo dos veces no duplica | `prisma/seed.ts` | `manual` (una ejecución) | 🟨 |
 | DAT-03 | Migraciones versionadas | §12 | Cada cambio tiene carpeta propia | `prisma/migrations` | — | 🟨 |
 | DAT-04 | La base y las copias no se versionan | §6 | `.gitignore` las excluye | `.gitignore` | `manual` (`git check-ignore`) | 🟨 |
-| DAT-05 | Copia de seguridad con retención de 20 | §6 | `npm run db:backup` crea y rota copias | `scripts/backup-db.mjs` | `manual` | 🟨 |
+| DAT-05 | Copia de seguridad de PostgreSQL | §6 | Se puede restaurar un volcado | `pg_dump` local / Neon PITR (documentado) | `manual` | 🟨 |
 | DAT-06 | Restauración probada | §6 | Se restaura una copia y la app arranca | Procedimiento documentado | — | ⬜ |
-| DAT-07 | Typecheck, build y tests en verde | §12 | Los cuatro comandos pasan | `package.json` | `manual` (2026-10-27) | 🟨 |
-| DAT-08 | Instalación reproducible desde cero | §12 | Clean-room completo | `README.md` | `manual` (2026-10-27) | 🟨 |
-| DAT-09 | Base de datos desechable por ejecución de tests | Fase 2.1 | Los tests no tocan `dev.db` | No implementado | — | ⬜ |
-| DAT-10 | CI ejecuta typecheck, builds y tests | Fase 2.5 | Cada push verifica | No existe | — | ⬜ |
-| DAT-11 | Pruebas E2E de flujos completos | Fase 2.2 | Abrir mesa → pedir → cobrar | No existe | — | ⬜ |
+| DAT-07 | Typecheck, build y tests en verde | §12 | Los cuatro comandos pasan | `package.json` | `manual` (2026-11-07) | 🟨 |
+| DAT-08 | Instalación reproducible desde cero | §12 | Clean-room completo | `README.md` | `manual` (2026-11-07) | 🟨 |
+| DAT-09 | Base de datos desechable por ejecución de tests | Fase 2.1 | Los tests no tocan los datos de desarrollo | `scripts/test-with-db.mjs` (schema temporal) | `manual` | 🟨 |
+| DAT-10 | CI ejecuta typecheck, builds y tests | Fase 2.5 | Cada push verifica | `.github/workflows/` | — | 🟨 |
+| DAT-11 | Pruebas E2E de flujos completos | Fase 2.2 | Abrir mesa → pedir → cobrar | `e2e/*.spec.ts` | `e2e/sala.spec.ts` | 🟩 |
 
 ---
 
@@ -338,7 +338,7 @@ Una fila solo pasa a ✅ cuando hay una prueba automatizada que falla si el requ
 
 | ID | Requisito | Fuente | Criterio verificable | Implementación | Prueba | Estado |
 |---|---|---|---|---|---|---|
-| OPS-01 | PostgreSQL en producción | Fase 11 | La app usa Postgres | SQLite | — | ⬜ |
+| OPS-01 | PostgreSQL en producción | Fase 11 | La app usa Postgres | PostgreSQL + `render.yaml` | — | 🟨 |
 | OPS-02 | Despliegue con HTTPS y dominio | Fase 11 | URL pública | No desplegado | — | ⬜ |
 | OPS-03 | Copias automáticas y restauración probada | Fase 11 | Se recupera tras un fallo | Copia manual | — | ⬜ |
 | OPS-04 | Monitorización, logs y alertas | Fase 11 | Se detectan errores | Logs básicos | — | ⬜ |

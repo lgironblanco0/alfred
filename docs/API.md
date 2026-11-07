@@ -48,7 +48,7 @@ Antes `login` omitía `activo` y `/me` lo incluía. Se unifica en `{ id, codigo,
 La API no devuelve cadenas como `"3,50 €"`; el formato es cosa del frontend (`web/src/lib/format.ts`). Un entero evita errores de redondeo y de coma decimal.
 
 **Decisión C-5 — Las pruebas de contrato usan la API real y la base desechable.**
-No se simulan controladores. Se arranca `app`, se hace una petición HTTP real contra SQLite temporal y se inspecciona el JSON. Es la única forma de probar el contrato completo: middlewares, serialización y errores.
+No se simulan controladores. Se arranca `app`, se hace una petición HTTP real contra un schema PostgreSQL temporal y se inspecciona el JSON. Es la única forma de probar el contrato completo: middlewares, serialización y errores.
 
 ---
 
@@ -608,7 +608,7 @@ Salida `204` sin cuerpo. Errores: `400`, `404`.
 
 - Documentar `PAGADA` en vez de `PAGADO` parece un detalle, pero el test lo detectó: el estado real es femenino porque concuerda con «cuenta».
 - Las pruebas que fijan claves ordenadas obligan a decidir si un campo nuevo es parte del contrato o un detalle interno.
-- Ejecutar pruebas directamente con `tsx` usa `.env` y escribe en `dev.db`; siempre hay que usar `npm test`.
+- Ejecutar pruebas directamente con `tsx` usa el `.env` y escribiría en los datos de desarrollo; siempre hay que usar `npm test`.
 
 ---
 

@@ -10,5 +10,5 @@
     "rootDir": ".",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "prisma/seed.ts", "tests/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
+  "include": ["src/**/*.ts", "prisma/seed.ts", "scripts/**/*.ts", "tests/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
 }

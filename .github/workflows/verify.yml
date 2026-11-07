@@ -11,7 +11,22 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      DATABASE_URL: "file:./dev.db"
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/alfred?schema=public"
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: alfred
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d alfred"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Descargar código
@@ -34,6 +49,9 @@ jobs:
 
       - name: Generar cliente Prisma
         run: npx prisma generate
+
+      - name: Aplicar migraciones
+        run: npx prisma migrate deploy
 
       - name: Instalar Chromium para Playwright
         run: npx playwright install --with-deps chromium

@@ -25,8 +25,8 @@ Una sola E2E bien elegida vale más que veinte frágiles. Aquí se prueba el rec
 **Decisión E-1 — Playwright con Chromium.**
 Playwright es el estándar actual para E2E en aplicaciones web, trae espera automática y permite depurar con traza. Solo se instala Chromium: añadir más navegadores multiplica el tiempo sin cubrir riesgos nuevos en una app interna.
 
-**Decisión E-2 — Base desechable también para E2E.**
-`npm run test:e2e` reutiliza el patrón del Bloque 2.1: crea una SQLite temporal, migra, siembra y la borra. El navegador nunca toca `dev.db`.
+**Decisión E-2 — Entorno desechable también para E2E.**
+`npm run test:e2e` reutiliza el patrón del Bloque 2.1: crea un schema PostgreSQL temporal, lo migra, lo siembra y lo borra. El navegador nunca toca los datos de desarrollo.
 
 **Decisión E-3 — Puertos propios y proxy configurable.**
 La API de E2E escucha en `3100` y Vite en `5180`. `web/vite.config.ts` lee `ALFRED_API_URL` para no chocar con el entorno de desarrollo. Así se puede trabajar con `npm run dev` mientras se ejecutan las pruebas.

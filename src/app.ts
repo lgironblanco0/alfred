@@ -1,6 +1,7 @@
 import cors from "cors";
 import type { CorsOptions } from "cors";
 import express from "express";
+import { join } from "node:path";
 import { asyncRoute } from "./asyncRoute";
 import { config } from "./config";
 import { getReadiness } from "./health";
@@ -20,6 +21,7 @@ import { salaRouter } from "./routes/sala";
 import { usuariosRouter } from "./routes/usuarios";
 
 export const app = express();
+app.set("trust proxy", 1);
 
 const corsOptions: CorsOptions =
   config.corsOrigins.length > 0
@@ -63,6 +65,18 @@ app.use("/api/informes", requireAuth, requireRole("ENCARGADO", "GERENTE"), infor
 app.use("/api/eventos", eventosRouter);
 app.use("/api/caja", requireAuth, requireRole("ENCARGADO", "GERENTE"), cajaRouter);
 app.use("/api", salaRouter);
+
+if (config.isProduction) {
+  const webDist = join(process.cwd(), "web", "dist");
+  app.use(express.static(webDist));
+  app.use((_request, response, next) => {
+    if (_request.method !== "GET" || _request.path.startsWith("/api/") || _request.path === "/health" || _request.path === "/ready") {
+      next();
+      return;
+    }
+    response.sendFile(join(webDist, "index.html"));
+  });
+}
 
 app.use(notFound);
 app.use(errorHandler);

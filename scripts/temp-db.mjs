@@ -1,20 +1,22 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { randomBytes } from "node:crypto";
 
 /**
  * Utilidades compartidas por las pruebas de integración y las E2E.
- * Crean una base SQLite temporal fuera del repositorio y la borran al terminar.
+ * Crean un schema PostgreSQL temporal y lo borran al terminar.
  */
 
 export function createTempDatabase() {
-  const tempDir = mkdtempSync(join(tmpdir(), "alfred-test-"));
-  const databaseUrl = `file:${join(tempDir, "test.db").replace(/\\/g, "/")}`;
+  const baseUrl = process.env.DATABASE_URL;
+  if (!baseUrl || !baseUrl.startsWith("postgres")) throw new Error("Las pruebas necesitan DATABASE_URL PostgreSQL en .env");
+  const schema = `alfred_test_${randomBytes(6).toString("hex")}`;
+  const url = new URL(baseUrl);
+  url.searchParams.set("schema", schema);
+  const databaseUrl = url.toString();
 
   return {
-    tempDir,
     databaseUrl,
+    schema,
     env(extra = {}) {
       return {
         ...process.env,
@@ -25,12 +27,8 @@ export function createTempDatabase() {
       };
     },
     cleanup() {
-      if (process.env.ALFRED_TEST_KEEP_DB === "1") {
-        console.log(`\nBase de pruebas conservada en: ${tempDir}`);
-        console.log(`DATABASE_URL=${databaseUrl}`);
-        return;
-      }
-      rmSync(tempDir, { recursive: true, force: true });
+      if (process.env.ALFRED_TEST_KEEP_DB === "1") return;
+      runNode("limpieza del schema de pruebas", ["scripts/drop-test-schema.mjs", schema], { ...process.env, DATABASE_URL: baseUrl });
     },
   };
 }

@@ -1,7 +1,8 @@
+import "dotenv/config";
 import { createTempDatabase, prepareDatabase, runNode } from "./temp-db.mjs";
 
 /**
- * Ejecuta las pruebas con `node:test` contra una base SQLite desechable.
+ * Ejecuta las pruebas con `node:test` contra un schema PostgreSQL desechable.
  * Ver docs/PRUEBAS-AISLADAS.md.
  */
 

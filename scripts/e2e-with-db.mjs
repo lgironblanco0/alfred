@@ -1,7 +1,8 @@
+import "dotenv/config";
 import { createTempDatabase, prepareDatabase, runNode } from "./temp-db.mjs";
 
 /**
- * Ejecuta Playwright contra una base SQLite desechable.
+ * Ejecuta Playwright contra un schema PostgreSQL desechable.
  * Playwright arranca la API en 3100 y Vite en 5180 (ver playwright.config.ts).
  * Ver docs/E2E.md.
  */

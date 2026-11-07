@@ -1,6 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/auth/password";
 
+if (process.env.NODE_ENV === "production" && process.env.ALFRED_ALLOW_DEMO_SEED !== "1") {
+  console.error(
+    "El seed de demostración no se ejecuta en producción.\n" +
+      "Crea el primer administrador con `npm run db:create-admin`.\n" +
+      "Si de verdad quieres cargar los datos de demo, define ALFRED_ALLOW_DEMO_SEED=1.",
+  );
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
 
 const mesas = [

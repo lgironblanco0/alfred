@@ -2,11 +2,21 @@
 
 Aplicación de gestión para hostelería: salón, comandas por asiento, Cocina, Barra y Caja.
 
-- **Backend:** Node.js + TypeScript + Express + Prisma + SQLite.
+- **Backend:** Node.js + TypeScript + Express + Prisma + PostgreSQL.
 - **Frontend:** React + Vite + TypeScript + Tailwind CSS.
 - **Acceso:** por código de empleado (gerente, encargado y camareros).
 
-Esta es la versión `0.6.0`: sala, comandas, cocina, barra, caja, cobro completo, informes básicos y actualización en vivo mediante SSE. Se ejecuta localmente y es responsive desde navegador.
+Esta es la versión `0.6.0`: sala, comandas, cocina, barra, caja, cobro completo, informes básicos y actualización en vivo mediante SSE. Se ejecuta como aplicación web responsive desde navegador.
+
+### Despliegue
+
+La aplicación está preparada para Render + PostgreSQL (Neon). `render.yaml` define un único servicio: el backend compila el frontend y sirve `web/dist` en producción.
+
+- El servicio gratuito puede dormir tras un periodo sin tráfico.
+- La base de datos debe ser PostgreSQL persistente; SQLite ya no está soportado.
+- `render.yaml` carga los **datos de demostración** en cada despliegue (`ALFRED_ALLOW_DEMO_SEED=1`). El seed es idempotente, así que se puede repetir sin duplicar.
+- Es una demo pública: los códigos `0`–`13` son de demostración y cualquiera puede entrar. **No introduzcas datos reales.**
+- Para una instalación real, quita `ALFRED_ALLOW_DEMO_SEED` y crea el primer gerente con `npm run db:create-admin`.
 
 ---
 
@@ -35,19 +45,24 @@ Copia el archivo de variables de entorno:
 Copy-Item .env.example .env
 ```
 
-Edita `.env` si quieres cambiar el puerto o el secreto JWT. En desarrollo puedes dejar los valores de ejemplo.
+Edita `.env` y ajusta, como mínimo, `DATABASE_URL` con tu PostgreSQL local. El archivo de ejemplo es:
+
+```env
+DATABASE_URL="postgresql://postgres:TU_PASSWORD@localhost:5432/alfred?schema=public"
+```
 
 Prepara la base de datos y los datos iniciales:
 
 ```powershell
-npm run db:migrate
+npm run db:deploy
 npm run db:seed
 ```
 
-- `db:migrate` aplica las migraciones de `prisma/migrations`.
-- `db:seed` crea mesas, productos, promociones y los empleados `0`–`13`. Es idempotente: se puede ejecutar varias veces sin duplicar datos.
+- `db:deploy` aplica las migraciones existentes de `prisma/migrations`. Es el comando correcto para una base nueva.
+- `db:migrate` solo se usa cuando cambias `schema.prisma` y necesitas **crear** una migración nueva.
+- `db:seed` crea mesas, productos, promociones y los empleados `0`–`13`. Es idempotente y se niega a ejecutarse en producción.
 
-La base se guarda en `prisma/dev.db` (según `DATABASE_URL`) y no se versiona en git.
+La base de datos es PostgreSQL y su conexión se lee de `DATABASE_URL`. No se guarda ningún archivo de base dentro del repositorio.
 
 ---
 
@@ -90,7 +105,9 @@ Vite redirige `/api` y `/health` al backend en el puerto `3000`, así que el nav
 | `1`, `4`, `9` | Encargado | Sí |
 | `2`, `5`–`7`, `10`–`13` | Camarero | No |
 
-Los códigos `3`–`13` son individuales; el `2` sigue siendo el acceso compartido de camareros. La contraseña de seed de cada empleado es `ALFRED-EMPLEADO-<codigo>`.
+Los códigos `3`–`13` son individuales; el `2` sigue siendo el acceso compartido de camareros.
+
+> **Importante:** en esta versión el inicio de sesión valida **solo el código de empleado**. La contraseña se guarda y se puede cambiar desde Gerencia, pero todavía no se pide al entrar. En la demo pública es intencionado: cualquiera puede probar con los códigos de la tabla. Para un uso real, crea un gerente con `npm run db:create-admin` y un código largo.
 
 Gerencia solo aparece a gerente y encargado. Dentro de ella, **Empleados** es exclusivo del gerente; **Histórico** y **Caja** los ven ambos. El arqueo y el histórico se comprueban también en el servidor, no solo ocultando botones.
 
@@ -121,10 +138,10 @@ También se pueden ejecutar por separado:
 | `npm run typecheck` | Comprueba tipos del backend sin generar archivos |
 | `npm run build` | Compila el backend en `dist/` |
 | `npm --prefix web run build` | Compila el frontend en `web/dist/` |
-| `npm test` | Crea una base temporal, la migra y siembra, ejecuta `node:test` y la borra |
-| `npm run test:e2e` | Crea otra base temporal y ejecuta Playwright en Chromium contra la app real |
+| `npm test` | Crea un schema temporal, lo migra y siembra, ejecuta `node:test` y lo borra |
+| `npm run test:e2e` | Crea otro schema temporal y ejecuta Playwright en Chromium contra la app real |
 
-Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. Las E2E añaden el recorrido completo de sala, auditoría `axe-core` de accesibilidad, foco atrapado, `Escape`, etiquetas, objetivos táctiles y viewports de móvil y tablet. **No tocan `prisma/dev.db`**: cada ejecución usa una base desechable (`scripts/test-with-db.mjs`). La primera vez hay que instalar Chromium:
+Las pruebas cubren salud, errores canónicos, validación, autenticación, permisos, auditoría, códigos de empleado y sesión. Las E2E añaden el recorrido completo de sala, auditoría `axe-core` de accesibilidad, foco atrapado, `Escape`, etiquetas, objetivos táctiles y viewports de móvil y tablet. **No tocan los datos de desarrollo**: cada ejecución usa un schema PostgreSQL desechable (`scripts/test-with-db.mjs`). La primera vez hay que instalar Chromium:
 
 ```powershell
 npx playwright install chromium
@@ -142,31 +159,42 @@ npx playwright install chromium
 | `npm run build` | Build del backend |
 | `npm run verify` | Typecheck + builds + tests + E2E |
 | `npm start` | Ejecuta el backend compilado (`dist/src/server.js`) |
-| `npm test` | Pruebas unitarias e integración con base temporal |
-| `npm run test:e2e` | Playwright: flujo completo con base temporal |
-| `npm run db:migrate` | Aplica migraciones en desarrollo |
-| `npm run db:seed` | Datos iniciales idempotentes |
-| `npm run db:backup` | Copia `prisma/dev.db` a `prisma/backups/` |
+| `npm test` | Pruebas unitarias e integración con schema temporal |
+| `npm run test:e2e` | Playwright: flujo completo con schema temporal |
+| `npm run db:deploy` | Aplica las migraciones pendientes (desarrollo y producción) |
+| `npm run db:migrate` | Crea y aplica una migración nueva en desarrollo |
+| `npm run db:seed` | Datos de demostración; se bloquea en producción |
+| `npm run db:create-admin` | Crea el primer gerente en una instalación nueva |
 
 ---
 
-## 6. Copias de seguridad y restauración
+## 6. Primer administrador y copias de seguridad
 
-Crear una copia:
+### Crear el primer administrador
 
-```powershell
-npm run db:backup
-```
-
-Se guarda en `prisma/backups/dev-AAAAMMDD-HHMMSS.db` y se conservan las últimas 20.
-
-Restaurar una copia (con los servidores parados):
+En una instalación nueva **no se ejecuta el seed**. Se crea un único gerente con un código largo:
 
 ```powershell
-Copy-Item "prisma/backups/dev-20261026-175832.db" "prisma/dev.db" -Force
+$env:ALFRED_ADMIN_CODIGO="un-codigo-largo-y-aleatorio"
+$env:ALFRED_ADMIN_EMAIL="gerente@restaurante.com"
+$env:ALFRED_ADMIN_NOMBRE="Nombre Apellido"
+$env:ALFRED_ADMIN_PASSWORD="una-contraseña-de-8-o-mas"
+npm run db:create-admin
 ```
 
-> Haz siempre una copia antes de una migración o de una prueba destructiva.
+El comando es idempotente: si el código ya existe, actualiza ese usuario. El código debe tener al menos 12 caracteres porque hoy es la única credencial de acceso.
+
+### Copias de seguridad
+
+PostgreSQL no se copia como un archivo. Opciones:
+
+- **Local:** `pg_dump` (incluido en PostgreSQL, normalmente en `C:\Program Files\PostgreSQL\<versión>\bin`):
+  ```powershell
+  pg_dump "postgresql://postgres:CONTRASEÑA@localhost:5432/alfred" -Fc -f alfred.dump
+  ```
+- **Producción (Neon):** usa las copias y la recuperación a un punto en el tiempo del panel del proveedor.
+
+> El antiguo `npm run db:backup` copiaba `prisma/dev.db`; se ha retirado porque SQLite ya no se usa.
 
 ---
 
@@ -182,7 +210,7 @@ El backend carga `.env` al arrancar (`src/config.ts`):
 | `JWT_EXPIRES_IN` | No | `8h` | Caducidad del token |
 | `LOG_LEVEL` | No | `info` | `debug`, `info`, `warn`, `error`, `silent` |
 | `CORS_ORIGINS` | No | Vacío | Orígenes permitidos, separados por comas |
-| `DATABASE_URL` | Sí | — (ejemplo: `file:./dev.db`) | Conexión de Prisma; el esquema la lee de aquí |
+| `DATABASE_URL` | Sí | — (ejemplo: `postgresql://postgres:clave@localhost:5432/alfred?schema=public`) | Conexión de Prisma a PostgreSQL |
 
 `.env` está ignorado por git. `.env.example` sí se versiona y sirve de plantilla.
 
@@ -199,9 +227,9 @@ El backend carga `.env` al arrancar (`src/config.ts`):
 │   └── auth/             Contraseñas y tokens
 ├── web/                  Frontend React + Vite
 │   └── src/components/   Sala, comanda, Cocina, Barra, Caja y Gerencia
-├── prisma/               Esquema, migraciones, seed y base local
+├── prisma/               Esquema, migraciones y seed
 ├── tests/                Pruebas del backend
-├── scripts/              Utilidades (copia de seguridad)
+├── scripts/              Utilidades (pruebas aisladas, primer administrador)
 ├── docs/                 Documentación (teoría, plan SDD)
 ├── spec.md               Especificación funcional
 └── plan.md               Plan, fases y ADRs
@@ -224,8 +252,8 @@ Ya hay un proceso usando el puerto. Ciérralo o cambia `PORT` en `.env` (y el pr
 **Aviso `JWT_SECRET no configurado`**
 Es normal en desarrollo si no has creado `.env`. En producción el backend se niega a arrancar sin un secreto de al menos 32 caracteres.
 
-**La base de datos se corrompe o quieres empezar de cero**
-Para de los servidores, haz copia y restaura una copia anterior. No borres `dev.db` sin copia previa.
+**Error `P1001` o `P1012` al arrancar**
+Prisma no puede conectar o no encuentra `DATABASE_URL`. Comprueba que PostgreSQL está arrancado y que la URL del `.env` tiene usuario, contraseña, puerto y nombre de base correctos. Valida con `npx prisma migrate status`.
 
 ---
 

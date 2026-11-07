@@ -13,7 +13,33 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ## [Unreleased]
 
-Sin cambios pendientes.
+### Changed
+
+- **Base de datos: SQLite → PostgreSQL.** Prisma usa `provider = "postgresql"` y el historial de migraciones se reinicia con `20261107000000_init_postgresql`. El historial antiguo de SQLite queda fuera del repositorio.
+- Las pruebas crean un **schema PostgreSQL temporal** (`alfred_test_<hex>`) en lugar de un archivo temporal.
+- `scripts/test-with-db.mjs` y `scripts/e2e-with-db.mjs` cargan el `.env` con `dotenv/config`.
+- En producción el backend sirve el frontend compilado desde `web/dist` y confía en el proxy (`trust proxy`).
+
+### Added
+
+- `npm run db:deploy` para aplicar migraciones pendientes.
+- `npm run db:create-admin` (`scripts/create-admin.ts`) para crear el primer gerente con un código largo.
+- `render.yaml` define el despliegue de demostración: aplica migraciones y recarga el seed idempotente.
+- Variable `CORS_ORIGINS` en `render.yaml`.
+
+### Removed
+
+- `npm run db:backup` y `scripts/backup-db.mjs`: copiaban un archivo SQLite que ya no existe. Las copias se hacen con `pg_dump` o con el proveedor de PostgreSQL.
+- El seed de demostración se niega a ejecutarse con `NODE_ENV=production` salvo que se defina `ALFRED_ALLOW_DEMO_SEED=1`.
+
+### Fixed
+
+- La migración inicial fallaba en PostgreSQL por un BOM UTF-8 al inicio del `.sql`.
+- `migration_lock.toml` seguía declarando `sqlite`, lo que bloqueaba Prisma con `P3019`.
+
+### Verified
+
+- `npm run verify` en verde: typecheck, build backend, build frontend, pruebas de integración y **11/11 E2E** sobre PostgreSQL.
 
 ---
 

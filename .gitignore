@@ -14,6 +14,9 @@ prisma/dev.db-journal
 prisma/backups/
 *.db
 
+# Historial de migraciones anterior (SQLite); se conserva en el historial de Git
+prisma/migrations-sqlite/
+
 # Entorno
 .env
 .env.*

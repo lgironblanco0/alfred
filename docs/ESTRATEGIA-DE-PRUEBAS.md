@@ -81,15 +81,15 @@ Herramienta: **Playwright + Chromium**, con `@axe-core/playwright` desde el Bloq
 
 ### 3.1. Decisión
 
-Cada ejecución de pruebas de integración usa **una base SQLite temporal**, creada desde cero, migrada y sembrada con datos mínimos. Al terminar, se elimina.
+Cada ejecución de pruebas de integración usa **un schema PostgreSQL temporal**, creado desde cero, migrado y sembrado con datos mínimos. Al terminar, se elimina.
 
-Nunca se usa `prisma/dev.db`.
+Nunca se tocan los datos de desarrollo (schema `public`).
 
 ### 3.2. Por qué
 
-- `dev.db` contiene datos de demostración que cambian.
+- Los datos de desarrollo contienen información de demostración que cambia.
 - Una prueba que escribe puede dejar basura o romper el entorno.
-- Los tests deben poder ejecutarse en paralelo sin pisarse.
+- Los tests deben poder ejecutarse sin pisarse.
 - Si una prueba falla, no debe afectar a los datos del restaurante.
 
 ### 3.3. Diseño implementado (Bloque 2.1)
@@ -97,16 +97,16 @@ Nunca se usa `prisma/dev.db`.
 ```text
 npm test
   └─ node scripts/test-with-db.mjs
-       1. crea una carpeta temporal única fuera del repositorio
-       2. genera una URL SQLite absoluta dentro de esa carpeta
-       3. exporta DATABASE_URL para migraciones, seed y pruebas
-       4. ejecuta `prisma migrate deploy` contra esa base
-       5. ejecuta `prisma db seed` (8 empleados, mesas y carta)
+       1. lee DATABASE_URL del .env
+       2. genera un schema `alfred_test_<hex>` en la misma base
+       3. exporta DATABASE_URL con ?schema=<temporal>
+       4. ejecuta `prisma migrate deploy` contra ese schema
+       5. ejecuta `prisma db seed` (empleados, mesas y carta)
        6. lanza `tsx --test tests/**/*.test.ts`
-       7. elimina la carpeta temporal en `finally`
+       7. ejecuta `DROP SCHEMA ... CASCADE` en `finally`
 ```
 
-Si se define `ALFRED_TEST_KEEP_DB=1`, la base se conserva y se imprime su ruta para depurar.
+Si se define `ALFRED_TEST_KEEP_DB=1`, el schema se conserva para depurar.
 
 ### 3.4. Requisito técnico — ✅ aplicado
 
@@ -116,9 +116,9 @@ Si se define `ALFRED_TEST_KEEP_DB=1`, la base se conserva y se imprime su ruta p
 url = env("DATABASE_URL")
 ```
 
-`.env.example` declara `DATABASE_URL="file:./dev.db"` y `.env` (no versionado) lo repite para desarrollo. El script de pruebas sobrescribe la variable con la ruta temporal.
+`.env.example` declara una URL de PostgreSQL y `.env` (no versionado) la repite para desarrollo. El script de pruebas sobrescribe el parámetro `schema` con el temporal.
 
-**Lección:** cambiar el esquema a `env()` no basta. Hay que ejecutar `prisma generate` para que el cliente generado deje de llevar la URL antigua incrustada. Sin ese paso, las migraciones van a la base temporal pero el seed y la API siguen escribiendo en `dev.db`.
+**Lección:** los scripts de prueba deben cargar el `.env` (`import "dotenv/config"`). Sin eso, `DATABASE_URL` llega vacía aunque el servidor la lea correctamente.
 
 ### 3.5. Concurrencia
 
@@ -135,7 +135,7 @@ Si aparecen condiciones de carrera, el siguiente paso es `--test-concurrency=1` 
 ### 4.1. Reglas
 
 - Nada de datos reales ni personales.
-- Nada de depender de `dev.db`.
+- Nada de depender de los datos de desarrollo.
 - IDs y valores explícitos, no autogenerados cuando la prueba los necesite.
 - Cada prueba crea lo que necesita y no asume lo que dejó otra.
 - Fechas fijas, no `new Date()` sin control.
@@ -233,16 +233,16 @@ No se acepta una funcionalidad nueva sin prueba salvo excepción documentada en 
 
 ## 8. Estado actual y deuda
 
-| Aspecto | Hoy (tras 2.1) | Objetivo |
+| Aspecto | Hoy | Objetivo |
 |---|---|---|
-| Pruebas existentes | 78, en cinco archivos | Reorganizadas por nivel |
-| Base de datos | Temporal por ejecución (`scripts/test-with-db.mjs`) | Igual |
-| Aislamiento | Total: `dev.db` no se toca | Igual |
-| E2E | 1 flujo crítico con Playwright (`e2e/sala.spec.ts`) | Flujos críticos ampliados |
-| CI | Workflow listo con Chromium, sin remoto | `npm run verify` en cada push |
+| Pruebas existentes | Suite de `tests/`, unitarias e integración | Reorganizadas por nivel |
+| Base de datos | Schema PostgreSQL temporal por ejecución (`scripts/test-with-db.mjs`) | Igual |
+| Aislamiento | Total: el schema `public` no se toca | Igual |
+| E2E | 11 pruebas en tres archivos (`e2e/`) | Flujos críticos ampliados |
+| CI | `npm run verify` en cada push (GitHub Actions) | Igual |
 | Cobertura | No medida | Medida y orientada al riesgo |
 
-**Riesgo resuelto en el Bloque 2.1:** las pruebas ya no arrancan contra `dev.db`. El runner crea, migra, siembra y borra una base temporal. La igualdad del hash de `dev.db` antes y después de `npm test` es la evidencia.
+**Riesgo resuelto en el Bloque 2.1:** las pruebas ya no arrancan contra los datos de desarrollo. El runner crea un schema temporal, lo migra, lo siembra y lo borra al terminar.
 
 ---
 
@@ -264,7 +264,7 @@ Una tarea de prueba está terminada cuando:
 
 | ID | Decisión | Motivo |
 |---|---|---|
-| TP-01 | Base SQLite temporal por ejecución | Aislamiento y reproducibilidad |
+| TP-01 | Schema PostgreSQL temporal por ejecución | Aislamiento y reproducibilidad |
 | TP-02 | `DATABASE_URL` configurable desde entorno | Permite dev, test y producción sin cambiar código |
 | TP-03 | Playwright para E2E | Simula al usuario real y cubre frontend + backend |
 | TP-04 | Priorizar riesgo sobre porcentaje de cobertura | El objetivo es evitar pérdidas, no maquillar métricas |

@@ -30,9 +30,9 @@ El proyecto es un **monorepo sencillo** con dos aplicaciones y una base de datos
 portfolio 2/
 ├── src/            Backend Express + TypeScript
 ├── web/            Frontend React + Vite + Tailwind
-├── prisma/         Esquema, migraciones, seed y base SQLite
+├── prisma/         Esquema, migraciones y seed
 ├── tests/          Pruebas automatizadas del backend
-├── scripts/        Utilidades, como la copia de seguridad
+├── scripts/        Utilidades: pruebas aisladas y primer administrador
 ├── plan.md         Plan y decisiones (ADRs)
 ├── spec.md         Especificación funcional
 └── docs/           Documentación teórica
@@ -42,7 +42,7 @@ portfolio 2/
 
 - **Node.js + TypeScript + Express 5**.
 - **Prisma** como ORM.
-- **SQLite** como base de datos (`prisma/dev.db`).
+- **PostgreSQL** como base de datos (conexión en `DATABASE_URL`).
 - **Zod** para validar entradas.
 - **JWT** para sesiones y **bcryptjs** para hashing de contraseñas.
 - Respuestas JSON y errores con formato canónico.
@@ -390,7 +390,7 @@ Además, el flujo crítico de cobro se verificó sobre una **copia desechable** 
 
 ### Copias de la base de datos
 
-`npm run db:backup` copia `prisma/dev.db` a `prisma/backups/` con fecha y conserva las últimas 20.
+`npm run db:deploy` aplica las migraciones y `npm run db:seed` carga datos de demostración (solo fuera de producción). Las copias se hacen con `pg_dump` en local y con las herramientas del proveedor (Neon) en producción.
 
 ### Repositorio git
 
@@ -439,7 +439,7 @@ Un **ADR** (Architecture Decision Record) documenta una decisión y su motivo. E
 - No hay tiempo real: las vistas se actualizan al refrescar o tras una acción.
 - No hay PWA ni funcionamiento offline.
 - No hay pruebas de extremo a extremo.
-- La aplicación depende de que el backend y SQLite estén disponibles.
+- La aplicación depende de que el backend y PostgreSQL estén disponibles.
 
 ---
 
@@ -474,6 +474,6 @@ Un **ADR** (Architecture Decision Record) documenta una decisión y su motivo. E
 
 Si tuvieras que explicar ALFRED en una frase:
 
-> Es una aplicación cliente-servidor donde React pinta el salón, Express aplica las reglas, Prisma guarda en SQLite y los permisos por rol protegen el cobro. El dominio separa reserva, servicio y línea de pedido; la comanda separa sala y producción; y el dinero se guarda en céntimos para no perder precisión.
+> Es una aplicación cliente-servidor donde React pinta el salón, Express aplica las reglas, Prisma guarda en PostgreSQL y los permisos por rol protegen el cobro. El dominio separa reserva, servicio y línea de pedido; la comanda separa sala y producción; y el dinero se guarda en céntimos para no perder precisión.
 
 Ese es el esqueleto. Todo lo demás son capas sobre esa idea.

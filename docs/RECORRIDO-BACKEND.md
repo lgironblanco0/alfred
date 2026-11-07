@@ -31,7 +31,7 @@ Vite (5173)  ──proxy /api──▶  Express (3000)
                                  ├─ reglas de negocio
                                  ├─ Prisma
                                  ▼
-                            SQLite (dev.db)
+                            PostgreSQL
                                  │
                                  ▼
                          serializeServicio()
@@ -213,7 +213,7 @@ Además, Zod valida forma y tipo, pero no todas las reglas de negocio. Por ejemp
 
 ---
 
-## 8. Paso 6 — Prisma y SQLite
+## 8. Paso 6 — Prisma y PostgreSQL
 
 `src/db.ts` crea el cliente:
 
@@ -324,6 +324,6 @@ Sin mirar el documento, responde:
 5. ¿Por qué el frontend vuelve a pedir `/api/sala` después de crear el servicio?
 6. ¿Qué middleware rellena `request.usuario` y qué ocurre si no está en la ruta?
 7. ¿Qué diferencia hay entre un error 400 y un error 500?
-8. Dibuja el recorrido desde `fetch` hasta SQLite, con al menos seis pasos.
+8. Dibuja el recorrido desde `fetch` hasta PostgreSQL, con al menos seis pasos.
 
 Si puedes responder sin mirar, el Bloque 1.1 está aprendido. Si no, vuelve al punto correspondiente.
