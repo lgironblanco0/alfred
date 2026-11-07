@@ -154,6 +154,15 @@ describe("cabeceras de seguridad", () => {
     assert.equal(response.headers.get("x-powered-by"), null);
   });
 
+  it("permite que la aplicación cargue su propio JavaScript y CSS", async () => {
+    const response = await fetch(`${baseUrl}/`);
+
+    const policy = response.headers.get("content-security-policy") ?? "";
+    assert.match(policy, /script-src 'self'/);
+    assert.match(policy, /style-src 'self'/);
+    assert.doesNotMatch(policy, /default-src 'none'/);
+  });
+
   it("prohíbe cachear las respuestas de autenticación", async () => {
     const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: "POST",
