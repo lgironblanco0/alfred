@@ -115,7 +115,7 @@ export function PayDialog({ servicio, onCancel, onConfirm }: PayDialogProps) {
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={bodyId}
-        className="w-full max-w-md rounded-[28px] border border-line bg-panel p-6 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+        className="w-full max-w-md rounded-[32px] border border-line bg-panel p-7 shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id={titleId} className="text-[22px] font-semibold tracking-tight">
@@ -126,19 +126,19 @@ export function PayDialog({ servicio, onCancel, onConfirm }: PayDialogProps) {
         </p>
 
         <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div className="rounded-2xl border border-line bg-sunken px-3 py-2">
+          <div className="rounded-[20px] border border-line bg-sunken px-4 py-3">
             <p className="text-[10px] uppercase tracking-[0.14em] text-mute">Total</p>
             <p className="text-[16px] font-semibold">{money(total)}</p>
           </div>
-          <div className="rounded-2xl border border-line bg-sunken px-3 py-2">
+          <div className="rounded-[20px] border border-line bg-sunken px-4 py-3">
             <p className="text-[10px] uppercase tracking-[0.14em] text-mute">Pagado</p>
             <p className="text-[16px] font-semibold">{money(pagado)}</p>
           </div>
-          <div className="rounded-2xl border border-line bg-sunken px-3 py-2">
+          <div className="rounded-[20px] border border-line bg-sunken px-4 py-3">
             <p className="text-[10px] uppercase tracking-[0.14em] text-mute">Saldo</p>
             <p className="text-[16px] font-semibold text-accent">{money(saldo)}</p>
           </div>
-          <div className="rounded-2xl border border-line bg-sunken px-3 py-2">
+          <div className="rounded-[20px] border border-line bg-sunken px-4 py-3">
             <p className="text-[10px] uppercase tracking-[0.14em] text-mute">A pagar ahora</p>
             <p className="text-[16px] font-semibold">{money(importeAPagar + propina)}</p>
           </div>

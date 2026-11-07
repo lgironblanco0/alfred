@@ -14,12 +14,12 @@ type TableCardProps = {
 
 function cardSize(pax: number, clase: string): string {
   if (clase === "PUNTO_BARRA") {
-    return "min-w-[112px] min-h-[92px] px-3 py-3";
+    return "min-w-[112px] min-h-[96px] px-4 py-4";
   }
-  if (pax <= 2) return "min-w-[128px] min-h-[108px] px-4 py-3";
-  if (pax <= 4) return "min-w-[168px] min-h-[132px] px-4 py-4";
-  if (pax <= 6) return "min-w-[220px] min-h-[160px] px-5 py-4";
-  return "min-w-[268px] min-h-[188px] px-5 py-5";
+  if (pax <= 2) return "min-w-[128px] min-h-[112px] px-5 py-4";
+  if (pax <= 4) return "min-w-[168px] min-h-[140px] px-5 py-5";
+  if (pax <= 6) return "min-w-[220px] min-h-[168px] px-6 py-5";
+  return "min-w-[268px] min-h-[196px] px-6 py-6";
 }
 
 export function TableCard({
@@ -55,7 +55,7 @@ export function TableCard({
         event.currentTarget.focus();
         onSelect(mesa.id);
       }}
-      className={`group relative flex min-h-[110px] flex-col justify-between rounded-2xl border text-left transition duration-200 ${cardSize(pax, mesa.clase)} ${
+      className={`group relative flex min-h-[110px] flex-col justify-between rounded-[32px] border text-left transition duration-200 hover:-translate-y-0.5 ${cardSize(pax, mesa.clase)} ${
         isDragging ? "opacity-70" : ""
       } ${
         selected
@@ -63,13 +63,13 @@ export function TableCard({
           : mergeSelected
             ? "border-alert ring-1 ring-alert/40"
             : servicio
-              ? "border-transparent bg-neutral-900 shadow-[0_12px_40px_rgba(0,0,0,0.45)] hover:bg-neutral-850"
-              : "border-line bg-panel/60 hover:bg-panel"
+               ? "border-transparent bg-neutral-900 shadow-[0_16px_45px_rgba(0,0,0,0.42)] hover:bg-neutral-850"
+               : "border-line bg-panel/60 shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:bg-panel"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col">
-          <span className={`text-[18px] font-bold tracking-tight ${servicio ? "text-ink" : "text-soft"}`}>
+            <span className={`text-[19px] font-bold tracking-tight ${servicio ? "text-ink" : "text-soft"}`}>
             {mesaTitulo}
           </span>
           {servicio ? (
@@ -80,7 +80,7 @@ export function TableCard({
         </div>
         {servicio ? (
           <span
-            className={`rounded-full px-2 py-0.5 text-[11px] font-semibold tracking-wide ${
+            className={`rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide ${
               tone === "ok"
                 ? "bg-ok/15 text-ok"
                 : tone === "warn"
@@ -92,7 +92,7 @@ export function TableCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-3 flex items-end justify-between">
+      <div className="mt-4 flex items-end justify-between rounded-[20px] bg-white/5 px-3 py-2">
         {servicio ? (
           <>
             <span className="text-[14px] font-semibold text-ink">{(servicio.total / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" })}</span>

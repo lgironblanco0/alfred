@@ -140,7 +140,7 @@ export function Inspector({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-0 sm:p-4"
+      className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-0 backdrop-blur-sm sm:p-4"
       onClick={onClose}
     >
       <div
@@ -149,13 +149,13 @@ export function Inspector({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="relative flex h-[100dvh] w-full max-w-[1320px] flex-col overflow-hidden rounded-none border border-line bg-panel shadow-2xl sm:h-[94vh] sm:rounded-[28px]"
+        className="relative flex h-[100dvh] w-full max-w-[1320px] flex-col overflow-hidden rounded-none border border-line bg-panel shadow-2xl sm:h-[94vh] sm:rounded-[32px]"
         onClick={(event) => event.stopPropagation()}
       >
         <p id={descriptionId} className="sr-only">
           Comanda, asientos y carta de la mesa seleccionada.
         </p>
-        <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-3 sm:px-6 sm:py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-line bg-sunken/40 px-5 py-4 sm:px-7 sm:py-5">
           <div className="min-w-0">
             <p className="text-[12px] uppercase tracking-[0.16em] text-mute">
               {servicio
@@ -193,7 +193,7 @@ export function Inspector({
           </div>
         </header>
 
-        <div className="border-b border-line px-4 py-3 sm:px-5">
+        <div className="border-b border-line bg-sunken/20 px-5 py-4 sm:px-7 sm:py-5">
           <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
             <SeatMap
               compact
@@ -203,7 +203,7 @@ export function Inspector({
               seat={seat}
               onSelectSeat={setSeat}
             />
-            <div className="flex min-w-0 flex-col gap-2">
+                  <div className="flex min-w-0 flex-col gap-3 rounded-[24px] border border-line bg-white/5 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h4 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
