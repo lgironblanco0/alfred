@@ -8,11 +8,19 @@ Aplicación de gestión para hostelería: salón, comandas por asiento, Cocina, 
 
 Esta es la versión `0.6.0`: sala, comandas, cocina, barra, caja, cobro completo, informes básicos y actualización en vivo mediante SSE. Se ejecuta como aplicación web responsive desde navegador.
 
+### Demo en vivo
+
+**https://alfred-3mz8.onrender.com**
+
+Entra con el código de empleado `0` (gerente). Otros códigos de prueba: `1` (encargado) y `2` (camarero).
+
+> El servicio está alojado en el **plan gratuito de Render**, que suspende la instancia cuando no recibe tráfico. La **primera visita puede tardar entre 30 y 60 segundos** en despertar; a partir de ahí responde con normalidad. Si la página parece no cargar, espera un momento y recarga.
+
 ### Despliegue
 
 La aplicación está preparada para Render + PostgreSQL (Neon). `render.yaml` define un único servicio: el backend compila el frontend y sirve `web/dist` en producción.
 
-- El servicio gratuito puede dormir tras un periodo sin tráfico.
+- El servicio gratuito se suspende tras un periodo sin tráfico: la primera petición puede tardar entre 30 y 60 segundos (cold start).
 - La base de datos debe ser PostgreSQL persistente; SQLite ya no está soportado.
 - `render.yaml` carga los **datos de demostración** en cada despliegue (`ALFRED_ALLOW_DEMO_SEED=1`). El seed es idempotente, así que se puede repetir sin duplicar.
 - Es una demo pública: los códigos `0`–`13` son de demostración y cualquiera puede entrar. **No introduzcas datos reales.**
