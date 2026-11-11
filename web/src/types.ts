@@ -158,3 +158,12 @@ export type Sala = {
   productos: Producto[];
   promos: Promo[];
 };
+
+export type InventarioItem = {
+  id: number;
+  nombre: string;
+  unidad: "CAJA" | "UNIDAD" | string;
+  existencias: number;
+  umbralBajo: number;
+  activo: boolean;
+};

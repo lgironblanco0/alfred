@@ -11,7 +11,10 @@ Versionado semántico: `MAYOR.MENOR.PARCHE`.
 
 ---
 
-## [Unreleased]
+## [0.6.0] - 2026-11-07
+
+Primera versión pública desplegada en Render con PostgreSQL. ALFRED queda disponible como proyecto en curso para demostración y evolución.
+
 
 ### Changed
 

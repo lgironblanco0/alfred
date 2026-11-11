@@ -15,15 +15,14 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
   const [error, setError] = useState<string | null>(null);
   const titleId = useId();
   const descriptionId = useId();
-  const codeId = useId();
   const errorId = useId();
   const panelRef = useModalFocus<HTMLFormElement>(dismissible ? onClose : undefined);
 
-  async function submit() {
+  async function submit(selectedCodigo = codigo) {
     setPending(true);
     setError(null);
     try {
-      const result = await api.login(codigo.trim());
+      const result = await api.login(selectedCodigo.trim());
       setToken(result.token);
       onSuccess(result.usuario);
     } catch (caught) {
@@ -51,35 +50,33 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
         <h2 id={titleId} className="mt-2 text-[26px] font-semibold tracking-tight">
           Entrar en ALFRED
         </h2>
-        <p id={descriptionId} className="mt-1 text-[14px] text-mute">
-          Introduce tu código de empleado. No necesitas usuario ni contraseña.
-        </p>
+         <p id={descriptionId} className="mt-1 text-[14px] text-mute">
+           Selecciona el perfil con el que quieres entrar en ALFRED.
+         </p>
 
-        <label
-          htmlFor={codeId}
-          className="mt-5 block text-[12px] font-medium uppercase tracking-[0.14em] text-mute"
-        >
-          Código de empleado
-        </label>
-        <input
-          id={codeId}
-          type="text"
-          required
-          data-autofocus
-          autoComplete="off"
-          value={codigo}
-          aria-invalid={error ? true : undefined}
-          onChange={(event) => {
-            setCodigo(event.target.value);
-            setError(null);
-          }}
-          className="mt-2 w-full rounded-2xl border border-line bg-canvas px-4 py-3 text-[15px]"
-          placeholder="Tu código de empleado"
-        />
-        <p className="mt-2 text-[12px] text-subtle">
-          <span className="text-soft">0</span> Gerente · <span className="text-soft">1</span> Responsable ·{" "}
-          <span className="text-soft">2</span> Camareros · <span className="text-soft">3–7</span> Equipo
-        </p>
+         <div className="mt-5 grid gap-3">
+           {[
+             { codigo: "0", titulo: "Gerente", detalle: "Gestión completa, caja y empleados" },
+             { codigo: "1", titulo: "Encargado", detalle: "Sala, comandas, cocina, barra y caja" },
+             { codigo: "2", titulo: "Camarero", detalle: "Mesas y toma de comandas" },
+           ].map((perfil, index) => (
+             <button
+               key={perfil.codigo}
+               type="button"
+               data-autofocus={index === 0 ? true : undefined}
+               disabled={pending}
+               onClick={() => {
+                 setCodigo(perfil.codigo);
+                 setError(null);
+                 void submit(perfil.codigo);
+               }}
+               className="rounded-2xl border border-line bg-white/5 px-4 py-3 text-left transition hover:border-accent hover:bg-accent/10 disabled:opacity-60"
+             >
+               <span className="block text-[15px] font-semibold">{perfil.titulo}</span>
+               <span className="mt-1 block text-[12px] text-mute">{perfil.detalle}</span>
+             </button>
+           ))}
+         </div>
 
         {error ? (
           <p id={errorId} role="alert" className="mt-3 text-[13px] text-alert">
@@ -87,20 +84,14 @@ export function LoginModal({ dismissible = true, onClose, onSuccess }: LoginModa
           </p>
         ) : null}
 
-        <div className="mt-6 flex justify-end gap-2">
+         <div className="mt-6 flex justify-end gap-2">
           {dismissible ? (
             <button type="button" className="rounded-full px-4 py-2 text-soft" onClick={onClose}>
               Cancelar
             </button>
           ) : null}
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-full bg-accent px-5 py-2 text-[15px] font-semibold text-on-accent disabled:opacity-60"
-          >
-            {pending ? "Entrando…" : "Entrar"}
-          </button>
-        </div>
+           <span className="text-[12px] text-subtle">Perfiles de demostración</span>
+         </div>
       </form>
     </div>
   );

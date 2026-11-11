@@ -10,6 +10,7 @@ type TableCardProps = {
   mergeMode: boolean;
   now: number;
   onSelect: (id: number) => void;
+  accent: boolean;
 };
 
 function cardSize(pax: number, clase: string): string {
@@ -29,6 +30,7 @@ export function TableCard({
   mergeMode,
   now,
   onSelect,
+  accent,
 }: TableCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: mesa.id,
@@ -57,25 +59,25 @@ export function TableCard({
       }}
       className={`group relative flex min-h-[110px] flex-col justify-between rounded-[32px] border text-left transition duration-200 hover:-translate-y-0.5 ${cardSize(pax, mesa.clase)} ${
         isDragging ? "opacity-70" : ""
-      } ${
-        selected
-          ? "border-accent ring-2 ring-accent/40"
+       } ${
+         selected
+           ? "border-accent ring-2 ring-accent/40"
           : mergeSelected
             ? "border-alert ring-1 ring-alert/40"
-            : servicio
-               ? "border-transparent bg-neutral-900 shadow-[0_16px_45px_rgba(0,0,0,0.42)] hover:bg-neutral-850"
-               : "border-line bg-panel/60 shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:bg-panel"
+             : accent
+                ? "border-accent bg-accent text-on-accent shadow-[0_8px_24px_rgba(163,230,53,0.18)] hover:bg-accent/90"
+                : "border-transparent bg-canvas shadow-[0_8px_24px_rgba(0,0,0,0.28)] hover:bg-canvas"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex flex-col">
-            <span className={`text-[19px] font-bold tracking-tight ${servicio ? "text-ink" : "text-soft"}`}>
+            <span className={`text-[19px] font-bold tracking-tight ${accent ? "text-on-accent" : "text-soft"}`}>
             {mesaTitulo}
           </span>
           {servicio ? (
-            <span className="mt-0.5 text-[11px] text-mute">{servicio.pax} pax</span>
+             <span className={`mt-0.5 text-[11px] ${accent ? "text-on-accent/70" : "text-mute"}`}>{servicio.pax} pax</span>
           ) : (
-            <span className="mt-0.5 text-[11px] uppercase tracking-[0.16em] text-mute">Libre</span>
+             <span className={`mt-0.5 text-[11px] uppercase tracking-[0.16em] ${accent ? "text-on-accent/70" : "text-mute"}`}>Libre</span>
           )}
         </div>
         {servicio ? (
@@ -92,7 +94,7 @@ export function TableCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-4 flex items-end justify-between rounded-[20px] bg-white/5 px-3 py-2">
+      <div className={`mt-4 flex items-end justify-between rounded-[20px] px-3 py-2 ${accent ? "bg-black/25" : "bg-white/5"}`}>
         {servicio ? (
           <>
             <span className="text-[14px] font-semibold text-ink">{(servicio.total / 100).toLocaleString("es-ES", { style: "currency", currency: "EUR" })}</span>
@@ -103,7 +105,7 @@ export function TableCard({
         ) : mergeMode ? (
           <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent">Añadir</span>
         ) : (
-          <span className="text-[11px] text-subtle">Sin servicio</span>
+           <span className={`text-[11px] ${accent ? "text-black/75" : "text-subtle"}`}>Sin servicio</span>
         )}
       </div>
     </button>

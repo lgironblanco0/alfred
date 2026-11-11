@@ -287,6 +287,21 @@ async function main(): Promise<void> {
         },
       },
     });
+    const inventario = [
+      ["Coca-Cola", "CAJA", 5],
+      ["Nestea", "CAJA", 5],
+      ["Aquarius limón", "CAJA", 5],
+      ["Ron Santa Teresa", "UNIDAD", 3],
+      ["Absolut Vodka", "UNIDAD", 3],
+      ["Whisky Macallan", "UNIDAD", 3],
+    ] as const;
+    for (const [nombre, unidad, existencias] of inventario) {
+      await prisma.inventarioItem.upsert({
+        where: { nombre },
+        update: { unidad, existencias, activo: true },
+        create: { nombre, unidad, existencias, umbralBajo: 1 },
+      });
+    }
   }
 }
 

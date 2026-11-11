@@ -8,6 +8,7 @@ import type {
   Servicio,
   SesionCaja,
   Usuario,
+  InventarioItem,
 } from "./types";
 
 type Informe = import("./types").Informe;
@@ -77,6 +78,11 @@ export const api = {
     }),
   me: () => request<{ usuario: Usuario }>("/api/auth/me"),
   sala: () => request<Sala>("/api/sala"),
+  inventario: () => request<{ items: InventarioItem[] }>("/api/inventario"),
+  solicitarInventario: (items: Array<{ itemId: number; cantidad: number }>) =>
+    request("/api/inventario/solicitudes", { method: "POST", body: JSON.stringify({ items }) }),
+  reponerInventario: (id: number, cantidad: number) =>
+    request<InventarioItem>(`/api/inventario/${id}/reponer`, { method: "POST", body: JSON.stringify({ cantidad }) }),
   walkIn: (body: Record<string, unknown>) =>
     request<Servicio>("/api/servicios", { method: "POST", body: JSON.stringify(body) }),
   expandPax: (id: number, pax: number) =>

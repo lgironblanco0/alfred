@@ -20,6 +20,7 @@ model Usuario {
   pagos         Pago[]
   cajasAbiertas SesionCaja[]     @relation("CajaAbierta")
   cajasCerradas SesionCaja[]     @relation("CajaCerrada")
+  solicitudesInventario InventarioSolicitud[] @relation("SolicitudesInventario")
 }
 
 model Mesa {
@@ -147,6 +148,37 @@ model PromoCodigo {
   tipo   String
   valor  Int
   activo Boolean @default(true)
+}
+
+model InventarioItem {
+  id             Int      @id @default(autoincrement())
+  nombre         String   @unique
+  unidad         String   @default("UNIDAD")
+  existencias    Int      @default(0)
+  umbralBajo     Int      @default(1)
+  activo         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lineas         InventarioSolicitudLinea[]
+}
+
+model InventarioSolicitud {
+  id          Int      @id @default(autoincrement())
+  estado      String   @default("CONFIRMADA")
+  createdAt   DateTime @default(now())
+  solicitanteId Int
+  solicitante Usuario  @relation("SolicitudesInventario", fields: [solicitanteId], references: [id], onDelete: Restrict)
+  lineas      InventarioSolicitudLinea[]
+}
+
+model InventarioSolicitudLinea {
+  id            Int      @id @default(autoincrement())
+  solicitudId   Int
+  itemId        Int
+  cantidad      Int
+  solicitud     InventarioSolicitud @relation(fields: [solicitudId], references: [id], onDelete: Cascade)
+  item          InventarioItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  @@index([itemId])
 }
 
 model EventoServicio {

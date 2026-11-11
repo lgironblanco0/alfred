@@ -5,13 +5,14 @@ import { ConfirmDialog } from "./components/ConfirmDialog";
 import { FloorBoard } from "./components/FloorBoard";
 import { GerenciaBoard } from "./components/GerenciaBoard";
 import { Inspector } from "./components/Inspector";
+import { InventoryBoard } from "./components/InventoryBoard";
 import { KitchenBoard } from "./components/KitchenBoard";
 import { LoginModal } from "./components/LoginModal";
 import { PayDialog } from "./components/PayDialog";
 import { WalkInModal } from "./components/WalkInModal";
-import type { Sala, Usuario } from "./types";
+import type { MesaZona, Sala, Usuario } from "./types";
 
-type View = "SALA" | "COCINA" | "BARRA" | "CAJA" | "GERENCIA";
+type View = "SALA" | "COCINA" | "BARRA" | "CAJA" | "GERENCIA" | "INVENTARIO";
 
 export function App() {
   const [sala, setSala] = useState<Sala | null>(null);
@@ -27,6 +28,18 @@ export function App() {
   const [loginOpen, setLoginOpen] = useState(() => !getToken());
   const [now, setNow] = useState(Date.now());
   const [view, setView] = useState<View>("SALA");
+  const [focusZone, setFocusZone] = useState<MesaZona>("RESTAURANTE");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuClosing, setMobileMenuClosing] = useState(false);
+
+  function closeMobileMenu() {
+    if (!mobileMenuOpen) return;
+    setMobileMenuClosing(true);
+    window.setTimeout(() => {
+      setMobileMenuOpen(false);
+      setMobileMenuClosing(false);
+    }, 800);
+  }
   const [feedback, setFeedback] = useState<{ id: number; message: string } | null>(null);
 
   const refresh = useCallback(async () => {
@@ -83,6 +96,7 @@ export function App() {
     BARRA: "Barra",
     CAJA: "Caja",
     GERENCIA: "Gerencia",
+    INVENTARIO: "Inventario",
   };
 
   useEffect(() => {
@@ -147,8 +161,16 @@ export function App() {
       >
         Saltar al contenido
       </a>
+      {mobileMenuOpen ? (
+        <button
+          type="button"
+          aria-label="Cerrar menú"
+          onClick={closeMobileMenu}
+          className="fixed inset-0 z-40 bg-black/55 backdrop-blur-[2px] lg:hidden"
+        />
+      ) : null}
       <div className="mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 gap-3 p-3 sm:gap-4 sm:p-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <aside className="rounded-[24px] border border-line bg-panel p-4 sm:p-5 lg:rounded-[32px]">
+        <aside className={`${mobileMenuOpen || mobileMenuClosing ? "fixed inset-y-3 right-3 z-50 w-[min(360px,calc(100vw-24px))] overflow-y-auto shadow-2xl transition-transform duration-[800ms] ease-out" : ""} ${mobileMenuOpen && !mobileMenuClosing ? "drawer-in-right" : ""} ${mobileMenuClosing ? "translate-x-[calc(100%+12px)]" : "translate-x-0"} rounded-[24px] border border-line bg-panel p-4 sm:p-5 lg:static lg:w-auto lg:translate-x-0 lg:overflow-visible lg:rounded-[32px]`}>
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p className="text-[12px] font-medium uppercase tracking-[0.22em] text-accent">ALFRED</p>
@@ -157,52 +179,75 @@ export function App() {
               </h1>
             </div>
             <p className="text-[12px] text-mute lg:hidden">Operación de sala</p>
+            <button
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/5 text-[22px] text-accent lg:hidden"
+              aria-label="Abrir menú de navegación"
+            >
+              ☰
+            </button>
           </div>
           <p className="mt-2 hidden text-[13px] leading-5 text-mute lg:block">
             Operación interna. Texto, estados y tiempos. Sin fotos.
           </p>
           <nav
             aria-label="Principal"
-            className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:mt-8 lg:block lg:space-y-2"
+             className={`${mobileMenuOpen ? "mt-5 grid" : "hidden"} grid-cols-2 gap-2 sm:grid-cols-4 lg:mt-8 lg:grid lg:grid-cols-1 lg:space-y-2`}
           >
             <NavButton
+              icon="▣"
               label="Sala"
               active={view === "SALA"}
               current={view === "SALA"}
-              onClick={() => setView("SALA")}
+              onClick={() => { closeMobileMenu(); setFocusZone("RESTAURANTE"); setView("SALA"); }}
             />
             <NavButton
+              icon="⌂"
+              label="Terraza"
+              active={view === "SALA"}
+              onClick={() => { closeMobileMenu(); setFocusZone("TERRAZA"); setView("SALA"); }}
+            />
+            <NavButton
+              icon="⌁"
               label="Cocina"
               active={view === "COCINA"}
               current={view === "COCINA"}
-              onClick={() => setView("COCINA")}
+              onClick={() => { closeMobileMenu(); setView("COCINA"); }}
             />
             <NavButton
+              icon="◉"
               label="Barra"
               active={view === "BARRA"}
               current={view === "BARRA"}
-              onClick={() => setView("BARRA")}
+              onClick={() => { closeMobileMenu(); setView("BARRA"); }}
             />
             <NavButton
+              icon="▤"
               label="Caja"
               active={view === "CAJA"}
               current={view === "CAJA"}
-              onClick={() => setView("CAJA")}
+              onClick={() => { closeMobileMenu(); setView("CAJA"); }}
             />
             {puedeGerencia ? (
               <NavButton
+                icon="⚙"
                 label="Gerencia"
                 active={view === "GERENCIA"}
                 current={view === "GERENCIA"}
-                onClick={() => setView("GERENCIA")}
+                onClick={() => { closeMobileMenu(); setView("GERENCIA"); }}
               />
             ) : null}
+            <NavButton icon="▥" label="Inventario" active={view === "INVENTARIO"} current={view === "INVENTARIO"} onClick={() => { closeMobileMenu(); setView("INVENTARIO"); }} />
           </nav>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:block lg:space-y-2">
-            <NavButton label="Walk-in" onClick={() => setWalkInOpen(true)} />
+           <div className={`${mobileMenuOpen ? "mt-3 grid" : "hidden"} grid-cols-2 gap-2 sm:grid-cols-3 lg:mt-3 lg:grid lg:grid-cols-1 lg:space-y-2`}>
+             <NavButton icon="◌" label="Walk-in" onClick={() => { closeMobileMenu(); setWalkInOpen(true); }} />
             <NavButton
+               icon="↘↙"
               label={mergeMode ? "Salir de unir" : "Unir mesas"}
-              onClick={() => {
+               onClick={() => {
+                 closeMobileMenu();
                 setMergeMode((value) => !value);
                 setMergeIds(selectedId ? [selectedId] : []);
               }}
@@ -222,7 +267,7 @@ export function App() {
             <Legend color="var(--color-warn)" label="10–20 min" />
             <Legend color="var(--color-alert)" label="> 20 min" />
           </div>
-          <div className="mt-5 border-t border-line pt-4 lg:mt-8">
+           <div className={`${mobileMenuOpen ? "mt-5 block" : "hidden"} border-t border-line pt-4 lg:mt-8 lg:block`}>
             {usuario ? (
               <>
                 <p className="text-[13px] font-semibold">{usuario.nombre}</p>
@@ -277,7 +322,7 @@ export function App() {
               {error}
             </div>
           ) : null}
-          {view === "GERENCIA" && usuario && puedeGerencia ? (
+           {view === "INVENTARIO" ? <InventoryBoard gerente={usuario?.rol === "GERENTE"} /> : view === "GERENCIA" && usuario && puedeGerencia ? (
             <GerenciaBoard
               usuario={usuario}
               onRequiresLogin={() => {
@@ -290,6 +335,7 @@ export function App() {
           ) : view === "SALA" ? (
             <FloorBoard
               mesas={sala.mesas}
+              focusZone={focusZone}
               selectedId={selectedId}
               mergeIds={mergeIds}
               mergeMode={mergeMode}
@@ -344,7 +390,9 @@ export function App() {
                 await api.addItem(creado.id, input);
               });
             }}
-            onAnular={(lineaId, motivo) => void run(() => api.anular(lineaId, motivo))}
+             onAnular={async (lineaId, motivo) => {
+               await run(() => api.anular(lineaId, motivo));
+             }}
             onPromo={(codigo) => selected?.servicio && void run(() => api.promo(selected.servicio!.id, codigo))}
             onSplit={(modo) => selected?.servicio && void run(() => api.split(selected.servicio!.id, modo))}
             onCancel={() => setConfirmCancel(true)}
@@ -438,11 +486,13 @@ export function App() {
 
 function NavButton({
   label,
+  icon,
   active,
   current,
   onClick,
 }: {
   label: string;
+  icon?: string;
   active?: boolean;
   current?: boolean;
   onClick: () => void;
@@ -452,12 +502,13 @@ function NavButton({
       type="button"
       aria-current={current ? "page" : undefined}
       onClick={onClick}
-      className={`min-h-11 w-full rounded-full px-4 py-3 text-left text-[14px] font-medium ${
+       className={`min-h-10 w-full rounded-full px-3 py-2 text-left text-[13px] font-medium lg:min-h-11 lg:px-4 lg:py-3 lg:text-[14px] ${
         active
           ? "bg-accent text-on-accent hover:bg-accent-dim"
           : "bg-white/5 text-ink hover:bg-white/10"
       }`}
     >
+      <span className="mr-2 inline-flex w-5 justify-center text-[18px] text-accent lg:mr-2" aria-hidden="true">{icon}</span>
       {label}
     </button>
   );

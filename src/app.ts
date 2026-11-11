@@ -19,6 +19,7 @@ import { informesRouter } from "./routes/informes";
 import { eventosRouter } from "./routes/eventos";
 import { salaRouter } from "./routes/sala";
 import { usuariosRouter } from "./routes/usuarios";
+import { inventarioRouter } from "./routes/inventario";
 
 export const app = express();
 app.set("trust proxy", 1);
@@ -64,6 +65,7 @@ app.use("/api/historico", requireAuth, requireRole("ENCARGADO", "GERENTE"), hist
 app.use("/api/informes", requireAuth, requireRole("ENCARGADO", "GERENTE"), informesRouter);
 app.use("/api/eventos", eventosRouter);
 app.use("/api/caja", requireAuth, requireRole("ENCARGADO", "GERENTE"), cajaRouter);
+app.use("/api", inventarioRouter);
 app.use("/api", salaRouter);
 
 if (config.isProduction) {

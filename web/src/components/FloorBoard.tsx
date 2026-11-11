@@ -13,7 +13,7 @@ import {
   rectSortingStrategy,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Mesa, MesaZona } from "../types";
 import { TableCard } from "./TableCard";
 
@@ -26,6 +26,7 @@ const zoneMeta: Array<{ id: MesaZona; label: string }> = [
 
 type FloorBoardProps = {
   mesas: Mesa[];
+  focusZone?: MesaZona;
   selectedId: number | null;
   mergeIds: number[];
   mergeMode: boolean;
@@ -54,6 +55,7 @@ function cardsFor(mesas: Mesa[], zona: MesaZona, clase?: Mesa["clase"]) {
 
 export function FloorBoard({
   mesas,
+  focusZone,
   selectedId,
   mergeIds,
   mergeMode,
@@ -72,6 +74,10 @@ export function FloorBoard({
   );
 
   const [selectedZone, setSelectedZone] = useState<MesaZona>(availableZones[0]?.id ?? "RESTAURANTE");
+
+  useEffect(() => {
+    if (focusZone && availableZones.some((zone) => zone.id === focusZone)) setSelectedZone(focusZone);
+  }, [focusZone, availableZones]);
 
   const activeZone = availableZones.some((zone) => zone.id === selectedZone)
     ? selectedZone
@@ -149,7 +155,7 @@ export function FloorBoard({
               >
                 <SortableContext items={cards.map((mesa) => mesa.id)} strategy={rectSortingStrategy}>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5">
-                    {cards.map((mesa) => (
+                    {cards.map((mesa, index) => (
                       <TableCard
                         key={mesa.id}
                         mesa={mesa}
@@ -158,6 +164,7 @@ export function FloorBoard({
                         mergeMode={mergeMode}
                         now={now}
                         onSelect={onSelect}
+                        accent={index % 2 === 1}
                       />
                     ))}
                   </div>

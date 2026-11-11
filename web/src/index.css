@@ -28,6 +28,21 @@ html {
   color-scheme: dark;
 }
 
+@keyframes drawer-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(calc(100% + 12px));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.drawer-in-right {
+  animation: drawer-in-right 800ms ease-out both;
+}
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

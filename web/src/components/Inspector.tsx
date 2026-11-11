@@ -4,7 +4,7 @@ import { clockTime, lineSeatLabel, money, splitPreview } from "../lib/format";
 import { useModalFocus } from "../lib/useModalFocus";
 import type { Linea, Mesa, Producto } from "../types";
 
-const reasons = ["Kitchen Error", "Customer Changed Mind", "Wrong Table", "86 / Unavailable"];
+const reasons = ["Error al tomar nota", "El cliente cambió de opinión", "Mesa equivocada", "Producto agotado"];
 
 type Destino = "COCINA" | "BARRA";
 
@@ -17,7 +17,7 @@ type InspectorProps = {
   onCall: () => void;
   onReady: (lineaId: number) => void;
   onAdd: (input: { productoId: number; numeroAsiento: number | null; esCompartido: boolean }) => void;
-  onAnular: (lineaId: number, motivo: string) => void;
+  onAnular: (lineaId: number, motivo: string) => Promise<void>;
   onPromo: (codigo: string) => void;
   onSplit: (modo: string) => void;
   onCancel: () => void;
@@ -58,7 +58,8 @@ export function Inspector({
   onSplit,
   onCancel,
 }: InspectorProps) {
-  const [seat, setSeat] = useState<number | "share">("share");
+  const [seat, setSeat] = useState<number | "share" | null>(null);
+  const [selectionError, setSelectionError] = useState(false);
   const [promo, setPromo] = useState("");
   const [removeId, setRemoveId] = useState<number | null>(null);
   const [destino, setDestino] = useState<Destino>("COCINA");
@@ -122,8 +123,22 @@ export function Inspector({
   const visibles = destino === "COCINA" ? cocina : barra;
   const grupos = useMemo(() => grupoCategoria(visibles), [visibles]);
 
+  function pendingLineFor(productoId: number) {
+    return pending.find(
+      (linea) =>
+        linea.productoId === productoId &&
+        (seat === "share"
+          ? linea.esCompartido || linea.numeroAsiento == null
+          : seat !== null && !linea.esCompartido && linea.numeroAsiento === seat),
+    );
+  }
+
+  function selectedLineFor(productoId: number) {
+    return seatLines.find((linea) => linea.productoId === productoId);
+  }
+
   useEffect(() => {
-    if (seat !== "share" && servicio && seat > servicio.pax) {
+    if (seat !== null && seat !== "share" && servicio && seat > servicio.pax) {
       setSeat("share");
     }
   }, [seat, servicio]);
@@ -131,6 +146,11 @@ export function Inspector({
   if (!mesa) return null;
 
   function addProduct(productoId: number) {
+    if (seat === null) {
+      setSelectionError(true);
+      return;
+    }
+    setSelectionError(false);
     onAdd({
       productoId,
       numeroAsiento: seat === "share" ? null : seat,
@@ -149,14 +169,24 @@ export function Inspector({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="relative flex h-[100dvh] w-full max-w-[1320px] flex-col overflow-hidden rounded-none border border-line bg-panel shadow-2xl sm:h-[94vh] sm:rounded-[32px]"
+        className="relative flex h-[100dvh] w-full max-w-[1320px] flex-col overflow-y-auto rounded-none border border-line bg-panel shadow-2xl sm:h-[94vh] sm:overflow-hidden sm:rounded-[32px]"
         onClick={(event) => event.stopPropagation()}
       >
         <p id={descriptionId} className="sr-only">
           Comanda, asientos y carta de la mesa seleccionada.
         </p>
         <header className="flex items-start justify-between gap-4 border-b border-line bg-sunken/40 px-5 py-4 sm:px-7 sm:py-5">
-          <div className="min-w-0">
+          <div className="flex min-w-0 items-start gap-3">
+            <button
+              type="button"
+              data-autofocus
+              onClick={onClose}
+              aria-label="Volver a las mesas"
+              className="mt-1 grid h-8 w-8 shrink-0 place-items-center rounded-full text-[24px] leading-none text-accent transition hover:bg-accent/10"
+            >
+              ←
+            </button>
+            <div className="min-w-0">
             <p className="text-[12px] uppercase tracking-[0.16em] text-mute">
               {servicio
                 ? `Servicio ${servicio.id}`
@@ -171,6 +201,7 @@ export function Inspector({
             <h2 id={titleId} className="mt-1 truncate text-[24px] font-semibold tracking-tight sm:text-[30px]">
               {servicio ? servicio.mesaLabels.join(" + ") : mesa.label}
             </h2>
+            </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {servicio ? (
@@ -200,10 +231,13 @@ export function Inspector({
               pax={servicio?.pax ?? mesa.capacidad}
               mesaLabel={servicio?.mesaLabels.join(" + ") ?? mesa.label}
               lineas={servicio?.lineas ?? []}
-              seat={seat}
-              onSelectSeat={setSeat}
+               seat={seat}
+               onSelectSeat={(nextSeat) => {
+                 setSeat(nextSeat);
+                 setSelectionError(false);
+               }}
             />
-                  <div className="flex min-w-0 flex-col gap-3 rounded-[24px] border border-line bg-white/5 p-4">
+            <div className="flex min-w-0 flex-col gap-3 rounded-[24px] border border-line bg-white/5 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <h4 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
@@ -265,31 +299,38 @@ export function Inspector({
                   Bebidas ({barra.length})
                 </button>
               </div>
+              <button
+                type="button"
+                disabled={busy || !servicio || pending.length === 0}
+                onClick={onCall}
+                title="Enviar los productos pendientes a cocina y barra"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent px-4 py-3 text-[14px] font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <span aria-hidden="true" className="text-[19px]">▤</span>
+                Enviar a cocina/barra ({pending.length})
+              </button>
+              {selectionError ? (
+                <p role="alert" className="rounded-xl bg-alert/15 px-3 py-2 text-[12px] font-medium text-alert">
+                  Selecciona una silla o «Compartido (arriba)» antes de añadir un producto.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex-none overflow-visible sm:min-h-0 sm:flex-1 sm:overflow-y-auto">
           <div
             data-testid="inspector-columns"
             className="grid min-h-full grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
           >
             {/* Comanda de la mesa */}
-            <section className="border-b border-line lg:border-b-0 lg:border-r">
+            <section className="order-2 border-b border-line lg:order-1 lg:border-b-0 lg:border-r">
               <div className="border-b border-line px-5 py-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h3 className="text-[13px] font-semibold uppercase tracking-[0.16em] text-mute">Consumos</h3>
                     <p className="mt-1 text-[11px] text-subtle">Agrupados por pedido · compartido arriba</p>
                   </div>
-                  <button
-                    type="button"
-                    disabled={busy || !servicio || pending.length === 0}
-                    onClick={onCall}
-                    className="rounded-full bg-accent px-3 py-1 text-[12px] font-semibold text-on-accent disabled:opacity-40"
-                  >
-                    Enviar pase
-                  </button>
                 </div>
               </div>
 
@@ -393,8 +434,8 @@ export function Inspector({
             </section>
 
             {/* Carta por pantallas */}
-            <section>
-              <div className="border-b border-line px-5 py-3">
+            <section className="order-1 lg:order-2">
+              <div className="sticky top-0 z-10 border-b border-line bg-panel px-5 py-3">
                 <p className="text-[13px] text-soft">
                   Tomando nota para <span className="font-semibold text-accent">{seat === "share" ? "compartido" : `asiento ${seat}`}</span>
                 </p>
@@ -409,24 +450,58 @@ export function Inspector({
                       <div key={grupo.categoria}>
                         <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">{grupo.categoria}</p>
                         <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-sunken">
-                          {grupo.items.map((item) => (
-                            <button
-                              key={item.id}
-                              type="button"
-                              disabled={busy}
-                              onClick={() => addProduct(item.id)}
-                              className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-white/5 disabled:opacity-40"
-                            >
-                              <span className="min-w-0">
-                                <span className="block truncate text-[15px] font-medium">{item.nombre}</span>
-                                <span className="block text-[12px] text-subtle">{grupo.categoria}</span>
-                              </span>
-                              <span className="flex shrink-0 items-center gap-3">
-                                <span className="text-[14px] text-soft">{money(item.precio)}</span>
-                                <span className="grid h-7 w-7 place-items-center rounded-full bg-accent/15 text-[16px] font-semibold text-accent">+</span>
-                              </span>
-                            </button>
-                          ))}
+                           {grupo.items.map((item) => (
+                             <div
+                               key={item.id}
+                               className="flex w-full items-center justify-between gap-3 px-4 py-3 hover:bg-white/5"
+                             >
+                               <button
+                                 type="button"
+                                 disabled={busy}
+                                 onClick={() => addProduct(item.id)}
+                                 className="min-w-0 flex-1 text-left disabled:opacity-40"
+                               >
+                                 <span className="block truncate text-[15px] font-medium">{item.nombre}</span>
+                                 <span className="block text-[12px] text-subtle">{grupo.categoria}</span>
+                               </button>
+                               <span className="flex shrink-0 items-center gap-3">
+                                 {selectedLineFor(item.id) ? (
+                                   <span
+                                     aria-label={`${selectedLineFor(item.id)?.cantidad ?? 0} unidades tomadas`}
+                                     className="min-w-7 rounded-full bg-accent/15 px-2 py-1 text-center text-[12px] font-bold text-accent"
+                                   >
+                                     ×{selectedLineFor(item.id)?.cantidad}
+                                   </span>
+                                 ) : null}
+                                 <span className="text-[14px] text-soft">{money(item.precio)}</span>
+                                 {pendingLineFor(item.id) ? (
+                                   <button
+                                     type="button"
+                                     disabled={busy}
+                                     aria-label={`Eliminar ${item.nombre} de la comanda`}
+                                     title="Eliminar de la comanda"
+                                     onClick={() => {
+                                       const linea = pendingLineFor(item.id);
+                                       if (linea) setRemoveId(linea.id);
+                                     }}
+                                     className="grid h-8 w-8 place-items-center rounded-full border border-alert/50 text-[20px] font-semibold leading-none text-alert hover:bg-alert/15 disabled:opacity-40"
+                                   >
+                                     −
+                                   </button>
+                                 ) : null}
+                                 <button
+                                   type="button"
+                                   disabled={busy}
+                                   aria-label={`Añadir ${item.nombre}`}
+                                   title={seat === null ? "Selecciona una silla o compartido" : `Añadir ${item.nombre}`}
+                                   onClick={() => addProduct(item.id)}
+                                   className="grid h-8 w-8 place-items-center rounded-full bg-accent/15 text-[18px] font-semibold text-accent hover:bg-accent/25 disabled:cursor-not-allowed disabled:opacity-40"
+                                 >
+                                   +
+                                 </button>
+                               </span>
+                             </div>
+                           ))}
                         </div>
                       </div>
                     ))}
@@ -514,13 +589,42 @@ export function Inspector({
                   <Row label="Descuento" value={money(servicio.discount)} />
                   <Row label="Total" value={money(servicio.total)} strong />
                 </div>
-                {split.length > 1 ? (
+                 {split.length > 1 ? (
                   <div className="space-y-1 border-t border-line pt-3">
                     {split.map((part) => (
                       <Row key={part.label} label={part.label} value={money(part.amount)} />
                     ))}
                   </div>
-                 ) : null}
+                  ) : null}
+                 <div className="border-t border-line pt-3">
+                   <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.14em] text-mute">
+                     Editar consumos
+                   </p>
+                   <ul className="space-y-2">
+                     {servicio.lineas.filter((linea) => linea.estado !== "ANULADO").map((linea) => (
+                       <li key={linea.id} className="flex items-center gap-2 rounded-xl bg-sunken px-3 py-2">
+                         <div className="min-w-0 flex-1">
+                           <p className="truncate text-[13px] font-medium">{linea.nombre} ×{linea.cantidad}</p>
+                           <p className="text-[11px] text-subtle">{lineSeatLabel(linea)} · {linea.estado}</p>
+                         </div>
+                         <button
+                           type="button"
+                           disabled={busy}
+                           aria-label={`Quitar una unidad de ${linea.nombre}`}
+                           onClick={() => setRemoveId(linea.id)}
+                           className="grid h-7 w-7 place-items-center rounded-full border border-alert/50 text-[18px] text-alert disabled:opacity-40"
+                         >−</button>
+                         <button
+                           type="button"
+                           disabled={busy}
+                           aria-label={`Añadir una unidad de ${linea.nombre}`}
+                           onClick={() => onAdd({ productoId: linea.productoId, numeroAsiento: linea.numeroAsiento, esCompartido: linea.esCompartido })}
+                           className="grid h-7 w-7 place-items-center rounded-full bg-accent/20 text-[18px] text-accent disabled:opacity-40"
+                         >+</button>
+                       </li>
+                     ))}
+                   </ul>
+                 </div>
                  <button
                    type="button"
                    onClick={() => window.print()}
@@ -587,10 +691,10 @@ export function Inspector({
                     key={reason}
                     type="button"
                     data-autofocus={index === 0 ? true : undefined}
-                    onClick={() => {
-                      onAnular(removeId, reason);
-                      setRemoveId(null);
-                    }}
+                       onClick={async () => {
+                         await onAnular(removeId, reason);
+                         setRemoveId(null);
+                       }}
                     className="rounded-2xl bg-white/5 px-4 py-3 text-left text-[14px]"
                   >
                     {reason}
@@ -632,7 +736,7 @@ function SeatMap({
   pax: number;
   mesaLabel: string;
   lineas: Linea[];
-  seat: number | "share";
+  seat: number | "share" | null;
   onSelectSeat: (seat: number | "share") => void;
   compact?: boolean;
 }) {
@@ -775,7 +879,7 @@ function ItemList({
                 className="text-[12px] font-medium text-alert"
                 onClick={() => onAskRemove(linea.id)}
               >
-                Quitar
+                 🗑 Eliminar
               </button>
             ) : null}
           </div>

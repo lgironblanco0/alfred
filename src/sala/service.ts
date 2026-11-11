@@ -239,8 +239,24 @@ export async function addItem(input: {
   const esCompartido = Boolean(input.esCompartido) || input.numeroAsiento == null;
   const cantidad = Math.max(1, Math.floor(input.cantidad ?? 1));
 
-  await prisma.lineaPedido.create({
-    data: {
+  const existing = await prisma.lineaPedido.findFirst({
+    where: {
+      servicioId: input.servicioId,
+      productoId: producto.id,
+      estado: "PENDIENTE",
+      numeroAsiento: esCompartido ? null : input.numeroAsiento,
+      esCompartido,
+    },
+  });
+
+  if (existing) {
+    await prisma.lineaPedido.update({
+      where: { id: existing.id },
+      data: { cantidad: existing.cantidad + cantidad },
+    });
+  } else {
+    await prisma.lineaPedido.create({
+      data: {
       servicioId: input.servicioId,
       productoId: producto.id,
       cantidad,
@@ -248,8 +264,9 @@ export async function addItem(input: {
       esCompartido,
       precioUnitario: producto.precio,
       estado: "PENDIENTE",
-    },
-  });
+      },
+    });
+  }
 
   await prisma.eventoServicio.create({
     data: {
@@ -331,10 +348,17 @@ export async function removeItem(lineaId: number, motivo: string, actorId?: numb
     throw new HttpError(400, "Indica el motivo de anulación");
   }
 
-  await prisma.lineaPedido.update({
-    where: { id: lineaId },
-    data: { estado: "ANULADO", motivoAnulacion: motivo },
-  });
+  if (linea.estado === "PENDIENTE" && linea.cantidad > 1) {
+    await prisma.lineaPedido.update({
+      where: { id: lineaId },
+      data: { cantidad: linea.cantidad - 1 },
+    });
+  } else {
+    await prisma.lineaPedido.update({
+      where: { id: lineaId },
+      data: { estado: "ANULADO", motivoAnulacion: motivo },
+    });
+  }
 
   await prisma.eventoServicio.create({
     data: {
